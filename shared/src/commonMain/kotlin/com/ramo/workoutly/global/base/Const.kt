@@ -7,6 +7,7 @@ const val SPLASH_SCREEN_ROUTE: String = "splash_screen_route"
 const val AUTH_SCREEN_ROUTE: String = "auth_screen_route"
 const val HOME_SCREEN_ROUTE: String = "home_screen_route"
 const val SESSION_SCREEN_ROUTE: String = "session_screen_route"
+const val EXERCISE_SCREEN_ROUTE: String = "exercise_screen_route"
 
 const val PREF_ID: String = "id_pref"
 const val PREF_NAME: String = "name"

@@ -3,8 +3,8 @@ package com.ramo.workoutly.android.global.navigation
 import kotlin.reflect.full.isSubclassOf
 
 sealed class Screen {
-
-    data class SessionRoute(val metric: com.ramo.workoutly.android.ui.home.FitnessMetric) : Screen()
+    data class ExerciseRoute(val metric: com.ramo.workoutly.data.model.Exercise) : Screen()
+    data class SessionRoute(val metric: com.ramo.workoutly.data.model.FitnessMetric) : Screen()
     data class UserRoute(val userId: String) : Screen()
 }
 

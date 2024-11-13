@@ -1,8 +1,9 @@
 package com.ramo.workoutly.android
 
 import com.ramo.workoutly.android.global.util.isDarkMode
+import com.ramo.workoutly.android.ui.exercise.ExerciseViewModel
 import com.ramo.workoutly.android.ui.home.HomeViewModel
-import com.ramo.workoutly.android.ui.session.SessionVewModel
+import com.ramo.workoutly.android.ui.session.SessionViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 
@@ -20,7 +21,8 @@ class App : android.app.Application() {
                     com.ramo.workoutly.android.data.health.HealthKitManager(this@App)
                 }
                 viewModel { AppViewModel(get()) }
-                viewModel { SessionVewModel(get(), get()) }
+                viewModel { SessionViewModel(get(), get()) }
+                viewModel { ExerciseViewModel(get()) }
                 single { HomeViewModel(get(), get()) }
             })
         }

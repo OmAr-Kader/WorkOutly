@@ -80,4 +80,8 @@ dependencies {
     implementation(libs.androidx.health.connect)
     implementation(libs.play.services.fitness)
     implementation(libs.androidx.health.services.client)
+    implementation(libs.compose.video)
+    implementation(libs.androidx.media3.exoplayer) // [Required] androidx.media3 ExoPlayer dependency
+    implementation(libs.androidx.media3.session) // [Required] MediaSession Extension dependency
+    implementation(libs.androidx.media3.ui)
 }

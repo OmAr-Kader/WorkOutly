@@ -8,9 +8,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 inline val dateNow: String
     get() = kotlinx.datetime.Clock.System.now().toString()
@@ -47,20 +44,21 @@ val Long.toTimestamp: String get() {
     })
 }
 
-val Long.toHoursMinSecs : String get() {
-    return toInstant.dateTime.format(LocalDateTime.Format {
-        byUnicodePattern("HH:mm:ss")
-    })
-}
-
-
+// Duration
 val Long.formatMillisecondsToHours: String get () {
     val hours = this / 3_600_000
     val minutes = (this % 3_600_000) / 60_000
     val seconds = (this % 60_000) / 1_000
-    val hoursStr = if (hours < 10) "0$hours" else "$hours"
-    val minutesStr = if (minutes < 10) "0$minutes" else "$minutes"
-    val secondsStr = if (seconds < 10) "0$seconds" else "$seconds"
-
-    return "$hoursStr:$minutesStr:$secondsStr"
+    val hoursStr = when {
+        hours == 0L -> ""
+        hours < 10L -> "0$hours:"
+        else -> "$hours:"
+    }
+    val minutesStr = when {
+        minutes == 0L -> ""
+        minutes < 10L -> "0$minutes:"
+        else -> "$minutes:"
+    }
+    val secondsStr = if (seconds < 10L) "0$seconds" else "$seconds"
+    return "$hoursStr$minutesStr$secondsStr"
 }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,7 @@ import com.ramo.workoutly.android.global.ui.rememberHeart
 import com.ramo.workoutly.android.global.ui.rememberMetabolic
 import com.ramo.workoutly.android.global.ui.rememberSleepMoon
 import com.ramo.workoutly.android.global.ui.rememberSteps
-import com.ramo.workoutly.android.ui.home.FitnessMetric
+import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
 import com.ramo.workoutly.global.base.HEART_RATE
@@ -59,7 +60,7 @@ import org.koin.compose.koinInject
 fun SessionScreen(
     screen: () -> Screen.SessionRoute?,
     backPress: suspend () -> Unit,
-    viewModel: SessionVewModel = koinViewModel(),
+    viewModel: SessionViewModel = koinViewModel(),
     theme: Theme = koinInject()
 ) {
     val scope = rememberCoroutineScope()
@@ -98,6 +99,12 @@ fun SessionScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Top
                         ) {
+                            Row(Modifier.fillMaxWidth().padding(5.dp)) {
+                                Text(
+                                    text = "History",
+                                    style = TextStyle(fontSize = 16.sp, color = theme.textGrayColor)
+                                )
+                            }
                             LazyColumn {
                                 items(state.sessionHistories) { metric ->
                                     Row(
@@ -131,13 +138,13 @@ fun SessionScreen(
 @Composable
 fun FitnessMetricLabel(metric: FitnessMetric, theme: Theme, invoke: () -> Unit) {
     val imageVector = when (metric.recordId) {
-        STEPS -> rememberSteps(metric.iconColor)
-        HEART_RATE -> rememberHeart(metric.iconColor)
-        CALORIES_BURNED -> rememberFire(metric.iconColor)
-        DISTANCE -> rememberDistance(metric.iconColor)
-        SLEEP -> rememberSleepMoon(metric.iconColor)
-        METABOLIC_RATE -> rememberMetabolic(metric.iconColor)
-        else -> rememberHeart(metric.iconColor)
+        STEPS -> rememberSteps(Color(metric.iconColor))
+        HEART_RATE -> rememberHeart(Color(metric.iconColor))
+        CALORIES_BURNED -> rememberFire(Color(metric.iconColor))
+        DISTANCE -> rememberDistance(Color(metric.iconColor))
+        SLEEP -> rememberSleepMoon(Color(metric.iconColor))
+        METABOLIC_RATE -> rememberMetabolic(Color(metric.iconColor))
+        else -> rememberHeart(Color(metric.iconColor))
     }
     Card(
         modifier = Modifier

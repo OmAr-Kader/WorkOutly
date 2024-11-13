@@ -17,14 +17,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -43,6 +48,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -51,19 +57,26 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ramo.workoutly.android.global.base.Theme
 import com.ramo.workoutly.android.global.navigation.Screen
+import com.ramo.workoutly.android.global.ui.ImageForCurveItem
+import com.ramo.workoutly.android.global.ui.LoadingScreen
 import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
 import com.ramo.workoutly.android.global.ui.rememberDistance
+import com.ramo.workoutly.android.global.ui.rememberDumbbell
 import com.ramo.workoutly.android.global.ui.rememberFire
 import com.ramo.workoutly.android.global.ui.rememberHeart
 import com.ramo.workoutly.android.global.ui.rememberMetabolic
 import com.ramo.workoutly.android.global.ui.rememberSleepMoon
 import com.ramo.workoutly.android.global.ui.rememberSteps
+import com.ramo.workoutly.android.global.ui.rememberTimer
 import com.ramo.workoutly.android.global.util.checkActivityRecognition
+import com.ramo.workoutly.data.model.Exercise
+import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.data.model.UserPref
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
+import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HEART_RATE
 import com.ramo.workoutly.global.base.METABOLIC_RATE
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
@@ -79,7 +92,6 @@ fun HomeScreen(
     userPref: UserPref,
     findPreference: (String, (it: String?) -> Unit) -> Unit,
     navigateToScreen: suspend (Screen, String) -> Unit,
-    navigateHome: suspend (String) -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
     theme: Theme = koinInject()
 ) {
@@ -89,7 +101,7 @@ fun HomeScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val requestPermissions = rememberLauncherForActivityResult( //registerForActivityResult
+    val requestPermissions = rememberLauncherForActivityResult(
         viewModel.healthKit.contract
     ) { granted ->
         if (granted.containsAll(viewModel.healthKit.permissions)) {
@@ -101,7 +113,7 @@ fun HomeScreen(
             }
         }
     }
-    val permissions = rememberLauncherForActivityResult( //registerForActivityResult
+    val permissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val isGranted = permissions.values.any { it }
@@ -118,7 +130,7 @@ fun HomeScreen(
         }
     }
     val systemUiController = rememberSystemUiController()
-    val statusBarColor = Color(0xFF265160) // Desired status bar color
+    val statusBarColor = remember { Color(0xFF265160) } // Desired status bar color
     OnLaunchScreen {
         systemUiController.setStatusBarColor(
             color = statusBarColor,
@@ -127,8 +139,7 @@ fun HomeScreen(
     }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-
+            if (event == Lifecycle.Event.ON_RESUME) {
                 context.checkActivityRecognition({
                     viewModel.loadData(theme.isDarkMode) {
                         scope.launch {
@@ -151,6 +162,25 @@ fun HomeScreen(
                 Snackbar(it, containerColor = theme.backDarkSec, contentColor = theme.textColor)
             }
         },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = "Live Session", color = theme.textForPrimaryColor) },
+                onClick = {
+
+                },
+                containerColor = theme.primary,
+                shape = RoundedCornerShape(15.dp),
+                expanded = true,
+                icon = {
+                    Icon(
+                        modifier = Modifier.size(30.dp),
+                        imageVector = rememberDumbbell(theme.textForPrimaryColor),
+                        contentDescription = "Live Chat",
+                        tint = theme.textForPrimaryColor
+                    )
+                }
+            )
+        }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).background(theme.backgroundGradient)) {
             BarMainScreen(userPref) {
@@ -173,6 +203,16 @@ fun HomeScreen(
                         }
                     }
                 }
+                items(state.exercises) { exercise ->
+                    ExerciseItem(exercise = exercise, theme = theme) {
+                        scope.launch {
+                            navigateToScreen.invoke(Screen.ExerciseRoute(exercise), EXERCISE_SCREEN_ROUTE)
+                        }
+                    }
+                }
+                item {
+                    Spacer(Modifier.height(80.dp))
+                }
             }
             /**
             LazyVerticalGrid(
@@ -194,6 +234,7 @@ fun HomeScreen(
             }
              */
         }
+        LoadingScreen(state.isProcess, theme)
     }
 }
 
@@ -213,13 +254,11 @@ fun BarMainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(start = 15.dp, end = 15.dp),
+                .padding(start = 10.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-
-            }
+            Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {}
             Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = onOptions,
@@ -227,13 +266,13 @@ fun BarMainScreen(
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Menu",
-                        tint = theme.textForPrimaryColor
+                        tint = theme.textForGradientColor
                     )
                 }
             }
         }
         Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Hi, ${userPref.name}", color = theme.textForPrimaryColor, fontSize = 20.sp)
+            Text("Hi, ${userPref.name}", color = theme.textForGradientColor, fontSize = 20.sp)
         }
     }
 }
@@ -241,13 +280,13 @@ fun BarMainScreen(
 @Composable
 fun FitnessMetricItem(metric: FitnessMetric, theme: Theme, invoke: () -> Unit) {
     val imageVector = when (metric.recordId) {
-        STEPS -> rememberSteps(metric.iconColor)
-        HEART_RATE -> rememberHeart(metric.iconColor)
-        CALORIES_BURNED -> rememberFire(metric.iconColor)
-        DISTANCE -> rememberDistance(metric.iconColor)
-        SLEEP -> rememberSleepMoon(metric.iconColor)
-        METABOLIC_RATE -> rememberMetabolic(metric.iconColor)
-        else -> rememberHeart(metric.iconColor)
+        STEPS -> rememberSteps(Color(metric.iconColor))
+        HEART_RATE -> rememberHeart(Color(metric.iconColor))
+        CALORIES_BURNED -> rememberFire(Color(metric.iconColor))
+        DISTANCE -> rememberDistance(Color(metric.iconColor))
+        SLEEP -> rememberSleepMoon(Color(metric.iconColor))
+        METABOLIC_RATE -> rememberMetabolic(Color(metric.iconColor))
+        else -> rememberHeart(Color(metric.iconColor))
     }
     Card(
         modifier = Modifier
@@ -285,24 +324,107 @@ fun FitnessMetricItem(metric: FitnessMetric, theme: Theme, invoke: () -> Unit) {
     }
 }
 
-
-// Sample data class for fitness metric items
-data class FitnessMetric(
-    val recordId: Int,
-    val title: String,
-    val iconColor: Color,
-    val value: Long,
-    val valueUnit: String,
-    val valueStr: String = value.toString() + valueUnit
-)
-// Sample data class for fitness metric items
-data class FitnessHistoryMetric(
-    val data: String,
-    val value: Long,
-    val valueUnit: String,
-) {
-    val valueStr = value.toString() + valueUnit
+@Composable
+fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
+    Box(
+        Modifier.padding(12.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clickable(onClick = onClick),
+            shape = RoundedCornerShape(15.dp),
+            colors = CardDefaults.cardColors(containerColor = theme.background),
+            elevation = CardDefaults.cardElevation(8.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ImageForCurveItem(exercise.videoUri, 80.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) subBox@{
+                    Text(
+                        text = exercise.title,
+                        color = theme.textColor,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(horizontal = 5.dp, vertical = 5.dp)
+                    )
+                    Text(
+                        text = exercise.description,
+                        color = theme.textGrayColor,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 15.dp, end = 15.dp, bottom = 3.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1F)
+                            .align(Alignment.Start)
+                            .padding(start = 15.dp, end = 15.dp, bottom = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(end = 50.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Person",
+                                tint = theme.textColor,
+                                modifier = Modifier
+                                    .width(15.dp)
+                                    .height(15.dp)
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = exercise.views.toString(),
+                                color = theme.textGrayColor,
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        Row(
+                            Modifier.padding(2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = rememberTimer(color = theme.primary),
+                                contentDescription = "Money",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .width(15.dp)
+                                    .height(15.dp)
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = exercise.lengthStr,
+                                color = theme.textColor,
+                                fontSize = 10.sp,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
 /*
 
 */

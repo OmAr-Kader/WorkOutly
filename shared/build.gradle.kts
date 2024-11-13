@@ -32,6 +32,7 @@ kotlin {
             languageSettings {
                 //optIn("kotlin.RequiresOptIn")
                 optIn("kotlinx.datetime.format.FormatStringsInDatetimeFormats")
+                optIn("io.ktor.util.InternalAPI")
             }
         }
         commonMain.dependencies {
@@ -41,10 +42,13 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.realm.base)
+
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.kotlinx.json)
-            /*implementation(libs.ktor.client.json)*/
+            /*implementation(libs.ktor.client.cio) // CIO engine for JVM/Android
+            implementation(libs.ktor.client.ios) // iOS-specific engine
+            implementation(libs.ktor.client.json)*/
             api(libs.logging)
             implementation(libs.stately.common)
         }

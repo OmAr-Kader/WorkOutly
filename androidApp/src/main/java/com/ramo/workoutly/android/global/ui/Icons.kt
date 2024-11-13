@@ -1086,3 +1086,168 @@ fun rememberDistance(color: Color): ImageVector {
         }.build()
     }
 }
+
+
+@Composable
+fun rememberDumbbell(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Dumbbell",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(14.4f, 14.4f)
+                lineTo(9.6f, 9.6f)
+            }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(18.657f, 21.485f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, -2.829f, -2.828f)
+                lineToRelative(-1.767f, 1.768f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, -2.829f, -2.829f)
+                lineToRelative(6.364f, -6.364f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 2.829f, 2.829f)
+                lineToRelative(-1.768f, 1.767f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 2.828f, 2.829f)
+                close()
+            }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(21.5f, 21.5f)
+                lineToRelative(-1.4f, -1.4f)
+            }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(3.9f, 3.9f)
+                lineTo(2.5f, 2.5f)
+            }
+            path(
+                fill = null,
+                fillAlpha = 1.0f,
+                stroke = SolidColor(color),
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(6.404f, 12.768f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, -2.829f, -2.829f)
+                lineToRelative(1.768f, -1.767f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, -2.828f, -2.829f)
+                lineToRelative(2.828f, -2.828f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 2.829f, 2.828f)
+                lineToRelative(1.767f, -1.768f)
+                arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 2.829f, 2.829f)
+                close()
+            }
+        }.build()
+    }
+}
+
+@Composable
+fun rememberTimer(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Timer",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(360f, 120f)
+                verticalLineToRelative(-80f)
+                horizontalLineToRelative(240f)
+                verticalLineToRelative(80f)
+                close()
+                moveToRelative(80f, 440f)
+                horizontalLineToRelative(80f)
+                verticalLineToRelative(-240f)
+                horizontalLineToRelative(-80f)
+                close()
+                moveToRelative(40f, 320f)
+                quadToRelative(-74f, 0f, -139.5f, -28.5f)
+                reflectiveQuadTo(226f, 774f)
+                reflectiveQuadToRelative(-77.5f, -114.5f)
+                reflectiveQuadTo(120f, 520f)
+                reflectiveQuadToRelative(28.5f, -139.5f)
+                reflectiveQuadTo(226f, 266f)
+                reflectiveQuadToRelative(114.5f, -77.5f)
+                reflectiveQuadTo(480f, 160f)
+                quadToRelative(62f, 0f, 119f, 20f)
+                reflectiveQuadToRelative(107f, 58f)
+                lineToRelative(56f, -56f)
+                lineToRelative(56f, 56f)
+                lineToRelative(-56f, 56f)
+                quadToRelative(38f, 50f, 58f, 107f)
+                reflectiveQuadToRelative(20f, 119f)
+                quadToRelative(0f, 74f, -28.5f, 139.5f)
+                reflectiveQuadTo(734f, 774f)
+                reflectiveQuadToRelative(-114.5f, 77.5f)
+                reflectiveQuadTo(480f, 880f)
+                moveToRelative(0f, -80f)
+                quadToRelative(116f, 0f, 198f, -82f)
+                reflectiveQuadToRelative(82f, -198f)
+                reflectiveQuadToRelative(-82f, -198f)
+                reflectiveQuadToRelative(-198f, -82f)
+                reflectiveQuadToRelative(-198f, 82f)
+                reflectiveQuadToRelative(-82f, 198f)
+                reflectiveQuadToRelative(82f, 198f)
+                reflectiveQuadToRelative(198f, 82f)
+                moveToRelative(0f, -280f)
+            }
+        }.build()
+    }
+}

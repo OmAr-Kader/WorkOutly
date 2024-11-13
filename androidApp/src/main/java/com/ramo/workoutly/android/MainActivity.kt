@@ -25,8 +25,10 @@ import com.ramo.workoutly.android.global.base.MyApplicationTheme
 import com.ramo.workoutly.android.global.base.Theme
 import com.ramo.workoutly.android.global.navigation.Screen
 import com.ramo.workoutly.android.global.ui.OnLaunchScreen
+import com.ramo.workoutly.android.ui.exercise.ExerciseScreen
 import com.ramo.workoutly.android.ui.home.HomeScreen
 import com.ramo.workoutly.android.ui.session.SessionScreen
+import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HOME_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SPLASH_SCREEN_ROUTE
@@ -66,7 +68,7 @@ fun Main() {
             navController.navigate(route = route)
         }
     }
-    @Suppress("UNUSED_VARIABLE") val backPress: suspend () -> Unit = {
+    val backPress: suspend () -> Unit = {
         navController.navigateUp()
     }
 
@@ -89,10 +91,13 @@ fun Main() {
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }*/
                     composable(route = HOME_SCREEN_ROUTE) {
-                        HomeScreen(stateApp.userPref, findPreference = findPreference, navigateToScreen = navigateToScreen, navigateHome =navigateHome)
+                        HomeScreen(stateApp.userPref, findPreference = findPreference, navigateToScreen = navigateToScreen)
                     }
                     composable(route = SESSION_SCREEN_ROUTE) {
                         SessionScreen(appViewModel::findArg, backPress = backPress)
+                    }
+                    composable(route = EXERCISE_SCREEN_ROUTE) {
+                        ExerciseScreen(appViewModel::findArg, backPress = backPress)
                     }
                 }
             }

@@ -7,7 +7,11 @@ import com.ramo.workoutly.android.global.base.darken
 import com.ramo.workoutly.android.global.navigation.BaseViewModel
 import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.data.model.FitnessMetric
+import com.ramo.workoutly.data.model.Message
+import com.ramo.workoutly.data.model.UserPref
+import com.ramo.workoutly.data.model.messages
 import com.ramo.workoutly.data.model.tempExercises
+import com.ramo.workoutly.data.util.messagesFilter
 import com.ramo.workoutly.di.Project
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
@@ -28,7 +32,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    fun loadData(isDarkMode: Boolean, permission: () -> Unit) {
+    fun loadData(userPref: UserPref, isDarkMode: Boolean, permission: () -> Unit) {
         //setIsProcess(true)
         launchBack {
             healthKit.requestPermissions({
@@ -87,11 +91,22 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     state.copy(
                         metrics = listOf(stepsMetric, distanceMetric, caloriesBurnedMetric, metabolicRateMetric, heartRateMetric, sleepMetric),
                         exercises = tempExercises,
+                        messages = messages.messagesFilter(userPref.id),
                         isProcess = false
                     )
                 }
             }, permission)
         }
+    }
+
+    fun setIsLiveVisible(it: Boolean) {
+        _uiState.update { state ->
+            state.copy(isLiveVisible = it)
+        }
+    }
+
+    fun setFile(url: android.net.Uri, type: Int) {
+
     }
 
     private fun setIsProcess(@Suppress("SameParameterValue") it: Boolean) {
@@ -103,6 +118,10 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
     data class State(
         val metrics: List<FitnessMetric> = emptyList(),
         val exercises: List<Exercise> = emptyList(),
+        val messages: List<Message> = emptyList(),
+        val chatText: String = "",
+        val isLiveVisible: Boolean = false,
+        val isPickerVisible: Boolean = false,
         val isProcess: Boolean = true,
     )
 }

@@ -12,9 +12,14 @@ const val EXERCISE_SCREEN_ROUTE: String = "exercise_screen_route"
 const val PREF_ID: String = "id_pref"
 const val PREF_NAME: String = "name"
 const val PREF_PROFILE_IMAGE: String = "profile_image"
+
 const val STEPS = 1
 const val DISTANCE = 2
 const val CALORIES_BURNED = 3
 const val METABOLIC_RATE = 4
 const val HEART_RATE = 5
 const val SLEEP = 6
+
+const val MSG_TEXT: Int = 1
+const val MSG_IMG: Int = 2
+const val MSG_VID: Int = 3

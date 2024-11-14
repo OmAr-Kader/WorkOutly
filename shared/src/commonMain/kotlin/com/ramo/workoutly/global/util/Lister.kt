@@ -38,3 +38,9 @@ fun Iterable<Long>.averageSafeLong(): Double {
     }
     return average()
 }
+
+inline fun Boolean.ifTrue(invoke: () -> Unit) {
+    if (this) {
+        invoke()
+    }
+}

@@ -1,5 +1,9 @@
 package com.ramo.workoutly.data.model
 
+import com.ramo.workoutly.global.base.MSG_IMG
+import com.ramo.workoutly.global.base.MSG_TEXT
+import com.ramo.workoutly.global.base.MSG_VID
+
 @Suppress("SpellCheckingInspection")
 val tempExercises: List<Exercise> get() {
     return listOf(
@@ -51,5 +55,15 @@ val tempExercises: List<Exercise> get() {
             views = 12,
             length = kotlin.random.Random.nextLong(1_600_000, 4_600_000)
         ),
+    )
+}
+
+val messages: List<Message> get() {
+    return listOf(
+        Message(0, 0L, "Omar", "It's a total-body exercise that involves starting in a plank position", type = MSG_TEXT),
+        Message(1, 1L, "Ahmed", "exercisers of all levels can do the core-builder", type = MSG_TEXT),
+        Message(2, 1L, "Ahmed", "", "https://goodrequest-web-development.s3.eu-central-1.amazonaws.com/61bc806440f0c568c0900490_Jetpack_20_Compose_20_Basics_20_20_Modal_20_Bottom_20_Sheet_bb7392c41d.png", type = MSG_IMG),
+        Message(3, 2L, "Sore", "", "https://gymvisual.com/modules/productmedia/uploads/93411201preview.mp4", type = MSG_VID),
+        Message(4, 0L, "Omar", "The plank to pike jump is one of those rare ab moves that really", type = MSG_TEXT),
     )
 }

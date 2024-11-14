@@ -36,14 +36,14 @@ import com.ramo.workoutly.android.global.navigation.Screen
 import com.ramo.workoutly.android.global.ui.BackButton
 import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.rememberTimer
-import com.ramo.workoutly.android.global.util.videoType
+import com.ramo.workoutly.android.global.util.videoConfig
+import com.ramo.workoutly.android.global.util.videoItem
 import com.ramo.workoutly.data.model.Exercise
 import io.sanghun.compose.video.RepeatMode
 import io.sanghun.compose.video.VideoPlayer
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -56,28 +56,8 @@ fun ExerciseScreen(
 ) {
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
-    val videoItem = io.sanghun.compose.video.uri.VideoPlayerMediaItem.NetworkMediaItem(
-        url = URI.create(state.exercise.videoUri).toString(),
-        mediaMetadata = androidx.media3.common.MediaMetadata.Builder().setSubtitle(state.exercise.title).setAlbumTitle(state.exercise.title)
-            .setDisplayTitle(state.exercise.title).build(),
-        mimeType = state.exercise.title.videoType,
-    )
-    val videoConfig = remember {
-        io.sanghun.compose.video.controller.VideoPlayerControllerConfig(
-            showSpeedAndPitchOverlay = false,
-            showSubtitleButton = false,
-            showCurrentTimeAndTotalTime = true,
-            showBufferingProgress = true,
-            showForwardIncrementButton = true,
-            showBackwardIncrementButton = true,
-            showBackTrackButton = false,//true
-            showNextTrackButton = false,//true
-            showRepeatModeButton = false,//true
-            controllerShowTimeMilliSeconds = 5_000,
-            controllerAutoShow = true,
-            showFullScreenButton = true,
-        )
-    }
+    val videoItem = remember(state.exercise.videoUri) { state.exercise.let { videoItem(it.videoUri, it.title) } }
+    val videoConfig = remember { videoConfig }
     OnLaunchScreen {
         screen()?.metric?.let { viewModel.loadData(it) }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,45 +19,71 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ramo.workoutly.android.global.base.Theme
 import com.ramo.workoutly.android.global.navigation.Screen
+import com.ramo.workoutly.android.global.ui.AnimatedFadeOnce
+import com.ramo.workoutly.android.global.ui.BackButtonLess
 import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
 import com.ramo.workoutly.android.global.ui.OnLaunchScreen
@@ -64,6 +91,7 @@ import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
 import com.ramo.workoutly.android.global.ui.rememberDistance
 import com.ramo.workoutly.android.global.ui.rememberDumbbell
+import com.ramo.workoutly.android.global.ui.rememberFile
 import com.ramo.workoutly.android.global.ui.rememberFire
 import com.ramo.workoutly.android.global.ui.rememberHeart
 import com.ramo.workoutly.android.global.ui.rememberMetabolic
@@ -71,18 +99,33 @@ import com.ramo.workoutly.android.global.ui.rememberSleepMoon
 import com.ramo.workoutly.android.global.ui.rememberSteps
 import com.ramo.workoutly.android.global.ui.rememberTimer
 import com.ramo.workoutly.android.global.util.checkActivityRecognition
+import com.ramo.workoutly.android.global.util.filePicker
+import com.ramo.workoutly.android.global.util.imageBuildr
+import com.ramo.workoutly.android.global.util.videoConfig
+import com.ramo.workoutly.android.global.util.videoImageBuildr
+import com.ramo.workoutly.android.global.util.videoItem
 import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.data.model.FitnessMetric
+import com.ramo.workoutly.data.model.Message
 import com.ramo.workoutly.data.model.UserPref
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
 import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HEART_RATE
 import com.ramo.workoutly.global.base.METABOLIC_RATE
+import com.ramo.workoutly.global.base.MSG_IMG
+import com.ramo.workoutly.global.base.MSG_TEXT
+import com.ramo.workoutly.global.base.MSG_VID
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SLEEP
 import com.ramo.workoutly.global.base.STEPS
+import com.ramo.workoutly.global.util.ifTrue
+import io.sanghun.compose.video.RepeatMode
+import io.sanghun.compose.video.VideoPlayer
+import io.sanghun.compose.video.uri.VideoPlayerMediaItem
 import kotlinx.coroutines.launch
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -100,12 +143,14 @@ fun HomeScreen(
     val scaffoldState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
+    val imagePicker = context.filePicker { url, type ->
+        viewModel.setFile(url, type)
+    }
     val requestPermissions = rememberLauncherForActivityResult(
         viewModel.healthKit.contract
     ) { granted ->
         if (granted.containsAll(viewModel.healthKit.permissions)) {
-            viewModel.loadData(theme.isDarkMode) {
+            viewModel.loadData(userPref, theme.isDarkMode) {
             }
         } else {
             scope.launch {
@@ -116,9 +161,9 @@ fun HomeScreen(
     val permissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val isGranted = permissions.values.any { it }
+        val isGranted = permissions.values.all { it }
         if (isGranted) {
-            viewModel.loadData(theme.isDarkMode) {
+            viewModel.loadData(userPref, theme.isDarkMode) {
                 scope.launch {
                     requestPermissions.launch(viewModel.healthKit.permissions)
                 }
@@ -141,7 +186,7 @@ fun HomeScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 context.checkActivityRecognition({
-                    viewModel.loadData(theme.isDarkMode) {
+                    viewModel.loadData(userPref, theme.isDarkMode) {
                         scope.launch {
                             requestPermissions.launch(viewModel.healthKit.permissions)
                         }
@@ -166,7 +211,7 @@ fun HomeScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "Live Session", color = theme.textForPrimaryColor) },
                 onClick = {
-
+                    viewModel.setIsLiveVisible(true)
                 },
                 containerColor = theme.primary,
                 shape = RoundedCornerShape(15.dp),
@@ -182,7 +227,9 @@ fun HomeScreen(
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).background(theme.backgroundGradient)) {
+        Column(modifier = Modifier
+            .padding(padding)
+            .background(theme.backgroundGradient)) {
             BarMainScreen(userPref) {
 
             }
@@ -214,25 +261,11 @@ fun HomeScreen(
                     Spacer(Modifier.height(80.dp))
                 }
             }
-            /**
-            LazyVerticalGrid(
-            columns = GridCells.Fixed(if (isPortraitMode()) 2 else 4), // 2 columns in the grid
-            modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-            contentPadding = PaddingValues(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-            items(state.metrics) { item ->
-            FitnessMetricItem(metric = item, theme = theme) {
-            scope.launch {
-            navigateToScreen.invoke(Screen.SessionRoute(item), SESSION_SCREEN_ROUTE)
+        }
+        state.isLiveVisible.ifTrue {
+            LiveSessionSheet(state.messages, theme, viewModel::setIsLiveVisible, imagePicker) {
+
             }
-            }
-            }
-            }
-             */
         }
         LoadingScreen(state.isProcess, theme)
     }
@@ -425,6 +458,338 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
     }
 }
 
-/*
+@Composable
+fun LiveSessionSheet(
+    messages: List<Message>,
+    theme: Theme,
+    onDismissRequest: (Boolean) -> Unit,
+    filePicker: () -> Unit,
+    send: (String) -> Unit,
+) {
+    val sheetModalState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = { onDismissRequest(false) },
+        sheetState = sheetModalState,
+        properties = ModalBottomSheetProperties(),
+        containerColor = theme.background,
+        contentColor = theme.textColor,
+        dragHandle = {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(theme.backDark),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .padding(top = 22.dp),
+                    color = theme.textGrayColor,
+                    shape = MaterialTheme.shapes.extraLarge
+                ) {
+                    Box(
+                        Modifier
+                            .size(
+                                width = 32.dp,
+                                height = 4.0.dp
+                            )
+                    )
+                }
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(7.dp), text = "Live Session", color = theme.textColor,
+                    fontSize = 16.sp
+                )
+                Spacer(Modifier.height(5.dp))
+            }
+        }
+    ) {
+        ChatView(messages, theme, filePicker = filePicker, send)
+    }
+}
 
-*/
+@Composable
+fun ChatView(
+    messages: List<Message>,
+    theme: Theme,
+    filePicker: () -> Unit,
+    send: (String) -> Unit,
+) {
+    val scrollState = rememberLazyListState()
+    val chatText = remember { mutableStateOf("") }
+    LaunchedEffect(messages) {
+        if (messages.lastIndex > 1) {
+            scrollState.scrollToItem(messages.lastIndex)
+        }
+    }
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .align(Alignment.TopCenter)
+                .padding(start = 5.dp, end = 5.dp, bottom = 7.dp),
+            state = scrollState,
+        ) {
+            items(messages) { msg ->
+                Box {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(if (!msg.isFromCurrentUser) Alignment.CenterStart else Alignment.CenterEnd)
+                    )
+                    MessageItem(msg, theme)
+                }
+            }
+            item {
+                Spacer(Modifier.height(60.dp))
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .align(Alignment.BottomCenter)
+        ) {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                trailingIcon = {
+                    TrailingIcons(theme, filePicker) {
+                        chatText.value.also {
+                            chatText.value = ""
+                        }.also(send)
+                    }
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = theme.backDark,
+                    unfocusedContainerColor = theme.backDark,
+                ),
+                textStyle = TextStyle(textDirection = TextDirection.Content),
+                value = chatText.value,
+                onValueChange = {
+                    chatText.value = it
+                },
+                singleLine = false
+            )
+        }
+    }
+}
+
+@Composable
+fun BoxScope.MessageItem(msg: Message, theme: Theme) {
+    val colorCard = remember {
+        if (msg.isFromCurrentUser) {
+            theme.gradientColor
+        } else {
+            theme.gradientSec
+        }
+    }
+    val colorText = remember {
+        if (msg.isFromCurrentUser) {
+            theme.textForGradientColor
+        } else {
+            theme.textColor
+        }
+    }
+    val isPopUp = remember { mutableStateOf(false) }
+    val isPlayed = remember { mutableStateOf(false) }
+    Surface(
+        modifier = Modifier
+            .wrapContentSize()
+            .widthIn(0.dp, 300.dp)
+            .align(if (!msg.isFromCurrentUser) Alignment.CenterStart else Alignment.CenterEnd)
+            .padding(5.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = colorCard,
+        tonalElevation = 2.dp,
+        shadowElevation = 2.dp,
+    ) {
+        Column(Modifier.padding(3.dp)) {
+            if (!msg.isFromCurrentUser) {
+                Text(
+                    msg.senderName,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 2.5.dp)
+                        .alpha(0.8F),
+                    color = colorText,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+            when(msg.type) {
+                MSG_TEXT -> {
+                    Text(
+                        msg.message,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(10.dp),
+                        color = colorText,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
+                MSG_IMG -> {
+                    Box(Modifier.fillMaxWidth().height(300.dp)) {
+                        coil.compose.SubcomposeAsyncImage(
+                            model = LocalContext.current.imageBuildr(msg.fileUrl),
+                            success = { (painter, _) ->
+                                AnimatedFadeOnce(duration = 200, label = msg.id.toString() + msg.type) {
+                                    Image(
+                                        contentScale = ContentScale.Crop,
+                                        painter = painter,
+                                        contentDescription = "Image",
+                                        modifier = Modifier.fillMaxWidth().clip(
+                                            shape = RoundedCornerShape(20.dp)
+                                        ).background(Color.Transparent).height(300.dp)
+                                            .clickable {
+                                                isPopUp.value = true
+                                            }
+                                    )
+                                }
+                                isPopUp.value.ifTrue {
+                                    ImageViewer(painter) {
+                                        isPopUp.value = false
+                                    }
+                                }
+                            },
+                            error = {
+                                Icon(imageVector = Icons.Default.Refresh, contentDescription = "aa")
+                            },
+                            onError = {
+                            },
+                            contentScale = ContentScale.Crop,
+                            filterQuality = FilterQuality.None,
+                            contentDescription = "Image"
+                        )
+                    }
+                }
+                MSG_VID -> {
+                    val painter = rememberAsyncImagePainter(
+                        model = msg.fileUrl,
+                        imageLoader = LocalContext.current.videoImageBuildr,
+                    )
+                    AnimatedFadeOnce(
+                        Modifier.fillMaxWidth().clip(
+                            shape = RoundedCornerShape(20.dp)
+                        ).height(200.dp).fillMaxWidth().clickable {
+                            isPlayed.value = true
+                        },
+                        contentAlignment = Alignment.Center,
+                        label = msg.id.toString() + msg.type
+                    ) {
+                        Image(
+                            contentScale = ContentScale.Crop,
+                            painter = painter,
+                            contentDescription = "Image",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize().background(theme.backDarkAlpha)
+                        )
+                        Icon(
+                            Icons.Filled.PlayArrow,
+                            tint = Color.White,
+                            contentDescription = "play"
+                        )
+                        isPlayed.value.ifTrue {
+                            val videoItems = remember(msg.fileUrl) { msg.let { listOf(videoItem(it.fileUrl, it.senderName)) } }
+                            VideoViewer(videoItems) {
+                                isPlayed.value = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TrailingIcons(
+    theme: Theme,
+    filePicker: () -> Unit,
+    send: () -> Unit,
+) {
+    Row {
+        IconButton(
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+                .align(Alignment.CenterVertically)
+                .padding(5.dp),
+            onClick = filePicker
+        ) {
+            Icon(
+                rememberFile(color = theme.textGrayColor),
+                tint = theme.textGrayColor,
+                contentDescription = "Attach File",
+            )
+        }
+        IconButton(
+            modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+                .align(Alignment.CenterVertically)
+                .padding(5.dp),
+            onClick = send
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.Send,
+                tint = theme.textGrayColor,
+                contentDescription = "Send",
+            )
+        }
+    }
+}
+
+@Composable
+fun ImageViewer(painter: Painter, onClose: () -> Unit) {
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize().zoomable(rememberZoomState()),
+            )
+            BackButtonLess(Color.White, onClose)
+        }
+    }
+}
+
+@Composable
+fun VideoViewer(videoItems: List<VideoPlayerMediaItem>, onClose: () -> Unit) {
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            val videoConfig = remember { videoConfig.copy(showFullScreenButton = false) }
+            VideoPlayer(
+                mediaItems = videoItems,
+                handleLifecycle = true,
+                autoPlay = false,
+                usePlayerController = true,
+                enablePip = true,
+                handleAudioFocus = true,
+                controllerConfig = videoConfig,
+                repeatMode = RepeatMode.ALL,
+                modifier = Modifier.fillMaxSize(),
+            )
+            BackButtonLess(Color.White, onClose)
+        }
+    }
+}

@@ -1,5 +1,8 @@
 package com.ramo.workoutly.android.global.util
 
+import com.ramo.workoutly.global.base.MSG_IMG
+import com.ramo.workoutly.global.base.MSG_VID
+
 internal val android.content.Context.isDarkMode: Boolean
     get() {
         val nightModeFlags: Int =
@@ -23,6 +26,7 @@ internal val android.content.Context.imageBuildr: (String) -> coil.request.Image
         coil.request.ImageRequest.Builder(this@imageBuildr)
             .data(it)
             .diskCacheKey(it)
+            //.addLastModifiedToFileCacheKey(true)
             .networkCachePolicy(coil.request.CachePolicy.ENABLED)
             .diskCachePolicy(coil.request.CachePolicy.ENABLED)
             .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
@@ -43,13 +47,14 @@ internal val android.content.Context.videoImageBuildr: coil.ImageLoader
         .components {
             add(coil.decode.VideoFrameDecoder.Factory())
         }
+        //.addLastModifiedToFileCacheKey(true)
         .networkCachePolicy(coil.request.CachePolicy.ENABLED)
         .diskCachePolicy(coil.request.CachePolicy.ENABLED)
         .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
         .crossfade(true)
         .build()
 
-fun android.content.Context.getMimeType(uri: android.net.Uri): String = kotlin.runCatching {
+fun android.content.Context.getMimeTypeExtension(uri: android.net.Uri): String = kotlin.runCatching {
     val extension = if (uri.scheme == android.content.ContentResolver.SCHEME_CONTENT) {
         val mime = android.webkit.MimeTypeMap.getSingleton()
         mime.getExtensionFromMimeType(contentResolver.getType(uri)) ?: ""
@@ -59,8 +64,77 @@ fun android.content.Context.getMimeType(uri: android.net.Uri): String = kotlin.r
     return@runCatching ".$extension"
 }.getOrDefault("")
 
+fun getMimeType(extension: String): String? = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+    extension.replace(".", "") // @OmAr-Kader Where i added before |Lock Up|
+)
 
-/*
+fun isImage(extension: String): Boolean = getMimeType(extension = extension)?.startsWith("image") == true
+
+fun isVideo(extension: String): Boolean = getMimeType(extension = extension)?.startsWith("video") == true
+
+@androidx.compose.runtime.Composable
+fun android.content.Context.filePicker(
+    invoke: (android.net.Uri, type: Int) -> Unit,
+): () -> Unit {
+    val photoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) {
+        if (it != null) {
+            val extension = getMimeTypeExtension(it)
+            val isImage = if (isImage(extension)) {
+                MSG_IMG
+            } else if (isVideo(extension)) {
+                MSG_VID
+            } else {
+                null
+            }
+            isImage?.let { it1 -> invoke.invoke(it, it1) }
+        }
+    }
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val isGranted = permissions.values.all { it }
+        if (isGranted) {
+            photoPicker.launch(
+                androidx.activity.result.PickVisualMediaRequest(
+                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
+                )
+            )
+        }
+    }
+    return androidx.compose.runtime.remember {
+        return@remember {
+            when {
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                }
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU -> {
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                else -> {
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }.let { per ->
+                per.all {
+                    androidx.core.content.ContextCompat.checkSelfPermission(this@filePicker,it) ==
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                }.let { isGranted ->
+                    if (isGranted) {
+                        photoPicker.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
+                            )
+                        )
+                    } else {
+                        launcher.launch(per)
+                    }
+                }
+            }
+        }
+    }
+}
+
 val videoItem: (String, String) -> io.sanghun.compose.video.uri.VideoPlayerMediaItem
     get() = { videoUri, videoTitle ->
         io.sanghun.compose.video.uri.VideoPlayerMediaItem.NetworkMediaItem(
@@ -71,8 +145,6 @@ val videoItem: (String, String) -> io.sanghun.compose.video.uri.VideoPlayerMedia
         )
     }
 
-@get:androidx.compose.runtime.Composable
-@get:androidx.compose.runtime.ReadOnlyComposable
 val videoConfig: io.sanghun.compose.video.controller.VideoPlayerControllerConfig
     get() {
         return io.sanghun.compose.video.controller.VideoPlayerControllerConfig(
@@ -82,11 +154,11 @@ val videoConfig: io.sanghun.compose.video.controller.VideoPlayerControllerConfig
             showBufferingProgress = true,
             showForwardIncrementButton = true,
             showBackwardIncrementButton = true,
-            showBackTrackButton = true,
-            showNextTrackButton = true,
-            showRepeatModeButton = true,
+            showBackTrackButton = false,//true
+            showNextTrackButton = false,//true
+            showRepeatModeButton = false,//true
             controllerShowTimeMilliSeconds = 5_000,
             controllerAutoShow = true,
             showFullScreenButton = true,
         )
-    }*/
+    }

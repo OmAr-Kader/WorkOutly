@@ -20,8 +20,8 @@
         <item name="android:windowSplashScreenBehavior" tools:ignore="NewApi" tools:targetApi="s">
             icon_preferred
         </item>
-        <!--item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowClipToOutline" tools:targetApi="s">false</item-->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowClipToOutline" tools:targetApi="s">false</item>
         <item name="android:windowElevation" tools:targetApi="s">7dp</item>
     </style>
 

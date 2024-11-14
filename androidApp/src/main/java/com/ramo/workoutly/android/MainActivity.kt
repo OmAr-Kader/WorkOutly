@@ -2,7 +2,9 @@ package com.ramo.workoutly.android
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
@@ -11,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -40,15 +44,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Main()
+            Main { isTextDark, color ->
+                enableEdgeToEdge(
+                    statusBarStyle = if (isTextDark) SystemBarStyle.auto(
+                        lightScrim = color,
+                        darkScrim = color
+                    ) else SystemBarStyle.dark(
+                        scrim = color,
+                    )
+                )
+            }
         }
     }
 }
 
 @Composable
-fun Main() {
-    val theme: Theme = koinInject()
-    val appViewModel: AppViewModel = koinViewModel()
+fun Main(theme: Theme = koinInject(), appViewModel: AppViewModel = koinViewModel(), statusColor: (isDark: Boolean, Int) -> Unit) {
     val stateApp by appViewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val navigateHome: suspend (String) -> Unit = { route ->
@@ -71,7 +82,9 @@ fun Main() {
     val backPress: suspend () -> Unit = {
         navController.navigateUp()
     }
-
+    SideEffect {
+        statusColor(!theme.isDarkMode, theme.background.toArgb())
+    }
     MyApplicationTheme(theme = theme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -91,7 +104,7 @@ fun Main() {
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }*/
                     composable(route = HOME_SCREEN_ROUTE) {
-                        HomeScreen(stateApp.userPref, findPreference = findPreference, navigateToScreen = navigateToScreen)
+                        HomeScreen(stateApp.userPref, statusColor, findPreference = findPreference, navigateToScreen = navigateToScreen)
                     }
                     composable(route = SESSION_SCREEN_ROUTE) {
                         SessionScreen(appViewModel::findArg, backPress = backPress)
@@ -108,7 +121,7 @@ fun Main() {
 @Composable
 fun SplashScreen(
     navigateHome: suspend (String) -> Unit,
-    appViewModel: AppViewModel,
+    @Suppress("UNUSED_PARAMETER") appViewModel: AppViewModel,
     theme: Theme = koinInject(),
 ) {
     val scope = rememberCoroutineScope()

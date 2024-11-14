@@ -52,6 +52,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,8 +64,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -79,14 +80,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.rememberAsyncImagePainter
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ramo.workoutly.android.global.base.Theme
 import com.ramo.workoutly.android.global.navigation.Screen
 import com.ramo.workoutly.android.global.ui.AnimatedFadeOnce
 import com.ramo.workoutly.android.global.ui.BackButtonLess
 import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
-import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
 import com.ramo.workoutly.android.global.ui.rememberDistance
@@ -133,6 +132,7 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreen(
     userPref: UserPref,
+    statusColor: (Boolean, Int) -> Unit,
     findPreference: (String, (it: String?) -> Unit) -> Unit,
     navigateToScreen: suspend (Screen, String) -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
@@ -174,13 +174,8 @@ fun HomeScreen(
             }
         }
     }
-    val systemUiController = rememberSystemUiController()
-    val statusBarColor = remember { Color(0xFF265160) } // Desired status bar color
-    OnLaunchScreen {
-        systemUiController.setStatusBarColor(
-            color = statusBarColor,
-            darkIcons = statusBarColor.luminance() > 0.5F // Adjust icon color based on color brightness
-        )
+    SideEffect {
+        statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
     }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -211,6 +206,7 @@ fun HomeScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "Live Session", color = theme.textForPrimaryColor) },
                 onClick = {
+                    statusColor(!theme.isDarkMode, theme.background.toArgb())
                     viewModel.setIsLiveVisible(true)
                 },
                 containerColor = theme.primary,
@@ -263,7 +259,10 @@ fun HomeScreen(
             }
         }
         state.isLiveVisible.ifTrue {
-            LiveSessionSheet(state.messages, theme, viewModel::setIsLiveVisible, imagePicker) {
+            LiveSessionSheet(state.messages, theme, {
+                statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
+                viewModel.setIsLiveVisible(false)
+            }, imagePicker) {
 
             }
         }
@@ -567,7 +566,7 @@ fun ChatView(
                     focusedContainerColor = theme.backDark,
                     unfocusedContainerColor = theme.backDark,
                 ),
-                textStyle = TextStyle(textDirection = TextDirection.Content),
+                textStyle = TextStyle(color = theme.textColor, textDirection = TextDirection.Content),
                 value = chatText.value,
                 onValueChange = {
                     chatText.value = it
@@ -686,7 +685,7 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                             modifier = Modifier.fillMaxSize()
                         )
                         Box(
-                            modifier = Modifier.fillMaxSize().background(theme.backDarkAlpha)
+                            modifier = Modifier.fillMaxSize().background(Color(50, 50, 50).copy(alpha = 0.5F))
                         )
                         Icon(
                             Icons.Filled.PlayArrow,

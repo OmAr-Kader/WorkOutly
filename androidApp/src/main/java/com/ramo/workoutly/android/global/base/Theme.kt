@@ -72,7 +72,7 @@ fun generateTheme(isDarkMode: Boolean): Theme {
     } else {
         Theme(
             isDarkMode = false,
-            isDarkStatusBarText = true,
+            isDarkStatusBarText = false,
             primary = Color(red = 255, green = 74, blue = 74),//rgb(255, 74, 74)
             secondary = Color(red = 231, green = 83, blue = 83, alpha = 255),
             background = Color.White,

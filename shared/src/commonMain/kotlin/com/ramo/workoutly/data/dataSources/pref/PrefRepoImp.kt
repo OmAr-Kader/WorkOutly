@@ -9,13 +9,21 @@ import io.realm.kotlin.ext.query
 
 class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
 
+    override suspend fun prefs(): List<Preference> {
+        return kotlinx.coroutines.coroutineScope {
+            kotlin.runCatching {
+                realm.query(Preference::class).find()
+            }.getOrNull() ?: emptyList()
+        }
+    }
+
     override suspend fun prefs(invoke: suspend (List<Preference>) -> Unit) {
         return kotlinx.coroutines.coroutineScope {
             kotlin.runCatching {
                 realm.query(Preference::class).find()
             }.getOrNull()?.let {
-                invoke.invoke(it)
-            } ?: invoke.invoke(emptyList())
+                invoke(it)
+            } ?: invoke(emptyList())
         }
     }
 
@@ -30,7 +38,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
         }
     }
 
-    override suspend fun insertPref(prefs: List<Preference>, invoke: suspend ((List<Preference>?) -> Unit)) {
+    override suspend fun insertPref(prefs: List<Preference>) : List<Preference>? {
         return realm.write {
             try {
                 prefs.map { pref ->
@@ -40,8 +48,6 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                 loggerError(error = e)
                 null
             }
-        }.let {
-            invoke(it)
         }
     }
 

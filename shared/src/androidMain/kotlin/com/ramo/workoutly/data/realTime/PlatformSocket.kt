@@ -6,6 +6,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal actual class PlatformSocket actual constructor(url: String) {
     private val socketEndpoint = url
     private var webSocket: WebSocket? = null

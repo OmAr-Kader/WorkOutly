@@ -27,7 +27,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
     private fun inti(invoke: List<PreferenceData>.() -> Unit) {
         prefsJob?.cancel()
         prefsJob = launchBack {
-            project.pref.prefs {
+            project.pref.prefs().let {
                 _uiState.update { state ->
                     state.copy(preferences = it)
                 }

@@ -16,7 +16,4 @@ data class PreferenceData(
     val id: String,
     val keyString: String,
     val value: String,
-) {
-    constructor(keyString: String, value: String) : this("", keyString, value)
-    constructor(pref: Preference) : this(pref._id.toHexString(), pref.keyString, pref.value)
-}
+)

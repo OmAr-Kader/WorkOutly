@@ -9,7 +9,9 @@ class PreferenceBase(
     private val repository: PrefRepo
 ) {
 
-    suspend fun prefs(invoke: (List<PreferenceData>) -> Unit): Unit = repository.prefs {
+    suspend fun prefs(): List<PreferenceData> = repository.prefs().toPreferenceDate()
+
+    suspend fun prefs(invoke: suspend (List<PreferenceData>) -> Unit): Unit = repository.prefs {
         invoke(it.toPreferenceDate())
     }
 
@@ -21,7 +23,9 @@ class PreferenceBase(
         }
     }*/
 
-    suspend fun updatePref(pref: PreferenceData, newValue: String): PreferenceData = PreferenceData(repository.updatePref(Preference(pref), newValue))
+    suspend fun updatePref(pref: PreferenceData, newValue: String): PreferenceData = repository.updatePref(Preference(pref), newValue).let { newPref ->
+        PreferenceData(newPref._id.toHexString(), newPref.keyString, newPref.value)
+    }
 
     suspend fun updatePref(
         pref: List<PreferenceData>

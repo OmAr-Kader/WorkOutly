@@ -4,6 +4,7 @@ package com.ramo.workoutly.data.realTime
 import platform.Foundation.*
 import platform.darwin.NSObject
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal actual class PlatformSocket actual constructor(url: String) {
     private val socketEndpoint = NSURL.URLWithString(url)!!
     private var webSocket: NSURLSessionWebSocketTask? = null

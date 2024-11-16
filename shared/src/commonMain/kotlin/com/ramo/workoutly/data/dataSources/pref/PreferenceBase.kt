@@ -11,7 +11,7 @@ class PreferenceBase(
 
     suspend fun prefs(): List<PreferenceData> = repository.prefs().toPreferenceDate()
 
-    suspend fun prefs(invoke: suspend (List<PreferenceData>) -> Unit): Unit = repository.prefs {
+    suspend fun prefs(invoke: (List<PreferenceData>) -> Unit): Unit = repository.prefs {
         invoke(it.toPreferenceDate())
     }
 

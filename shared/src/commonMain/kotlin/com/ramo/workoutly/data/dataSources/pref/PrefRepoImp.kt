@@ -17,7 +17,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
         }
     }
 
-    override suspend fun prefs(invoke: suspend (List<Preference>) -> Unit) {
+    override suspend fun prefs(invoke: (List<Preference>) -> Unit) {
         return kotlinx.coroutines.coroutineScope {
             kotlin.runCatching {
                 realm.query(Preference::class).find()

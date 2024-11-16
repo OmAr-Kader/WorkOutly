@@ -180,7 +180,6 @@ class AppObserve : ObservableObject, @unchecked Sendable {
     ) {
         if (preferences.isEmpty) {
             self.inti { prefs in
-                self.preferences = prefs
                 value(prefs.first { it1 in it1.keyString == key }?.value)
             }
         } else {
@@ -193,8 +192,9 @@ class AppObserve : ObservableObject, @unchecked Sendable {
     private func inti(invoke: @BackgroundActor @escaping ([PreferenceData]) -> Unit) {
         scope.launchBack {
             do {
-                let list = try await self.project.pref.prefs()
-                invoke(list)
+                let prefs = try await self.project.pref.prefs()
+                self.preferences = prefs
+                invoke(prefs)
             } catch {
                 invoke([])
             }

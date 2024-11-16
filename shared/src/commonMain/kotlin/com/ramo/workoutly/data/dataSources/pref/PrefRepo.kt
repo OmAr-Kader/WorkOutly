@@ -6,7 +6,7 @@ interface PrefRepo {
 
     suspend fun prefs(): List<Preference>
 
-    suspend fun prefs(invoke: suspend (List<Preference>) -> Unit)
+    suspend fun prefs(invoke: (List<Preference>) -> Unit)
 
     suspend fun insertPref(pref: Preference): Preference?
 

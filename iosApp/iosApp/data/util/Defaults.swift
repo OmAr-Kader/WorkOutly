@@ -8,19 +8,34 @@
 
 import shared
 
-extension UserPref {
+//@BackgroundActor
+extension UserPref : @unchecked @retroactive Sendable {
     
     func copy(authId: String? = nil, id: Int64? = nil, email: String? = nil, phone: String? = nil, name: String? = nil, profilePicture: String? = nil) -> UserPref {
         return UserPref(authId: authId ?? self.authId, id: id ?? self.id, email: email ?? self.email, phone: phone ?? self.phone, name: name ?? self.name, profilePicture: profilePicture ?? self.profilePicture)
     }
 }
 
-
-
 extension PreferenceData : @unchecked @retroactive Sendable {
     
+    func copy(id: String? = nil, keyString: String? = nil, value: String? = nil) -> PreferenceData {
+        return PreferenceData(id: id ?? self.id, keyString: keyString ?? self.keyString, value: value ?? self.value)
+    }
 }
 
+
+extension FitnessMetric : @unchecked @retroactive Sendable {
+
+    convenience init(recordId: Int32, title: String, iconColor: Int64, value: Int64, valueUnit: String) {
+        self.init(recordId: recordId, title: title, iconColor: iconColor, value: value, valueUnit: valueUnit, valueStr: value.toStr + valueUnit)
+    }
+
+}
 extension Project : @unchecked @retroactive Sendable {
     
 }
+
+extension KotlinInt : @unchecked @retroactive Sendable {
+    
+}
+

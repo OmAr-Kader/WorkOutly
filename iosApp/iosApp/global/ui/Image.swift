@@ -65,7 +65,7 @@ class UrlImageModel: ObservableObject, @unchecked Sendable {
     @Published var image: UIImage? = nil
     private var url: URL? = nil
     private var cancellable: AnyCancellable? = nil
-    @BackgroundActor
+
     private var imageCache: ImageCache? = nil
     
     init() {
@@ -154,23 +154,20 @@ class UrlImageModel: ObservableObject, @unchecked Sendable {
         guard let url = url else {
             return
         }
-        cancellable = URLSession.shared.dataTaskPublisher(for: url)
-            .map { UIImage(data: $0.data) }
-            .replaceError(with: nil)
-            // set image into cache!
-            .handleEvents(receiveOutput: { [weak self] image in
-                logger("UrlImageModel", "WWW URL => " + String(image == nil))
-                guard let image = image else {return}
-                if self == nil {
-                    return
-                }
-                self?.imageCache?[url] = image
-                Task { @MainActor [weak self] in
+        TaskMainSwitcher {
+            self.cancellable = URLSession.shared.dataTaskPublisher(for: url)
+                .subscribe(on: DispatchQueue.global(qos: .background))
+                .receive(on: DispatchQueue.main)
+                .map { UIImage(data: $0.data) }
+                .replaceError(with: nil)
+                .handleEvents(receiveOutput: { [weak self] image in
+                    logger("UrlImageModel", "WWW URL => " + String(image == nil))
+                    guard let image = image else { return }
+                    self?.imageCache?[url] = image
                     self?.image = image
-                }
-            })
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.image, on: self)
+                })
+                .assign(to: \.image, on: self)
+        }
     }
     
     /*private func loadImageFromURL() {
@@ -210,9 +207,11 @@ class UrlImageModel: ObservableObject, @unchecked Sendable {
         let time = CMTimeMakeWithSeconds(Float64(1), preferredTimescale: 100)
         do {
             let img = try assetImgGenerate.copyCGImage(at: time, actualTime: nil)
-            let thumbnail = UIImage(cgImage: img)
-            self.image = thumbnail
-            self.imageCache?[url] = image
+            Task { @MainActor [weak self] in
+                let thumbnail = UIImage(cgImage: img)
+                self?.image = thumbnail
+                self?.imageCache?[url] = thumbnail
+            }
         } catch {
 
         }

@@ -1,6 +1,25 @@
 import Foundation
 
-struct Scope {
+
+@inline(__always) @discardableResult func TaskBackSwitcher(
+    block: @BackgroundActor @escaping () async -> Void
+) -> Task<Void, Error>? {
+    return Task { @BackgroundActor in
+        return await block()
+    }
+}
+
+
+@inline(__always) @discardableResult func TaskMainSwitcher(
+    block: @MainActor @escaping () async -> Void
+) -> Task<Void, Error>? {
+    return Task { @MainActor in
+        return await block()
+    }
+}
+
+@frozen public struct Scope : Sendable {
+
     var backTask: Task<Void, Error>?
     var medTask: Task<Void, Error>?
     var realmTask: Task<Void, Error>?
@@ -20,20 +39,11 @@ struct Scope {
     @inline(__always) @discardableResult mutating func launchMed(
         block: @Sendable @escaping () async -> Void
     ) -> Task<Void, Error>? {
-        realmTask = Task(priority: .medium) { [realmTask] in
-            let _ = await realmTask?.result
+        medTask = Task(priority: .medium) { [medTask] in
+            let _ = await medTask?.result
             return await block()
         }
         return realmTask
-    }
-    
-    
-    @inline(__always) @discardableResult mutating func launchBack(
-        block: @BackgroundActor @Sendable @escaping () async -> Void
-    ) -> Task<Void, Error>? {
-        return Task { @BackgroundActor in
-            return await block()
-        }
     }
 
     @inline(__always) @discardableResult mutating func launchMain(
@@ -44,6 +54,14 @@ struct Scope {
             return await block()
         }
         return mainTask
+    }
+    
+    @inline(__always) @discardableResult func launchBack(
+        block: @BackgroundActor @escaping () async -> Void
+    ) -> Task<Void, Error>? {
+        return Task { @BackgroundActor in
+            return await block()
+        }
     }
     
     mutating func deInit() {

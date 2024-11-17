@@ -54,10 +54,6 @@ struct Main: View {
         }
     }
     
-    var findPreference: @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit {
-        return app.findPrefString
-    }
-    
     var screenConfig: @MainActor (Screen) -> (any ScreenConfig)? {
         return { screen in
             return app.findArg(screen: screen)
@@ -75,8 +71,7 @@ struct Main: View {
                 backPress: backPress,
                 screenConfig: screenConfig,
                 findPreferenceMainBack: findPreferenceMainBack,
-                findPreferenceMainMain: findPreferenceMainMain,
-                findPreference: findPreference
+                findPreferenceMainMain: findPreferenceMainMain
             ).navigationDestination(for: Screen.self) { route in
                 targetScreen(
                     route, app,
@@ -86,8 +81,7 @@ struct Main: View {
                     backPress: backPress,
                     screenConfig: screenConfig,
                     findPreferenceMainBack: findPreferenceMainBack,
-                    findPreferenceMainMain: findPreferenceMainMain,
-                    findPreference: findPreference
+                    findPreferenceMainMain: findPreferenceMainMain
                 )//.toolbar(.hidden, for: .navigationBar)
             }
         }/*.prepareStatusBarConfigurator(

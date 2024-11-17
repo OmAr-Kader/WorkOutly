@@ -29,10 +29,64 @@ extension UIColor {
         var blue: CGFloat = 0
         var alpha: CGFloat = 0
         getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-
+        
         return (red, green, blue, alpha)
     }
-
+    
+    var argb: Int64 {
+        var alpha: CGFloat = 0
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        
+        
+        getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        
+        let a = UInt32(alpha * 255) << 24
+        let r = UInt32(red * 255) << 16
+        let g = UInt32(green * 255) << 8
+        let b = UInt32(blue * 255)
+        return Int64(a | r | g | b)
+    }
+    
+    func lighten(by factor: CGFloat) -> UIColor {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        self.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        return UIColor(
+            red: min(red + (1 - red) * factor, 1.0),
+            green: min(green + (1 - green) * factor, 1.0),
+            blue: min(blue + (1 - blue) * factor, 1.0),
+            alpha: alpha
+        )
+    }
+    
+    
+    func darken(by factor: CGFloat) -> UIColor {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        self.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        return UIColor(
+            red: red * (1 - factor),
+            green: green * (1 - factor),
+            blue: blue * (1 - factor),
+            alpha: alpha
+        )
+    }
+    
+    convenience init(_ red: Double,_ green: Double,_ blue: Double) {
+        self.init(red: red / 255, green: green / 255, blue: blue / 255, alpha: 1)
+    }
+    
 }
 
 extension Color {
@@ -61,6 +115,21 @@ extension Color {
             opacity: randomOpacity ? .random(in: 0...1) : 1
         )
     }
+    
+    init(_ red: Double,_ green: Double,_ blue: Double) {
+        self.init(red: red / 255, green: green / 255, blue: blue / 255)
+    }
+    
+    init(argb: UInt32) {
+        let alpha = Double((argb >> 24) & 0xFF) / 255.0
+        let red = Double((argb >> 16) & 0xFF) / 255.0
+        let green = Double((argb >> 8) & 0xFF) / 255.0
+        let blue = Double(argb & 0xFF) / 255.0
+        
+        
+        self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
+    }
+    
 }
 
 

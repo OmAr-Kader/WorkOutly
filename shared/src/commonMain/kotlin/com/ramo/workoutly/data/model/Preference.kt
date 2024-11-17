@@ -16,4 +16,6 @@ data class PreferenceData(
     val id: String,
     val keyString: String,
     val value: String,
-)
+) {
+    constructor() : this("", "", "")
+}

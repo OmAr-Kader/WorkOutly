@@ -61,8 +61,8 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     CALORIES_BURNED,
                     "Calories",
                     Color.Yellow.let { if (isDarkMode) it else it.darken(0.3F) }.toArgb().toLong(),
-                    caloriesBurned.sumOf { it.energy.inCalories }.toLong(),
-                    " cal"
+                    caloriesBurned.sumOf { it.energy.inKilocalories }.toLong(),
+                    " kcal"
                 )
                 val metabolicRateMetric = FitnessMetric(
                     METABOLIC_RATE,
@@ -76,7 +76,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     "Heart Rate",
                     Color.Red.let { if (isDarkMode) it else it.darken(0.3F) }.toArgb().toLong(),
                     heartRate.map { it.samples.map { i -> i.beatsPerMinute }.averageSafeLong() }.averageSafeDouble().toLong(),
-                    " kcal/day"
+                    " bpm"
                 )
                 val sleepMetric = FitnessMetric(
                     SLEEP,

@@ -14,13 +14,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     private(set) var appSet: AppObserve! = nil
     
-    
     var app: AppObserve {
-        
-        @Inject
-        var project: Project
         guard let appSet else {
-            let ap = AppObserve(project: project)
+            let ap = AppObserve()
             self.appSet = ap
             return ap
         }

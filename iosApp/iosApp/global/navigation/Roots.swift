@@ -12,14 +12,13 @@ extension View {
         backPress: @MainActor @escaping () -> Unit,
         screenConfig: @MainActor @escaping (Screen) -> (any ScreenConfig)?,
         findPreferenceMainBack: @escaping @MainActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit,
-        findPreferenceMainMain: @escaping @MainActor (String, @MainActor @escaping (String?) -> Unit) -> Unit,
-        findPreference: @escaping @BackgroundActor (String, @BackgroundActor @escaping (String?) -> Unit) -> Unit
+        findPreferenceMainMain: @escaping @MainActor (String, @MainActor @escaping (String?) -> Unit) -> Unit
     ) -> some View {
         switch target {
         case .AUTH_SCREEN_ROUTE:
             SplashScreen()
         case .HOME_SCREEN_ROUTE:
-            SplashScreen()
+            HomeScreen()
             //HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         }
     }

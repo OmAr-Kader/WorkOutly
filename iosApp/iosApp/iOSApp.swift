@@ -1,4 +1,5 @@
 import SwiftUI
+import shared
 
 @main
 struct iOSApp: App {
@@ -19,9 +20,9 @@ struct iOSApp: App {
                             //logger(String(isInjected))
                                 if !isInjected {
                                     withAnimation {
-                                        /*delegate.app.navigateHomeNoAnimation(
+                                        delegate.app.navigateHomeNoAnimation(
                                             .HOME_SCREEN_ROUTE//it == nil ? .AUTH_SCREEN_ROUTE : .HOME_SCREEN_ROUTE
-                                        )*/
+                                        )
                                         isInjected.toggle()
                                     }
                                 }

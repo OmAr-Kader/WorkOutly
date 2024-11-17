@@ -33,6 +33,8 @@
 		077721D92CE7BE9C0030B2FC /* Web.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721BF2CE7BE9C0030B2FC /* Web.swift */; };
 		077721DA2CE7BE9C0030B2FC /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721A22CE7BE9C0030B2FC /* Defaults.swift */; };
 		077721DB2CE7BE9C0030B2FC /* OutlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721B72CE7BE9C0030B2FC /* OutlinedTextField.swift */; };
+		07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED72CE933A60052305A /* HealthKitManager.swift */; };
+		07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */; };
 		07FF382F2CE7CDEE00892B2F /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 07FF382E2CE7CDEE00892B2F /* Swinject */; };
 		07FF38342CE8117200892B2F /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF38332CE8116D00892B2F /* HomeScreen.swift */; };
 		07FF38362CE8119000892B2F /* HomeObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF38352CE8118200892B2F /* HomeObserve.swift */; };
@@ -80,6 +82,8 @@
 		077721BF2CE7BE9C0030B2FC /* Web.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web.swift; sourceTree = "<group>"; };
 		077721C22CE7BE9C0030B2FC /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		077721DE2CE7C17E0030B2FC /* iosApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iosApp.entitlements; sourceTree = "<group>"; };
+		07B83ED72CE933A60052305A /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionManager.swift; sourceTree = "<group>"; };
 		07FF38332CE8116D00892B2F /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		07FF38352CE8118200892B2F /* HomeObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeObserve.swift; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
@@ -118,6 +122,7 @@
 		077721A42CE7BE9C0030B2FC /* data */ = {
 			isa = PBXGroup;
 			children = (
+				07B83ED62CE922DF0052305A /* health */,
 				077721A32CE7BE9C0030B2FC /* util */,
 			);
 			path = data;
@@ -190,7 +195,6 @@
 		077721C12CE7BE9C0030B2FC /* global */ = {
 			isa = PBXGroup;
 			children = (
-				07FF38302CE8114200892B2F /* New Group */,
 				077721AB2CE7BE9C0030B2FC /* base */,
 				077721AD2CE7BE9C0030B2FC /* navigation */,
 				077721BB2CE7BE9C0030B2FC /* ui */,
@@ -199,11 +203,13 @@
 			path = global;
 			sourceTree = "<group>";
 		};
-		07FF38302CE8114200892B2F /* New Group */ = {
+		07B83ED62CE922DF0052305A /* health */ = {
 			isa = PBXGroup;
 			children = (
+				07B83ED72CE933A60052305A /* HealthKitManager.swift */,
+				07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */,
 			);
-			path = "New Group";
+			path = health;
 			sourceTree = "<group>";
 		};
 		07FF38312CE8114C00892B2F /* ui */ = {
@@ -372,6 +378,8 @@
 				07FF38342CE8117200892B2F /* HomeScreen.swift in Sources */,
 				077721C92CE7BE9C0030B2FC /* Utils.swift in Sources */,
 				077721CA2CE7BE9C0030B2FC /* ToastView.swift in Sources */,
+				07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */,
+				07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */,
 				077721CB2CE7BE9C0030B2FC /* StatusBar.swift in Sources */,
 				077721CD2CE7BE9C0030B2FC /* BottomBarItemView.swift in Sources */,
 				077721CE2CE7BE9C0030B2FC /* BackButton.swift in Sources */,

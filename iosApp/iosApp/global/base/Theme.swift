@@ -7,11 +7,16 @@ struct Theme {
     let primary: Color
     let secondary: Color
     let background: Color
+    let backgroundGradient: LinearGradient
+    let gradientColor: Color
+    let gradientSec: Color
+    let statusBarColor: Color
     let surface: Color
     let backDark: Color
     let backDarkSec: Color
     let backGreyTrans: Color
     let textColor: Color
+    let textForGradientColor: Color
     let textForPrimaryColor: Color
     let textGrayColor: Color
     let error: Color
@@ -28,15 +33,20 @@ struct Theme {
         self.isDarkMode = isDarkMode
         if (isDarkMode) {
             self.isDarkStatusBarText = false
-            self.primary = Color(red: 1, green: 74 / 255, blue: 74 / 255)
-            self.secondary = Color(red: 231 / 255, green: 83 / 255, blue: 83 / 255)
-            self.surface =  Color(red: 31 / 255, green: 31 / 255, blue: 31 / 255)
-            self.backgroundPrimary = Color(red: 31 / 255, green: 31 / 255, blue: 31 / 255).margeWithPrimary
-            self.background = Color(red: 31 / 255, green: 31 / 255, blue: 31 / 255)
+            self.primary = Color(255, 74, 74)
+            self.secondary = Color(231, 83, 83)
+            self.surface =  Color(31, 31, 31)
+            self.backgroundPrimary = Color(31, 31, 31).margeWithPrimary
+            self.background = Color(31, 31, 31)
+            self.backgroundGradient = Color(38, 81, 96).getGradientFromBaseColor(second: Color(38, 81, 96).darken(by: 0.2))
+            self.gradientColor = Color(38, 81, 96)
+            self.gradientSec = Color(38, 81, 96).darken(by: 0.5)
+            self.statusBarColor = Color(38, 81, 96).darken(by: 0.2)
             self.backDark = Color(red: 50 / 255, green: 50 / 255, blue: 50 / 255)
             self.backDarkSec = Color(red: 100 / 255, green: 100 / 255, blue: 100 / 255)
             self.backGreyTrans = UIColor(red: 85 / 255, green: 85 / 255, blue: 85 / 255, alpha: 85 / 255).toC
             self.textColor = Color.white
+            self.textForGradientColor = Color(204, 204, 204)
             self.textForPrimaryColor = Color.black
             self.textGrayColor = Color(red: 143 / 255, green: 143 / 255, blue: 143 / 255)
             self.error = Color(red: 1, green: 21 / 255, blue: 21 / 255)
@@ -54,10 +64,15 @@ struct Theme {
             self.surface =  Color.white
             self.backgroundPrimary = Color.white.margeWithPrimary
             self.background = Color.white
+            self.backgroundGradient = Color(38, 81, 96).getGradientFromBaseColor(second: Color(38, 81, 96).lighten(by: 0.2))
+            self.gradientColor = Color(38, 81, 96)
+            self.gradientSec = Color(38, 81, 96).lighten(by: 0.5)
+            self.statusBarColor = Color(38, 81, 96).lighten(by: 0.2)
             self.backDark = Color(red: 215 / 255, green: 215 / 255, blue: 215 / 255)
             self.backDarkSec = Color(red: 200 / 255, green: 200 / 255, blue: 200 / 255)
             self.backGreyTrans = UIColor(red: 170 / 255, green: 170 / 255, blue: 170 / 255, alpha: 85 / 255).toC
             self.textColor = Color.black
+            self.textForGradientColor = Color.white
             self.textForPrimaryColor = Color.black
             self.textGrayColor = Color(red: 112 / 255, green: 112 / 255, blue: 112 / 255)
             self.error = Color(red: 155 / 255, green: 0, blue: 0)

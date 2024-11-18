@@ -4,6 +4,27 @@ import SwiftUI
 import Combine
 import _PhotosUI_SwiftUI
 
+struct ImageSystem : View {
+    
+    let systemIcon: String
+    let tint: Color
+    
+    var body: some View {
+        Image(
+            uiImage: UIImage(
+                systemName: systemIcon
+            )?.withTintColor(UIColor(tint), renderingMode: .alwaysOriginal) ?? UIImage()
+        ).resizable()
+            .renderingMode(.template)
+            .foregroundColor(tint)
+            .tint(tint)
+            .background(Color.clear)
+            .imageScale(.medium)
+            .aspectRatio(contentMode: .fill)
+            .scaledToFit()
+    }
+}
+
 struct ImageAsset : View {
     
     let icon: String
@@ -62,6 +83,8 @@ struct ImageCacheView : View {
 
 
 class UrlImageModel: ObservableObject, @unchecked Sendable {
+    
+    @MainActor
     @Published var image: UIImage? = nil
     private var url: URL? = nil
     private var cancellable: AnyCancellable? = nil
@@ -145,7 +168,9 @@ class UrlImageModel: ObservableObject, @unchecked Sendable {
         guard let cacheImage = imageCache?[url] else {
             return false
         }
-        image = cacheImage
+        TaskMainSwitcher {
+            self.image = cacheImage
+        }
         return true
     }
 

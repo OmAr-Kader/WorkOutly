@@ -14,8 +14,7 @@ import shared
 //chmod +x gradlew
 //git rm -r --cached iosApp/iosApp/global/ui/Views.swift -f
 //https://github.com/Swinject/Swinject
-//https://github.com/googlemaps/ios-maps-sdk
-
+//https://github.com/ryohey/Zoomable.git
 
 func buildContainer() -> Container {
     let container = Container()

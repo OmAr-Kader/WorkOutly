@@ -53,23 +53,14 @@ struct BackButton: View {
                 action()
             }) {
                 HStack {
-                    Image(
-                        uiImage: UIImage(
-                            named: "chevron.backward"
-                        )?.withTintColor(
-                            UIColor(Color.cyan)
-                        ) ?? UIImage()
-                    ).resizable()
-                        .imageScale(.medium)
-                        .scaledToFit().frame(
-                            width: 20, height: 22, alignment: .topLeading
-                        )
+                    ImageSystem(systemIcon: "chevron.backward", tint: Color(red: 9 / 255, green: 131 / 255, blue: 1))
+                        .frame(width: 12, height: 18, alignment: .topLeading)
                     Text(
                         "Back"
                     ).font(.system(size: 17))
                         .foregroundStyle(
                             Color(red: 9 / 255, green: 131 / 255, blue: 1)
-                        ).padding(leading: -7)
+                        ).padding(leading: -4)
                 }.frame(width: 90, height: 45)
             }
             Spacer()

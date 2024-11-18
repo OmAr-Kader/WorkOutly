@@ -35,6 +35,7 @@
 		077721DB2CE7BE9C0030B2FC /* OutlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721B72CE7BE9C0030B2FC /* OutlinedTextField.swift */; };
 		07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED72CE933A60052305A /* HealthKitManager.swift */; };
 		07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */; };
+		07E11C6B2CEAB3D40087EFF5 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 07E11C6A2CEAB3D40087EFF5 /* Zoomable */; };
 		07FF382F2CE7CDEE00892B2F /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 07FF382E2CE7CDEE00892B2F /* Swinject */; };
 		07FF38342CE8117200892B2F /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF38332CE8116D00892B2F /* HomeScreen.swift */; };
 		07FF38362CE8119000892B2F /* HomeObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF38352CE8118200892B2F /* HomeObserve.swift */; };
@@ -97,6 +98,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07FF382F2CE7CDEE00892B2F /* Swinject in Frameworks */,
+				07E11C6B2CEAB3D40087EFF5 /* Zoomable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +322,7 @@
 			mainGroup = 7555FF72242A565900829871;
 			packageReferences = (
 				07FF382D2CE7CDEE00892B2F /* XCRemoteSwiftPackageReference "Swinject" */,
+				07E11C692CEAB3D40087EFF5 /* XCRemoteSwiftPackageReference "Zoomable" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -621,6 +624,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		07E11C692CEAB3D40087EFF5 /* XCRemoteSwiftPackageReference "Zoomable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ryohey/Zoomable.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		07FF382D2CE7CDEE00892B2F /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Swinject/Swinject";
@@ -632,6 +643,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		07E11C6A2CEAB3D40087EFF5 /* Zoomable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 07E11C692CEAB3D40087EFF5 /* XCRemoteSwiftPackageReference "Zoomable" */;
+			productName = Zoomable;
+		};
 		07FF382E2CE7CDEE00892B2F /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 07FF382D2CE7CDEE00892B2F /* XCRemoteSwiftPackageReference "Swinject" */;

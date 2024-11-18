@@ -18,7 +18,7 @@ extension View {
         case .AUTH_SCREEN_ROUTE:
             SplashScreen()
         case .HOME_SCREEN_ROUTE:
-            HomeScreen()
+            HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainMain: findPreferenceMainMain, navigateToScreen: navigateToScreen)
             //HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         }
     }

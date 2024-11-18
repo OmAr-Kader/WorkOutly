@@ -66,7 +66,6 @@ extension UIColor {
         )
     }
     
-    
     func darken(by factor: CGFloat) -> UIColor {
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -129,7 +128,23 @@ extension Color {
         
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
     }
+
+    func getGradientFromBaseColor(second: Color) -> LinearGradient {
+        // Create a linear gradient with this color and the second color
+        return LinearGradient(
+            gradient: Gradient(colors: [self, second]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
     
+    func darken(by factor: CGFloat) -> Color {
+        return toUic.darken(by: factor).toC
+    }
+    
+    func lighten(by factor: CGFloat) -> Color {
+        return toUic.lighten(by: factor).toC
+    }
 }
 
 

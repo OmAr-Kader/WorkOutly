@@ -2,7 +2,7 @@ package com.ramo.workoutly.data.model
 
 @kotlinx.serialization.Serializable
 data class FitnessMetric(
-    val recordId: Int,
+    val id: Int, //recordId
     val title: String,
     val iconColor: Long,
     val value: Long,

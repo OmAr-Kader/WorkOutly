@@ -31,7 +31,7 @@ class HomeObserve : ObservableObject {
         }
     }
     
-    func loadData(userPref: UserPref, isDarkMode: Bool, failed: @escaping @Sendable () -> Unit) {
+    func loadData(userPref: UserPref, isDarkMode: Bool, failed: @escaping @Sendable @MainActor () -> Unit) {
         //setIsProcess(true)
         scope.launchMain {
             self.back!.loadData(userPref: userPref, isDarkMode: isDarkMode) { mers in
@@ -142,42 +142,42 @@ class HomeObserveBack {
                                                                 let sleepInt = Int64(sleep ?? 0)
                                                                     let mers = [
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.STEPS,
+                                                                            id: ConstKt.STEPS,
                                                                             title: "Steps",
                                                                             iconColor: isDarkMode ? UIColor(29, 108, 245).argb : UIColor(29, 108, 245).darken(by: 0.3).argb,
                                                                             value: stepsInt,
                                                                             valueUnit: ""
                                                                         ),
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.DISTANCE,
+                                                                            id: ConstKt.DISTANCE,
                                                                             title: "Distance",
                                                                             iconColor: isDarkMode ? UIColor(0, 255, 0).argb : UIColor(0, 255, 0).darken(by: 0.3).argb,
                                                                             value: distanceInt,
                                                                             valueUnit: " m"
                                                                         ),
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.CALORIES_BURNED,
+                                                                            id: ConstKt.CALORIES_BURNED,
                                                                             title: "Calories",
                                                                             iconColor: isDarkMode ? UIColor(255, 255, 0).argb : UIColor(255, 255, 0).darken(by: 0.3).argb,
                                                                             value: calBurnedInt,
                                                                             valueUnit: " kcal"
                                                                         ),
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.METABOLIC_RATE,
+                                                                            id: ConstKt.METABOLIC_RATE,
                                                                             title: "Metabolic Rate",
                                                                             iconColor: isDarkMode ? UIColor(245, 73, 29).argb : UIColor(245, 73, 29).darken(by: 0.3).argb,
                                                                             value: metabolicRateInt,
                                                                             valueUnit: " kcal/day"
                                                                         ),
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.HEART_RATE,
+                                                                            id: ConstKt.HEART_RATE,
                                                                             title: "Heart Rate",
                                                                             iconColor: isDarkMode ? UIColor(255, 0, 0).argb : UIColor(255, 0, 0).darken(by: 0.3).argb,
                                                                             value: heartRateInt,
                                                                             valueUnit: " bpm"
                                                                         ),
                                                                         FitnessMetric(
-                                                                            recordId: ConstKt.SLEEP,
+                                                                            id: ConstKt.SLEEP,
                                                                             title: "Sleep",
                                                                             iconColor: isDarkMode ? UIColor(28, 199, 139).argb : UIColor(28, 199, 139).darken(by: 0.3).argb,
                                                                             value: sleepInt,

@@ -225,7 +225,8 @@ fun HomeScreen(
     ) { padding ->
         Column(modifier = Modifier
             .padding(padding)
-            .background(theme.backgroundGradient)) {
+            .background(theme.backgroundGradient)
+        ) {
             BarMainScreen(userPref) {
 
             }
@@ -311,7 +312,7 @@ fun BarMainScreen(
 
 @Composable
 fun FitnessMetricItem(metric: FitnessMetric, theme: Theme, invoke: () -> Unit) {
-    val imageVector = when (metric.recordId) {
+    val imageVector = when (metric.id) {
         STEPS -> rememberSteps(Color(metric.iconColor))
         HEART_RATE -> rememberHeart(Color(metric.iconColor))
         CALORIES_BURNED -> rememberFire(Color(metric.iconColor))

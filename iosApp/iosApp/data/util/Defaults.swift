@@ -23,11 +23,10 @@ extension PreferenceData : @unchecked @retroactive Sendable {
     }
 }
 
+extension FitnessMetric : @unchecked @retroactive Sendable, @retroactive Identifiable {
 
-extension FitnessMetric : @unchecked @retroactive Sendable {
-
-    convenience init(recordId: Int32, title: String, iconColor: Int64, value: Int64, valueUnit: String) {
-        self.init(recordId: recordId, title: title, iconColor: iconColor, value: value, valueUnit: valueUnit, valueStr: value.toStr + valueUnit)
+    convenience init(id: Int32, title: String, iconColor: Int64, value: Int64, valueUnit: String) {
+        self.init(id: id, title: title, iconColor: iconColor, value: value, valueUnit: valueUnit, valueStr: value.toStr + valueUnit)
     }
 
 }

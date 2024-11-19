@@ -24,7 +24,7 @@ class SessionViewModel(project: Project, private val healthKit: HealthKitManager
             state.copy(session = metric)
         }
         launchBack {
-            when (metric.recordId) {
+            when (metric.id) {
                 STEPS -> {
                     loadStepsData()
                 }

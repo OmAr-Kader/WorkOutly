@@ -137,7 +137,7 @@ fun SessionScreen(
 
 @Composable
 fun FitnessMetricLabel(metric: FitnessMetric, theme: Theme, invoke: () -> Unit) {
-    val imageVector = when (metric.recordId) {
+    val imageVector = when (metric.id) {
         STEPS -> rememberSteps(Color(metric.iconColor))
         HEART_RATE -> rememberHeart(Color(metric.iconColor))
         CALORIES_BURNED -> rememberFire(Color(metric.iconColor))

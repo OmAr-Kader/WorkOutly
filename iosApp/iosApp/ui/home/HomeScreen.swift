@@ -33,7 +33,6 @@ struct HomeScreen : View {
     
     @MainActor
     @State private var videoUrl: String?
-
     
     @State private var expandedHeight: CGFloat = 420 // RideSheetDragHandler + RideSheet + Padding
     @State private var collapsedHeight: CGFloat = 60
@@ -42,7 +41,22 @@ struct HomeScreen : View {
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
-            /// @OmAr-Kader => Test The Sheet
+            ScrollView {
+                VStack(spacing: 16) {
+                    VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: state.metrics) { metric in
+                        FitnessMetricItem(metric: metric, theme: theme) {
+                            navigateToScreen(SessionRoute(metric: metric), .SESSION_SCREEN_ROUTE)
+                        }
+                    }
+                    .padding(16)
+                    ForEach(state.exercises, id: \.id) { exercise in
+                        ExerciseItem(exercise: exercise, theme: theme) {
+                            navigateToScreen(ExerciseRoute(exercise: exercise), .EXERCISE_SCREEN_ROUTE)
+                        }
+                    }
+                    Spacer().frame(height: 80)
+                }
+            }.padding(.top, 16)
             LoadingScreen(isLoading: state.isProcess)
             if let imageUrl {
                 ImageViewer(imageUrl: imageUrl) {
@@ -54,6 +68,26 @@ struct HomeScreen : View {
                     self.videoUrl = nil
                 }
             }
+        }.background(theme.backgroundGradient).overlay {
+            ZStack {
+                Button {
+                    obs.setIsLiveVisible(it: true)
+                } label: {
+                    HStack {
+                        ImageAsset(icon: "dumbbell", tint: theme.textForPrimaryColor).frame(width: 30, height: 30)
+                        Spacer().frame(width: 3)
+                        Text("Live Session")
+                            .foregroundColor(theme.textForPrimaryColor)
+                            .font(.system(size: 18))
+                    }.padding(top: 7, leading: 15, bottom: 7, trailing: 15)
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(theme.primary))
+                }
+                .tint(theme.textForPrimaryColor)
+                .frame(width: 60, height: 60)
+                .background(RoundedRectangle(cornerRadius: 30).fill(theme.primary))
+                .shadow(radius: 10)
+                .onBottomEnd()
+            }.padding(trailing: 20)
         }.sheet(isPresented: Binding(get: {
             obs.state.isLiveVisible
         }, set: { it in
@@ -87,6 +121,169 @@ struct HomeScreen : View {
                     .edgesIgnoringSafeArea(.all).presentationDetents([.large, .custom(CommentSheetDetent.self)])
                     .interactiveDismissDisabled()
             }
+        }.onAppear {
+            obs.loadData(userPref: userPref, isDarkMode: theme.isDarkMode) {
+                toast = Toast(style: .error, message: "Permissions is required")
+            }
+        }
+    }
+}
+
+struct MainContent: View {
+    let metrics: [FitnessMetric]
+    let exercises: [Exercise]
+    let theme: Theme
+    let navigateToScreen: (Screen) -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: metrics) { metric in
+                    FitnessMetricItem(metric: metric, theme: theme) {
+                        //navigateToScreen()//sessionRoute
+                    }
+                }
+                .padding(16)
+                ForEach(exercises, id: \.id) { exercise in
+                    ExerciseItem(exercise: exercise, theme: theme) {
+                        //navigateToScreen()//exerciseRoute
+                    }
+                }
+                Spacer().frame(height: 80)
+            }
+        }.padding(.top, 16)
+    }
+}
+
+struct BarMainScreen: View {
+
+    let userPref: UserPref
+    let theme: Theme
+    let onOptions: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .center) {
+            HStack(alignment: .center) {
+                Spacer()
+                Button(action: onOptions) {
+                    ImageAsset(icon: "plus", tint: theme.textForGradientColor)
+                        .frame(width: 30, height: 30).padding(5)
+                }
+            }.padding(.horizontal, 10)
+            HStack(alignment: .center) {
+                Text("Hi, \(userPref.name)")
+                    .foregroundColor(theme.textForGradientColor)
+                    .font(.system(size: 20, weight: .regular))
+            }
+        }
+        .frame(height: 60)
+        .background(Color.clear)
+    }
+}
+
+struct FitnessMetricItem: View {
+    let metric: FitnessMetric
+    let theme: Theme
+    let invoke: () -> Void
+    let iconAsst: String
+    
+    init(metric: FitnessMetric, theme: Theme, invoke: @escaping () -> Void) {
+        self.metric = metric
+        self.theme = theme
+        self.invoke = invoke
+        self.iconAsst =  switch metric.id {
+        case ConstKt.STEPS: "steps"
+        case ConstKt.HEART_RATE: "heart"
+        case ConstKt.CALORIES_BURNED: "fire"
+        case ConstKt.DISTANCE: "distance"
+        case ConstKt.SLEEP: "sleep"
+        case ConstKt.METABOLIC_RATE: "body_system"
+        default: "heart"
+        }
+    }
+    
+    var body: some View {
+        Button(action: invoke) {
+            VStack {
+                ImageAsset(icon: iconAsst, tint: Color(argb: UInt32(metric.iconColor)))
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                Spacer().frame(height: 8)
+                Text(metric.title)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(theme.textColor)
+                    .lineLimit(1)
+                Text(metric.valueStr)
+                    .font(.system(size: 14))
+                    .foregroundColor(theme.textGrayColor)
+                    .lineLimit(1)
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, maxHeight: 90)
+            .background(theme.background)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+        }
+    }
+}
+
+
+struct ExerciseItem: View {
+    let exercise: Exercise
+    let theme: Theme
+    let onClick: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button(action: onClick) {
+                HStack {
+                    VStack {
+                        ImageCacheView(exercise.videoUri, isVideoPreview: true, contentMode: .fit)
+                            .frame(width: 80, height: 80, alignment: .center)
+                    }.frame(width: 80, height: 80, alignment: .center)
+                        .clipShape(
+                            .rect(cornerRadius: 15)
+                        )
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(exercise.title)
+                            .font(.system(size: 14))
+                            .fontWeight(.semibold)
+                            .foregroundColor(theme.textColor)
+                            .lineLimit(1)
+                            .padding(.bottom, 2)
+                        Text(exercise.description)
+                            .font(.system(size: 10))
+                            .foregroundColor(theme.textGrayColor)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .padding(.bottom, 2)
+                        
+                        HStack {
+                            HStack(spacing: 2) {
+                                ImageSystem(systemIcon: "person.fill", tint: theme.textColor)
+                                    .frame(width: 15, height: 15)
+                                Text("\(exercise.views)")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(theme.textGrayColor)
+                            }
+                            .padding(.trailing, 50)
+                            HStack(spacing: 2) {
+                                ImageAsset(icon: "timer", tint: theme.primary)
+                                    .frame(width: 15, height: 15)
+                                Text(exercise.lengthStr)
+                                    .font(.system(size: 10))
+                                    .foregroundColor(theme.textColor)
+                            }
+                        }
+                    }
+                    .padding(.leading, 10)
+                }
+                .frame(height: 80)
+                .padding(12)
+                .background(theme.background)
+                .cornerRadius(15)
+                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+            }
         }
     }
 }
@@ -110,6 +307,19 @@ struct ChatView : View {
 
     var body: some View {
         VStack {
+            VStack {
+                Capsule()
+                    .fill(theme.textGrayColor)
+                    .frame(width: 40, height: 6)
+                    .padding(.top, 10)
+                    .padding(.bottom, 6)
+                VStack(alignment: .leading) {
+                    Text(
+                        "Live Session"
+                    ).foregroundStyle(theme.textColor).font(.system(size: 16))
+                    //Spacer().frame(height: 10)
+                }
+            }
             ScrollViewReader { proxy in
                 ScrollView(Axis.Set.vertical, showsIndicators: false) {
                     LazyVStack {

@@ -12,6 +12,11 @@ var currentTime: Int64 {
 }
 
 
+@MainActor func isPortraitMode() -> Bool {
+    UIDevice.current.orientation.isPortrait || UIDevice.current.orientation.isFlat
+}
+
+
 @inlinable func catchy(completion: () throws -> ()) {
     do {
         try completion()
@@ -47,6 +52,12 @@ extension Array {
     
     subscript (safe index: Index) -> Element? {
         0 <= index && index < count ? self[index] : nil
+    }
+    
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
+        }
     }
 }
 

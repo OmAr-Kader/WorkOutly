@@ -20,6 +20,10 @@ extension View {
         case .HOME_SCREEN_ROUTE:
             HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainMain: findPreferenceMainMain, navigateToScreen: navigateToScreen)
             //HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
+        case .EXERCISE_SCREEN_ROUTE:
+            SplashScreen()
+        case .SESSION_SCREEN_ROUTE:
+            SplashScreen()
         }
     }
 }
@@ -28,6 +32,8 @@ extension View {
 enum Screen : Hashable {
     case AUTH_SCREEN_ROUTE
     case HOME_SCREEN_ROUTE
+    case EXERCISE_SCREEN_ROUTE
+    case SESSION_SCREEN_ROUTE
 
 }
 
@@ -35,4 +41,12 @@ protocol ScreenConfig {}
 
 struct HomeRoute: ScreenConfig {
     let userPref: UserPref
+}
+
+struct ExerciseRoute: ScreenConfig {
+    let exercise: Exercise
+}
+
+struct SessionRoute: ScreenConfig {
+    let metric: FitnessMetric
 }

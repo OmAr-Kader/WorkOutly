@@ -59,7 +59,7 @@ fun ExerciseScreen(
     val videoItem = remember(state.exercise.videoUri) { state.exercise.let { videoItem(it.videoUri, it.title) } }
     val videoConfig = remember { videoConfig }
     OnLaunchScreen {
-        screen()?.metric?.let { viewModel.loadData(it) }
+        screen()?.exercise?.let { viewModel.loadData(it) }
     }
     Scaffold { padding ->
         Column(modifier = Modifier.background(theme.backgroundGradient).padding(padding)) {

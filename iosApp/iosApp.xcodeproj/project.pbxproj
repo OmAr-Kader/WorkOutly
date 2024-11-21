@@ -33,6 +33,10 @@
 		077721D92CE7BE9C0030B2FC /* Web.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721BF2CE7BE9C0030B2FC /* Web.swift */; };
 		077721DA2CE7BE9C0030B2FC /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721A22CE7BE9C0030B2FC /* Defaults.swift */; };
 		077721DB2CE7BE9C0030B2FC /* OutlinedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077721B72CE7BE9C0030B2FC /* OutlinedTextField.swift */; };
+		079167042CEEA76700A5A28D /* ExerciseScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079167032CEEA76500A5A28D /* ExerciseScreen.swift */; };
+		079167062CEEA7C900A5A28D /* ExerciseObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079167052CEEA7C200A5A28D /* ExerciseObserve.swift */; };
+		079167082CEEA7DE00A5A28D /* SessionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079167072CEEA7DD00A5A28D /* SessionScreen.swift */; };
+		0791670A2CEEA7E700A5A28D /* SessionObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079167092CEEA7E100A5A28D /* SessionObserve.swift */; };
 		07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED72CE933A60052305A /* HealthKitManager.swift */; };
 		07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */; };
 		07E11C6B2CEAB3D40087EFF5 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 07E11C6A2CEAB3D40087EFF5 /* Zoomable */; };
@@ -83,6 +87,10 @@
 		077721BF2CE7BE9C0030B2FC /* Web.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web.swift; sourceTree = "<group>"; };
 		077721C22CE7BE9C0030B2FC /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		077721DE2CE7C17E0030B2FC /* iosApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iosApp.entitlements; sourceTree = "<group>"; };
+		079167032CEEA76500A5A28D /* ExerciseScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseScreen.swift; sourceTree = "<group>"; };
+		079167052CEEA7C200A5A28D /* ExerciseObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseObserve.swift; sourceTree = "<group>"; };
+		079167072CEEA7DD00A5A28D /* SessionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionScreen.swift; sourceTree = "<group>"; };
+		079167092CEEA7E100A5A28D /* SessionObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionObserve.swift; sourceTree = "<group>"; };
 		07B83ED72CE933A60052305A /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionManager.swift; sourceTree = "<group>"; };
 		07FF38332CE8116D00892B2F /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
@@ -205,6 +213,24 @@
 			path = global;
 			sourceTree = "<group>";
 		};
+		079167012CEEA73800A5A28D /* exercise */ = {
+			isa = PBXGroup;
+			children = (
+				079167052CEEA7C200A5A28D /* ExerciseObserve.swift */,
+				079167032CEEA76500A5A28D /* ExerciseScreen.swift */,
+			);
+			path = exercise;
+			sourceTree = "<group>";
+		};
+		079167022CEEA74700A5A28D /* session */ = {
+			isa = PBXGroup;
+			children = (
+				079167092CEEA7E100A5A28D /* SessionObserve.swift */,
+				079167072CEEA7DD00A5A28D /* SessionScreen.swift */,
+			);
+			path = session;
+			sourceTree = "<group>";
+		};
 		07B83ED62CE922DF0052305A /* health */ = {
 			isa = PBXGroup;
 			children = (
@@ -217,7 +243,9 @@
 		07FF38312CE8114C00892B2F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				079167012CEEA73800A5A28D /* exercise */,
 				07FF38322CE8116700892B2F /* home */,
+				079167022CEEA74700A5A28D /* session */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -374,6 +402,7 @@
 				077721C32CE7BE9C0030B2FC /* Media.swift in Sources */,
 				077721C42CE7BE9C0030B2FC /* BarBuilder.swift in Sources */,
 				077721C52CE7BE9C0030B2FC /* Views.swift in Sources */,
+				0791670A2CEEA7E700A5A28D /* SessionObserve.swift in Sources */,
 				077721C62CE7BE9C0030B2FC /* AppDelegate.swift in Sources */,
 				077721C72CE7BE9C0030B2FC /* BottomBarItem.swift in Sources */,
 				077721C82CE7BE9C0030B2FC /* Image.swift in Sources */,
@@ -381,6 +410,7 @@
 				07FF38342CE8117200892B2F /* HomeScreen.swift in Sources */,
 				077721C92CE7BE9C0030B2FC /* Utils.swift in Sources */,
 				077721CA2CE7BE9C0030B2FC /* ToastView.swift in Sources */,
+				079167062CEEA7C900A5A28D /* ExerciseObserve.swift in Sources */,
 				07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */,
 				07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */,
 				077721CB2CE7BE9C0030B2FC /* StatusBar.swift in Sources */,
@@ -388,6 +418,7 @@
 				077721CE2CE7BE9C0030B2FC /* BackButton.swift in Sources */,
 				077721CF2CE7BE9C0030B2FC /* Main.swift in Sources */,
 				077721D02CE7BE9C0030B2FC /* Roots.swift in Sources */,
+				079167082CEEA7DE00A5A28D /* SessionScreen.swift in Sources */,
 				077721D12CE7BE9C0030B2FC /* BottomSheet.swift in Sources */,
 				077721D22CE7BE9C0030B2FC /* Theme.swift in Sources */,
 				077721D32CE7BE9C0030B2FC /* Color.swift in Sources */,
@@ -400,6 +431,7 @@
 				077721DA2CE7BE9C0030B2FC /* Defaults.swift in Sources */,
 				077721DB2CE7BE9C0030B2FC /* OutlinedTextField.swift in Sources */,
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
+				079167042CEEA76700A5A28D /* ExerciseScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,7 +573,7 @@
 				);
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -578,7 +610,7 @@
 				);
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

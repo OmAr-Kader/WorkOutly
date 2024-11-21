@@ -35,7 +35,7 @@ class HomeObserve : ObservableObject {
         //setIsProcess(true)
         scope.launchMain {
             self.back!.loadData(userPref: userPref, isDarkMode: isDarkMode) { mers in
-                self.state = self.state.copy(metrics: mers, isProcess: false)
+                self.state = self.state.copy(metrics: mers, exercises: TempKt.tempExercises, messages: ConverterKt.messagesFilter(TempKt.messages, userId: userPref.id), isProcess: false)
             } failed: {
                 self.setMainProcess(false)
                 failed()
@@ -45,7 +45,7 @@ class HomeObserve : ObservableObject {
     }
     
     func setIsLiveVisible(it: Bool) {
-        self.state = self.state.copy(isProcess: it)
+        self.state = self.state.copy(isLiveVisible: it)
     }
 
     

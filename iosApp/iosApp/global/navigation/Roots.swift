@@ -21,9 +21,9 @@ extension View {
             HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreferenceMainMain: findPreferenceMainMain, navigateToScreen: navigateToScreen)
             //HomeScreen(userPref: app.state.userPref ?? UserPref(), findPreference: findPreference, navigateToScreen: navigateToScreen, navigateHome: navigateHome)
         case .EXERCISE_SCREEN_ROUTE:
-            SplashScreen()
+            ExerciseScreen(screenConfig: screenConfig, backPress: backPress)
         case .SESSION_SCREEN_ROUTE:
-            SplashScreen()
+            SessionScreen(screenConfig: screenConfig, backPress: backPress)
         }
     }
 }

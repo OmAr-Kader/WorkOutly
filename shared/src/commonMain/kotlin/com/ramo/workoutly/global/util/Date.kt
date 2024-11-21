@@ -44,6 +44,12 @@ val Long.toTimestamp: String get() {
     })
 }
 
+val Long.toTimestampYear: String get() {
+    return toInstant.dateTime.format(LocalDateTime.Format {
+        byUnicodePattern("uuuu/MM/dd HH:mm")
+    })
+}
+
 // Duration
 val Long.formatMillisecondsToHours: String get () {
     val hours = this / 3_600_000

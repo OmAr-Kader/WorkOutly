@@ -11,11 +11,14 @@ var currentTime: Int64 {
     return Int64(Date.now.timeIntervalSince1970 * 1000.0)
 }
 
-
-@MainActor func isPortraitMode() -> Bool {
-    UIDevice.current.orientation.isPortrait || UIDevice.current.orientation.isFlat
+@MainActor
+func isPortraitMode() -> Bool {
+    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+        return true // Fallback if no active scenes are available
+    }
+    let orientation = windowScene.interfaceOrientation
+    return orientation == .portrait || orientation == .portraitUpsideDown
 }
-
 
 @inlinable func catchy(completion: () throws -> ()) {
     do {
@@ -181,8 +184,12 @@ extension Int64 {
         return Int64(time)
     }
     
+    var toString: String {
+        String(self)
+    }
+    
     //https://help.talend.com/r/en-US/8.0/data-preparation-user-guide/list-of-date-and-date-time-formats
-    var toStr: String {
+    var millisecToStr: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMM" //"dd MMM yy" //"d MMM yyyy"//"YY/MM/dd"
         return dateFormatter.string(
@@ -190,7 +197,7 @@ extension Int64 {
         )
     }
     
-    var toStrDMY: String {
+    var millisecToStrDMY: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd MMM yy"
         return dateFormatter.string(
@@ -198,7 +205,7 @@ extension Int64 {
         )
     }
     
-    var toStrDay: String {
+    var millisecToStrDay: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd"
         return dateFormatter.string(
@@ -206,7 +213,7 @@ extension Int64 {
         )
     }
     
-    var toStrMonth: String {
+    var millisecToStrMonth: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM"
         return dateFormatter.string(
@@ -214,7 +221,7 @@ extension Int64 {
         )
     }
     
-    var toStrYear: String {
+    var millisecToStrYear: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy"
         return dateFormatter.string(
@@ -222,7 +229,7 @@ extension Int64 {
         )
     }
     
-    var toStrHMS: String {
+    var millisecToStrHMS: String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss"
         return dateFormatter.string(

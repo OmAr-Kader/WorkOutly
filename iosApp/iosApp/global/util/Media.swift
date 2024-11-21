@@ -1,30 +1,70 @@
 import Foundation
 import _PhotosUI_SwiftUI
 import PhotosUI
+import SwiftUI
 
 func getURL(
     item: PhotosPickerItem,
-    completionHandler: @escaping @Sendable (_ result: Result<URL, Error>) -> Void
+    invoke: @escaping @Sendable (URL, _ isVideo: Bool) -> Void,
+    failed: @escaping @Sendable () -> Void
 ) {
     // Step 1: Load as Data object.
     item.loadTransferable(type: Data.self) { result in
         switch result {
         case .success(let data):
             if let contentType = item.supportedContentTypes.first {
+                logger("imageUri", contentType.identifier)
                 // Step 2: make the URL file name and a get a file extention.
                 let url = getDocumentsDirectory().appendingPathComponent("\(UUID().uuidString).\(contentType.preferredFilenameExtension ?? "")")
                 if let data = data {
                     do {
                         // Step 3: write to temp App file directory and return in completionHandler
                         try data.write(to: url)
-                        completionHandler(.success(url))
+                        invoke(url, contentType == .video)
                     } catch {
-                        completionHandler(.failure(error))
+                        logger("getURL",error.localizedDescription)
+                        failed()
                     }
                 }
             }
         case .failure(let failure):
-            completionHandler(.failure(failure))
+            logger("getURL", failure.localizedDescription)
+            failed()
+        }
+    }
+}
+
+func forChangePhoto(_ image: @escaping @Sendable (URL, Bool) -> Void) -> ((PhotosPickerItem?) -> Void) {
+    return { newIt in
+        if let newIt = newIt {
+            getURL(item: newIt) { url, isVideo in
+                image(url, isVideo)
+                logger("imageUri", String(isVideo))
+                logger("imageUri", url.absoluteString)
+            } failed: {
+                
+            }
+        }
+    }
+}
+
+extension PhotosPickerItem {
+    
+    func loadImageFromUrl(invoke: @Sendable @escaping (Image?) -> Unit) -> Progress {
+        return loadTransferable(type: Image.self) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let image?):
+                    invoke(image)
+                    // Handle the success case with the image.
+                case .success(nil):
+                    invoke(nil)
+                    // Handle the success case with an empty value.
+                case .failure(let error):
+                    loggerError("loadImageFromUrl", error.localizedDescription)
+                    // Handle the failure case with the provided error.
+                }
+            }
         }
     }
 }

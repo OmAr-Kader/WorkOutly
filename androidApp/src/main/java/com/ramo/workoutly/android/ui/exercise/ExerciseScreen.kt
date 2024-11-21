@@ -213,15 +213,3 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
         }
     }
 }
-
-val String.makeValidLink: String get() {
-    return try {
-        URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
-            .replace("/", "%2F") // Decode slashes
-            .replace(":", "%3A")
-            .replace(" ", "%20")
-            .replace("\n", "")
-    } catch (e: Exception) {
-        this // Return null if the URL is invalid
-    }
-}

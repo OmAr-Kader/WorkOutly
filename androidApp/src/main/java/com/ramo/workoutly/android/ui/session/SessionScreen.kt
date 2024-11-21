@@ -65,17 +65,10 @@ fun SessionScreen(
 ) {
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
-    val scaffoldState = remember { SnackbarHostState() }
     OnLaunchScreen {
         screen()?.metric?.let { viewModel.loadData(it) }
     }
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(scaffoldState) {
-                Snackbar(it, containerColor = theme.backDarkSec, contentColor = theme.textColor)
-            }
-        },
-    ) { padding ->
+    Scaffold { padding ->
         Column(modifier = Modifier.padding(padding).background(theme.backgroundGradient)) {
             BackButton(theme.background ,theme.textColor) {
                 scope.launch { backPress() }

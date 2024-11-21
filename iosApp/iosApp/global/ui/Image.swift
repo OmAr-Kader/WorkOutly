@@ -266,7 +266,7 @@ struct PhotoPiceker<Content : View> : View {
 
     let pickerType: PHPickerFilter
     @ViewBuilder let content: @Sendable () -> Content
-    let imagePicked: @Sendable (URL) -> Unit
+    let imagePicked: @Sendable (URL, _ isVideo: Bool) -> Unit
     var body: some View {
 
         PhotosPicker(

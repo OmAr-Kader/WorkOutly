@@ -378,7 +378,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                 ImageForCurveItem(exercise.videoUri, 80.dp)
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize().padding(5.dp)
                 ) subBox@{
                     Text(
                         text = exercise.title,
@@ -388,7 +388,6 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                         maxLines = 1,
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .padding(horizontal = 5.dp, vertical = 5.dp)
                     )
                     Text(
                         text = exercise.description,
@@ -399,7 +398,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                         maxLines = 1,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 15.dp, end = 15.dp, bottom = 3.dp)
+                            .padding(bottom = 3.dp)
                     )
                     Row(
                         modifier = Modifier

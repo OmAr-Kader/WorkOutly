@@ -41,10 +41,12 @@ struct BackButton: View {
 
     let title: String
     let action: @MainActor () -> Void
+    let tint: Color
     
-    init(title: String = "", action: @MainActor @escaping () -> Void) {
+    init(title: String = "", tint: Color = Color(red: 9 / 255, green: 131 / 255, blue: 1), action: @MainActor @escaping () -> Void) {
         self.title = title
         self.action = action
+        self.tint = tint
     }
     
     var body: some View {
@@ -53,19 +55,17 @@ struct BackButton: View {
                 action()
             }) {
                 HStack {
-                    ImageSystem(systemIcon: "chevron.backward", tint: Color(red: 9 / 255, green: 131 / 255, blue: 1))
+                    ImageSystem(systemIcon: "chevron.backward", tint: tint)
                         .frame(width: 12, height: 18, alignment: .topLeading)
                     Text(
                         "Back"
                     ).font(.system(size: 17))
-                        .foregroundStyle(
-                            Color(red: 9 / 255, green: 131 / 255, blue: 1)
-                        ).padding(leading: -4)
+                        .foregroundStyle(tint).padding(leading: -4)
                 }.frame(width: 90, height: 45)
             }
             Spacer()
             if !title.isEmpty {
-                Text(title).font(.headline).foregroundStyle(Color(red: 9 / 255, green: 131 / 255, blue: 1)).onCenter()
+                Text(title).font(.headline).foregroundStyle(tint).onCenter()
                 Spacer()
             }
         }

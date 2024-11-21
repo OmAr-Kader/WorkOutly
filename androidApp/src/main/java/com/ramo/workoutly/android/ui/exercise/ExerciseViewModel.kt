@@ -29,11 +29,4 @@ class ExerciseViewModel(project: Project) : BaseViewModel(project) {
         val exercise: Exercise = Exercise(),
         val isProcess: Boolean = true,
     )
-
-    /*val metrics = listOf(
-        FitnessMetric("Steps", 1, Color.Blue,"10,000"),
-        FitnessMetric("Heart Rate", 2, Color.Red, "78 BPM"),
-        FitnessMetric("Calories", 3,  Color.Yellow,"250 kcal"),
-        FitnessMetric("Sleep", 4,  Color.Cyan,"7 hrs")
-    )*/
 }

@@ -10,6 +10,7 @@ import SwiftUI
 import shared
 import Zoomable
 import AVKit
+import _PhotosUI_SwiftUI
 
 struct HomeScreen : View {
     
@@ -34,124 +35,105 @@ struct HomeScreen : View {
     @MainActor
     @State private var videoUrl: String?
     
-    @State private var expandedHeight: CGFloat = 420 // RideSheetDragHandler + RideSheet + Padding
-    @State private var collapsedHeight: CGFloat = 60
-    @State private var currentOffset: CGFloat = -(420 - 60)
+    @State private var expandedHeight: CGFloat = 420 
+    @State private var collapsedHeight: CGFloat = 0
+    @State private var currentOffset: CGFloat = 0
+
+    @State private var isPresented = false
 
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
+            BarMainScreen(userPref: userPref, theme: theme) {
+                
+            }
             ScrollView {
-                VStack(spacing: 16) {
+                LazyVStack {
                     VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: state.metrics) { metric in
                         FitnessMetricItem(metric: metric, theme: theme) {
                             navigateToScreen(SessionRoute(metric: metric), .SESSION_SCREEN_ROUTE)
                         }
-                    }
-                    .padding(16)
-                    ForEach(state.exercises, id: \.id) { exercise in
-                        ExerciseItem(exercise: exercise, theme: theme) {
-                            navigateToScreen(ExerciseRoute(exercise: exercise), .EXERCISE_SCREEN_ROUTE)
+                    }.padding(16)
+                    VStack {
+                        ForEach(state.exercises, id: \.id) { exercise in
+                            ExerciseItem(exercise: exercise, theme: theme) {
+                                navigateToScreen(ExerciseRoute(exercise: exercise), .EXERCISE_SCREEN_ROUTE)
+                            }
                         }
-                    }
+                    }.padding(16)
                     Spacer().frame(height: 80)
                 }
-            }.padding(.top, 16)
-            LoadingScreen(isLoading: state.isProcess)
-            if let imageUrl {
-                ImageViewer(imageUrl: imageUrl) {
-                    self.imageUrl = nil
-                }
-            }
-            if let videoUrl {
-                VideoViewer(videoUrl: videoUrl) {
-                    self.videoUrl = nil
-                }
-            }
-        }.background(theme.backgroundGradient).overlay {
+            }.padding(.top, 60)
             ZStack {
-                Button {
-                    obs.setIsLiveVisible(it: true)
-                } label: {
+                Button(action: {
+                    withAnimation {
+                        //currentOffset = -1 * (expandedHeight - 20)
+                        obs.setIsLiveVisible(it: true)
+                    }
+                }) {
                     HStack {
                         ImageAsset(icon: "dumbbell", tint: theme.textForPrimaryColor).frame(width: 30, height: 30)
-                        Spacer().frame(width: 3)
+                        Spacer().frame(width: 5)
                         Text("Live Session")
                             .foregroundColor(theme.textForPrimaryColor)
                             .font(.system(size: 18))
                     }.padding(top: 7, leading: 15, bottom: 7, trailing: 15)
-                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(theme.primary))
                 }
                 .tint(theme.textForPrimaryColor)
-                .frame(width: 60, height: 60)
-                .background(RoundedRectangle(cornerRadius: 30).fill(theme.primary))
+                .frame(height: 60)
+                .background(RoundedRectangle(cornerRadius: 15).fill(theme.primary))
                 .shadow(radius: 10)
                 .onBottomEnd()
-            }.padding(trailing: 20)
+            }.padding( bottom: 20, trailing: 20).onBottomEnd()
+            LoadingScreen(isLoading: state.isProcess)
         }.sheet(isPresented: Binding(get: {
             obs.state.isLiveVisible
         }, set: { it in
             obs.setIsLiveVisible(it: it)
         })) {
-            if #available(iOS 16.4, *) {
-                ChatView(list: state.messages) { imageUrl in
-                    self.imageUrl = imageUrl
-                } inVideo: { videoUrl in
-                    self.videoUrl = videoUrl
-                } send: { txt in
+            NavigationStack {
+                ZStack {
+                    ChatView(list: state.messages) { imageUrl in
+                        self.imageUrl = imageUrl
+                    } inVideo: { videoUrl in
+                        self.videoUrl = videoUrl
+                    } send: { txt in
+                        
+                    } file: { url, isVideo in
+                        
+                    }
                     
-                } file: {
-                    
-                }.background(theme.background)
-                    .edgesIgnoringSafeArea(.all)
-                    .presentationBackground(theme.background)
-                    .presentationDetents([.large, .custom(CommentSheetDetent.self)])
-                    .presentationContentInteraction(.scrolls)
-                    .interactiveDismissDisabled()
-            } else {
-                ChatView(list: state.messages) { imageUrl in
-                    self.imageUrl = imageUrl
-                } inVideo: { videoUrl in
-                    self.videoUrl = videoUrl
-                } send: { txt in
-                    
-                } file: {
-                    
-                }.background(theme.background)
-                    .edgesIgnoringSafeArea(.all).presentationDetents([.large, .custom(CommentSheetDetent.self)])
-                    .interactiveDismissDisabled()
-            }
-        }.onAppear {
+                    if let imageUrl {
+                        ImageViewer(imageUrl: imageUrl) {
+                            self.imageUrl = nil
+                        }
+                    }
+                    if let videoUrl {
+                        VideoViewer(videoUrl: videoUrl) {
+                            self.videoUrl = nil
+                        }
+                    }
+                }
+            }.background(theme.background)
+                .presentationBackground(theme.background)
+                .presentationDetents([.large, .custom(CommentSheetDetent.self)])
+                .presentationContentInteraction(.scrolls)
+                .presentationDetents([.height(expandedHeight)])
+        }.background(theme.backgroundGradient).onAppear {
             obs.loadData(userPref: userPref, isDarkMode: theme.isDarkMode) {
                 toast = Toast(style: .error, message: "Permissions is required")
             }
-        }
-    }
-}
-
-struct MainContent: View {
-    let metrics: [FitnessMetric]
-    let exercises: [Exercise]
-    let theme: Theme
-    let navigateToScreen: (Screen) -> Void
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: metrics) { metric in
-                    FitnessMetricItem(metric: metric, theme: theme) {
-                        //navigateToScreen()//sessionRoute
-                    }
-                }
-                .padding(16)
-                ForEach(exercises, id: \.id) { exercise in
-                    ExerciseItem(exercise: exercise, theme: theme) {
-                        //navigateToScreen()//exerciseRoute
-                    }
-                }
-                Spacer().frame(height: 80)
+        }.onAppear { // TO FULL SCREEN DRAGABLE SHEET
+            DispatchQueue.main.async {
+                let screenHeight = UIScreen.main.bounds.height
+                expandedHeight = screenHeight
             }
-        }.padding(.top, 16)
+        }.onChange(of: UIDevice.current.orientation) { _ in  // TO FULL SCREEN DRAGABLE SHEET
+            DispatchQueue.main.async {
+                let screenHeight = UIScreen.main.bounds.height
+                expandedHeight = screenHeight
+            }
+        }
     }
 }
 
@@ -167,9 +149,10 @@ struct BarMainScreen: View {
                 Spacer()
                 Button(action: onOptions) {
                     ImageAsset(icon: "plus", tint: theme.textForGradientColor)
-                        .frame(width: 30, height: 30).padding(5)
+                        .padding(5)
+                        .frame(width: 30, height: 30)
                 }
-            }.padding(.horizontal, 10)
+            }.padding(.horizontal, 15)
             HStack(alignment: .center) {
                 Text("Hi, \(userPref.name)")
                     .foregroundColor(theme.textForGradientColor)
@@ -229,22 +212,30 @@ struct FitnessMetricItem: View {
 
 
 struct ExerciseItem: View {
-    let exercise: Exercise
-    let theme: Theme
-    let onClick: () -> Void
+
+    @Environment(\.dismiss) var dismiss
+
+    private let exercise: Exercise
+    private let theme: Theme
+    private let onClick: () -> Void
+    
+    init(exercise: Exercise, theme: Theme, onClick: @escaping () -> Void) {
+        self.exercise = exercise
+        self.theme = theme
+        self.onClick = onClick
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Button(action: onClick) {
+        VStack(alignment: .leading) {
                 HStack {
                     VStack {
-                        ImageCacheView(exercise.videoUri, isVideoPreview: true, contentMode: .fit)
+                        ImageCacheView(exercise.videoUri, isVideoPreview: true, contentMode: .fill)
                             .frame(width: 80, height: 80, alignment: .center)
                     }.frame(width: 80, height: 80, alignment: .center)
                         .clipShape(
                             .rect(cornerRadius: 15)
                         )
-                    VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading) {
                         Text(exercise.title)
                             .font(.system(size: 14))
                             .fontWeight(.semibold)
@@ -257,34 +248,30 @@ struct ExerciseItem: View {
                             .lineLimit(1)
                             .truncationMode(.tail)
                             .padding(.bottom, 2)
-                        
-                        HStack {
-                            HStack(spacing: 2) {
+                        HStack(alignment: .center) {
+                            HStack {
                                 ImageSystem(systemIcon: "person.fill", tint: theme.textColor)
                                     .frame(width: 15, height: 15)
                                 Text("\(exercise.views)")
                                     .font(.system(size: 10))
                                     .foregroundColor(theme.textGrayColor)
                             }
-                            .padding(.trailing, 50)
-                            HStack(spacing: 2) {
+                            Spacer().frame(width: 2)
+                            HStack {
                                 ImageAsset(icon: "timer", tint: theme.primary)
                                     .frame(width: 15, height: 15)
                                 Text(exercise.lengthStr)
                                     .font(.system(size: 10))
                                     .foregroundColor(theme.textColor)
                             }
-                        }
-                    }
-                    .padding(.leading, 10)
+                        }.padding(leading: 15, trailing: 15)
+                    }.padding(5)
                 }
                 .frame(height: 80)
-                .padding(12)
                 .background(theme.background)
                 .cornerRadius(15)
-                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-            }
-        }
+                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4).onTapGesture(perform: onClick)
+        }.padding(top: 6, bottom: 6)
     }
 }
 
@@ -294,7 +281,7 @@ struct ChatView : View {
     let inImage: (String) -> Void
     let inVideo: (String) -> Void
     let send: (String) -> Void
-    let file: () -> Void
+    let file: @Sendable (URL, _ isVideo: Bool) -> Void
 
     @State
     private var chatText: String = ""
@@ -305,63 +292,79 @@ struct ChatView : View {
     @FocusState
     private var isFoucesed: Bool
 
+    @State
+    private var selectedItem: PhotosPickerItem?
+
     var body: some View {
-        VStack {
+        VStack(alignment: .center) {
             VStack {
-                Capsule()
-                    .fill(theme.textGrayColor)
-                    .frame(width: 40, height: 6)
-                    .padding(.top, 10)
-                    .padding(.bottom, 6)
-                VStack(alignment: .leading) {
+                HStack(alignment: .center) {
+                    Spacer()
+                    Capsule()
+                        .fill(theme.textGrayColor)
+                        .frame(width: 40, height: 6)
+                        .padding(.top, 10)
+                        .padding(.bottom, 6)
+                    Spacer()
+                }
+                HStack {
                     Text(
                         "Live Session"
-                    ).foregroundStyle(theme.textColor).font(.system(size: 16))
+                    ).foregroundStyle(theme.textColor).font(.system(size: 18)).padding(leading: 7, bottom: 7)
+                    Spacer()
                     //Spacer().frame(height: 10)
                 }
-            }
-            ScrollViewReader { proxy in
-                ScrollView(Axis.Set.vertical, showsIndicators: false) {
-                    LazyVStack {
-                        ForEach(list, id: \.id) { msg in
-                            MessageItem(msg: msg, theme: theme, inImage: inImage, inVideo: inVideo)
-                        }
-                    }.padding(leading: 5, bottom: 7, trailing: 5)
-                }.onAppear {
-                    proxy.scrollTo(list.count - 1)
+            }.frame(height: 60).background(theme.backDark)
+            VStack(alignment: .leading) {
+                ScrollViewReader { proxy in
+                    ScrollView(Axis.Set.vertical, showsIndicators: false) {
+                        LazyVStack(alignment: .leading) {
+                            ForEach(0..<list.count, id: \.self) { index in
+                                MessageItem(msg: list[index], theme: theme, inImage: inImage, inVideo: inVideo).id(index)
+                            }
+                        }.padding(leading: 5, bottom: 7, trailing: 5)
+                    }.onAppear {
+                        proxy.scrollTo(list.count - 1, anchor: .bottom)
+                    }.onChange(list) { it in
+                        proxy.scrollTo(it.count - 1, anchor: .bottom)
+                    }
                 }
-            }
-            Spacer()
-            HStack {
+                Spacer()
                 HStack {
-                    TextField("", text: $chatText, axis: Axis.vertical)
-                        .placeholder(when: chatText.isEmpty, alignment: .leading, placeholder: {
-                            Text("Question?")
-                                .foregroundColor(theme.textHintColor)
-                        }).focused($isFoucesed).multilineTextAlignment(.leading).foregroundColor(theme.textColor).frame(alignment: .leading)
-                        .onTapGesture {
-                            isFoucesed = true
-                        }
-                    Button(action: {
-                        isFoucesed = false
-                        file()
-                    }, label: {
-                        ImageAsset(icon: "file", tint: theme.textGrayColor)
-                            .frame(width: 30, height: 30)
-                    }).frame(width: 50, height: 50, alignment: .center)
-                    Button(action: {
-                        isFoucesed = false
-                        let chatText = self.chatText
-                        self.chatText = ""
-                        send(chatText)
-                    }, label: {
-                        ImageAsset(icon: "send", tint: theme.textGrayColor)
-                            .frame(width: 30, height: 30)
-                    }).frame(width: 50, height: 50, alignment: .center)
-                }.padding(leading: 10, trailing: 5)
-            }.shadow(radius: 3).background(theme.backDark)
-                .clipShape(.rect(topLeadingRadius: 8, topTrailingRadius: 8))
-        }.background(theme.background)
+                    HStack {
+                        TextField("", text: $chatText, axis: Axis.vertical)
+                            .placeholder(when: chatText.isEmpty, alignment: .leading, placeholder: {
+                                Text("Message")
+                                    .foregroundColor(theme.textHintColor)
+                            }).focused($isFoucesed).multilineTextAlignment(.leading).foregroundColor(theme.textColor).frame(alignment: .leading)
+                            .onTapGesture {
+                                isFoucesed = true
+                            }
+                        let textGrayColor = theme.textGrayColor
+                        PhotosPicker(
+                            selection: $selectedItem,
+                            matching: .any(of: [.images, .videos])
+                        ) {
+                            ImageAsset(icon: "file", tint: textGrayColor)
+                                .padding(6)
+                                .frame(width: 30, height: 30)
+                        }.onChange(selectedItem, forChangePhoto(file))
+                            .frame(width: 50, height: 50, alignment: .center)
+                        Button(action: {
+                            isFoucesed = false
+                            let chatText = self.chatText
+                            self.chatText = ""
+                            send(chatText)
+                        }, label: {
+                            ImageAsset(icon: "send", tint: theme.textGrayColor)
+                                .padding(3)
+                                .frame(width: 30, height: 30)
+                        }).frame(width: 50, height: 50, alignment: .center)
+                    }.padding(leading: 10, trailing: 5)
+                }.shadow(radius: 3).background(theme.backDark)
+                    .clipShape(.rect(topLeadingRadius: 8, topTrailingRadius: 8))
+            }.background(theme.background)
+        }
     }
 }
 
@@ -390,37 +393,41 @@ struct MessageItem : View {
         }
     }
     
-
     var body: some View {
-        VStack {
-            if (!msg.isFromCurrentUser) {
-                Text(msg.senderName).font(.system(size: 12))
-                    .foregroundStyle(colorText)
-                    .padding(top: 2.5, leading: 10, bottom: 2.5, trailing: 10)
-                    .opacity(0.8).onStart()
+        HStack() {
+            if msg.isFromCurrentUser {
+                Spacer()
             }
-            switch msg.type {
-            case ConstKt.MSG_TEXT: Text(msg.message).font(.system(size: 14))
-                    .foregroundStyle(colorText)
-                    .padding(top: 2.5, leading: 10, bottom: 2.5, trailing: 10)
-                    .foregroundStyle(colorText).onStart()
-            case ConstKt.MSG_IMG: ZStack {
-                ImageCacheView(msg.fileUrl, contentMode: .fill).clipShape(RoundedRectangle(cornerRadius: 20)).frame(width: 300, height: 300).onTapGesture {
-                    inImage(msg.fileUrl)
+            VStack(alignment: .leading) {
+                if (!msg.isFromCurrentUser) {
+                    Text(msg.senderName).font(.system(size: 12))
+                        .foregroundStyle(colorText)
+                        .padding(top: 2.5, leading: 10, bottom: 2.5, trailing: 10)
+                        .opacity(0.8).onStart()
                 }
-            }.frame(width: 300)
-            case ConstKt.MSG_VID: ZStack {
-                ImageCacheView(msg.fileUrl, isVideoPreview: true, contentMode: .fill).clipShape(RoundedRectangle(cornerRadius: 20)).frame(width: 300).onTapGesture {
+                switch msg.type {
+                case ConstKt.MSG_TEXT: Text(msg.message).font(.system(size: 14))
+                        .foregroundStyle(colorText)
+                        .padding(top: 2.5, leading: 10, bottom: 2.5, trailing: 10)
+                        .foregroundStyle(colorText).onStart()
+                case ConstKt.MSG_IMG: ZStack {
+                    ImageCacheView(msg.fileUrl, contentMode: .fill).clipShape(RoundedRectangle(cornerRadius: 20)).frame(width: 300, height: 300).onTapGesture {
+                        inImage(msg.fileUrl)
+                    }
+                }.frame(width: 300)
+                case ConstKt.MSG_VID: ZStack {
+                    ImageCacheView(msg.fileUrl, isVideoPreview: true, contentMode: .fill).frame(width: 300, height: 300).clipShape(RoundedRectangle(cornerRadius: 20))
+                    FullZStack {}.background(UIColor(50, 50, 50).withAlphaComponent(0.5).toC).frame(width: 300, height: 300)
+                    ImageSystem(systemIcon: "play.fill", tint: Color.white).frame(width: 24, height: 24)
+                }.frame(width: 300, height: 300).onTapGesture {
                     inVideo(msg.fileUrl)
                 }
-                FullZStack {}.background(UIColor(red: 50 / 255, green: 50 / 255, blue: 50 / 255, alpha: 0.5).toC)
-                ImageSystem(systemIcon: "play.fill", tint: Color.white).frame(width: 24, height: 24)
-            }.frame(height: 300)
-            default: ZStack {}
-            }
-        }.frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: 300).padding(5).background(
-            RoundedRectangle(cornerRadius: 20).fill(colorCard)
-        ).shadow(radius: 2)
+                default: ZStack {}
+                }
+            }.frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: 300).padding(5).background(
+                RoundedRectangle(cornerRadius: 20).fill(colorCard)
+            ).shadow(radius: 2)
+        }
     }
 }
 
@@ -446,25 +453,25 @@ struct VideoViewer : View {
     let onClose: () -> Unit
 
     @State private var player : AVPlayer? = nil
-    @State private var isBackVisiable : Bool = true
     @State private var controller = AVPlayerViewController()
     
     var body: some View {
         FullScreenDialog {
             onClose()
         } content: {
-            VideoPlayer(
-                player: player
-            ).onAppear() {
+            VStack {
+                Spacer().frame(height: 40)
+                if let player = self.player {
+                    PlayerViewController(player: player)
+                        .background(Color.black)
+                }
+            }.onAppear() {
                 guard let url = URL(string: videoUrl) else {
                     return
                 }
                 let player = AVPlayer(url: url)
                 self.player = player
-                controller.modalPresentationStyle = UIModalPresentationStyle.fullScreen
-                controller.player = player
-                
-                controller.player?.play()
+                player.play()
             }.onDisappear() {
                 player?.pause()
             }
@@ -472,35 +479,3 @@ struct VideoViewer : View {
     }
     
 }
-
-/*
- 
- @Composable
- fun VideoViewer(videoItems: List<VideoPlayerMediaItem>, onClose: () -> Unit) {
-     Dialog(
-         onDismissRequest = onClose,
-         properties = DialogProperties(usePlatformDefaultWidth = false)
-     ) {
-         Box(
-             modifier = Modifier
-                 .fillMaxSize()
-                 .background(Color.Black)
-         ) {
-             val videoConfig = remember { videoConfig.copy(showFullScreenButton = false) }
-             VideoPlayer(
-                 mediaItems = videoItems,
-                 handleLifecycle = true,
-                 autoPlay = false,
-                 usePlayerController = true,
-                 enablePip = true,
-                 handleAudioFocus = true,
-                 controllerConfig = videoConfig,
-                 repeatMode = RepeatMode.ALL,
-                 modifier = Modifier.fillMaxSize(),
-             )
-             BackButtonLess(Color.White, onClose)
-         }
-     }
- }
- 
- */

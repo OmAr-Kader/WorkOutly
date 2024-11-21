@@ -20,6 +20,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+    <key>NSHealthShareUsageDescription</key>
+    <string>This app requires access to your health data to track steps, heart rate, energy burned, walking distance, and analyze sleep patterns.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>This app writes activity and health data to help you monitor your fitness goals and progress.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

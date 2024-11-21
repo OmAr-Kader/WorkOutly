@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Theme {
+struct Theme : Sendable {
 
     let isDarkMode: Bool
     let isDarkStatusBarText: Bool

@@ -49,4 +49,5 @@ struct ExerciseRoute: ScreenConfig {
 
 struct SessionRoute: ScreenConfig {
     let metric: FitnessMetric
+    let days: Int
 }

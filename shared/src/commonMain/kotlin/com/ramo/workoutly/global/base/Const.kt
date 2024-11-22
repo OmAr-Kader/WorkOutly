@@ -12,6 +12,8 @@ const val EXERCISE_SCREEN_ROUTE: String = "exercise_screen_route"
 const val PREF_ID: String = "id_pref"
 const val PREF_NAME: String = "name"
 const val PREF_PROFILE_IMAGE: String = "profile_image"
+const val PREF_DAYS_COUNT: String = "filter_days"
+const val PREF_SORT_BY: String = "sortBy"
 
 const val STEPS = 1
 const val DISTANCE = 2

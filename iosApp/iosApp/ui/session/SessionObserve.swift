@@ -29,12 +29,12 @@ class SessionObserve : ObservableObject {
         }
     }
     
-    func loadData(metric: FitnessMetric) {
+    func loadData(metric: FitnessMetric, days: Int) {
         //setIsProcess(true)
         scope.launchMain {
             switch metric.id {
             case ConstKt.STEPS:
-                self.back!.loadStepsData(days: 3) { it in
+                self.back!.loadStepsData(days: days) { it in
                     self.state = self.state.copy(session: metric, sessionHistories: it, isProcess: false)
                 }
             default:
@@ -105,8 +105,9 @@ class SessionObserveBack {
     func loadStepsData(days: Int, invoke: @Sendable @escaping @MainActor ([FitnessHistoryMetric]) -> Unit) {
         scope.launchBack {
             self.healthKit.stepHistoryHKHealth(days: days) { list in
+                let regenerated = ConverterKt.regenerateHistories(list)
                 TaskMainSwitcher {
-                    invoke(list)
+                    invoke(regenerated)
                 }
             }
         }

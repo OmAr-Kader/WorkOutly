@@ -31,11 +31,11 @@ class HomeObserve : ObservableObject {
         }
     }
     
-    func loadData(userPref: UserPref, isDarkMode: Bool, failed: @escaping @Sendable @MainActor () -> Unit) {
+    func loadData(userPref: UserPref, days: Int, isDarkMode: Bool, failed: @escaping @Sendable @MainActor () -> Unit) {
         //setIsProcess(true)
         scope.launchMain {
-            self.back!.loadData(userPref: userPref, isDarkMode: isDarkMode) { mers in
-                self.state = self.state.copy(metrics: mers, exercises: TempKt.tempExercises, messages: ConverterKt.messagesFilter(TempKt.messages, userId: userPref.id), isProcess: false)
+            self.back!.loadData(userPref: userPref, days: days, isDarkMode: isDarkMode) { mers in
+                self.state = self.state.copy(metrics: mers, exercises: TempKt.tempExercises, messages: ConverterKt.messagesFilter(TempKt.messages, userId: userPref.id), days: days, isProcess: false)
             } failed: {
                 self.setMainProcess(false)
                 failed()
@@ -44,10 +44,40 @@ class HomeObserve : ObservableObject {
         }
     }
     
+    private func reLoadData(userPref: UserPref, days: Int, isDarkMode: Bool, failed: @escaping @Sendable @MainActor () -> Unit) {
+        //setIsProcess(true)
+        scope.launchMain {
+            self.back!.loadData(userPref: userPref, days: days, isDarkMode: isDarkMode) { mers in
+                self.state = self.state.copy(metrics: mers, isProcess: false)
+            } failed: {
+                self.setMainProcess(false)
+                failed()
+            }
+
+        }
+    }
+    
+    func setFilterDays(userPref: UserPref, isDarkMode: Bool, it: Int) {
+        scope.launchMain {
+            self.back!.updatePref(key: ConstKt.PREF_DAYS_COUNT, value: String(it))
+        }
+        reLoadData(userPref: userPref, days: it, isDarkMode: isDarkMode) {
+            
+        }
+        self.state = self.state.copy(days: it)
+    }
+    
+    func setSortBy(it: Int) {
+        scope.launchMain {
+            self.back!.updatePref(key: ConstKt.PREF_SORT_BY, value: String(it))
+        }
+        // @OmAr-Kader IMPLEMENTATION
+        self.state = self.state.copy(sortBy: it)
+    }
+    
     func setIsLiveVisible(it: Bool) {
         self.state = self.state.copy(isLiveVisible: it)
     }
-
     
     private func setIsProcess(_ isProcess: Bool) {
         scope.launchMain {
@@ -64,6 +94,8 @@ class HomeObserve : ObservableObject {
         var metrics: [FitnessMetric] = []
         var exercises: [Exercise] = []
         var messages: [Message] = []
+        var days: Int = 3
+        var sortBy: Int = 1
         var chatText: String = ""
         var isLiveVisible: Bool = false
         var isPickerVisible: Bool = false
@@ -81,6 +113,8 @@ class HomeObserve : ObservableObject {
             exercises: [Exercise]? = nil,
             messages: [Message]? = nil,
             chatText: String? = nil,
+            days: Int? = nil,
+            sortBy: Int? = nil,
             isLiveVisible: Bool? = nil,
             isPickerVisible: Bool? = nil,
             isProcess: Bool? = nil
@@ -89,6 +123,8 @@ class HomeObserve : ObservableObject {
             self.exercises = exercises ?? self.exercises
             self.messages = messages ?? self.messages
             self.chatText = chatText ?? self.chatText
+            self.days = days ?? self.days
+            self.sortBy = sortBy ?? self.sortBy
             self.isLiveVisible = isLiveVisible ?? self.isLiveVisible
             self.isPickerVisible = isPickerVisible ?? self.isPickerVisible
             self.isProcess = isProcess ?? self.isProcess
@@ -119,21 +155,21 @@ class HomeObserveBack {
     }
     
     @MainActor
-    func loadData(userPref: UserPref, isDarkMode: Bool, metrics: @escaping @Sendable @MainActor ([FitnessMetric]) -> Unit, failed: @escaping @Sendable @MainActor () -> Unit) {
+    func loadData(userPref: UserPref, days: Int, isDarkMode: Bool, metrics: @escaping @Sendable @MainActor ([FitnessMetric]) -> Unit, failed: @escaping @Sendable @MainActor () -> Unit) {
         scope.launchBack {
             self.healthKit.requestPermissions {
                 TaskBackSwitcher {
-                    self.healthKit.stepCountHKHealth(days: 3) { steps in
+                    self.healthKit.stepCountHKHealth(days: days) { steps in
                         TaskBackSwitcher {
-                            self.healthKit.distanceWalkingRunningHKHealth(days: 3) { distance in
+                            self.healthKit.distanceWalkingRunningHKHealth(days: days) { distance in
                                 TaskBackSwitcher {
-                                    self.healthKit.activeEnergyBurnedHKHealth(days: 3) { calBurned in
+                                    self.healthKit.activeEnergyBurnedHKHealth(days: days) { calBurned in
                                         TaskBackSwitcher {
-                                            self.healthKit.basalEnergyBurnedHKHealth(days: 3) { metabolicRate in
+                                            self.healthKit.basalEnergyBurnedHKHealth(days: days) { metabolicRate in
                                                 TaskBackSwitcher {
-                                                    self.healthKit.heartRateHKHealth(days: 3) { heartRate in
+                                                    self.healthKit.heartRateHKHealth(days: days) { heartRate in
                                                         TaskBackSwitcher {
-                                                            self.healthKit.sleepAnalysisHKHealth(days: 3) { sleep in
+                                                            self.healthKit.sleepAnalysisHKHealth(days: days) { sleep in
                                                                 let stepsInt = Int64(steps ?? 0)
                                                                 let distanceInt = Int64(distance ?? 0)
                                                                 let calBurnedInt = Int64(calBurned ?? 0)
@@ -205,6 +241,13 @@ class HomeObserveBack {
                 }
             }
 
+        }
+    }
+    
+    @MainActor
+    func updatePref(key: String, value: String) {
+        scope.launchBack {
+            let _ = try? await self.project.pref.updatePref(pref: [PreferenceData(id: "", keyString: key, value: value)])
         }
     }
 }

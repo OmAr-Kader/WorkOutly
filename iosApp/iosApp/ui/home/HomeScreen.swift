@@ -44,14 +44,19 @@ struct HomeScreen : View {
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
-            BarMainScreen(userPref: userPref, theme: theme) {
+            
+            BarMainScreen(userPref: userPref, days: state.days, sortBy: state.sortBy, theme: theme) { it in
+                obs.setFilterDays(userPref: userPref, isDarkMode: theme.isDarkMode, it: it)
+            } changeSortBy: { it in
+                obs.setSortBy(it: it)
+            } signOut: {
                 
             }
             ScrollView {
                 LazyVStack {
                     VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: state.metrics) { metric in
                         FitnessMetricItem(metric: metric, theme: theme) {
-                            navigateToScreen(SessionRoute(metric: metric), .SESSION_SCREEN_ROUTE)
+                            navigateToScreen(SessionRoute(metric: metric, days: state.days), .SESSION_SCREEN_ROUTE)
                         }
                     }.padding(16)
                     VStack {
@@ -120,8 +125,10 @@ struct HomeScreen : View {
                 .presentationContentInteraction(.scrolls)
                 .presentationDetents([.height(expandedHeight)])
         }.background(theme.backgroundGradient).onAppear {
-            obs.loadData(userPref: userPref, isDarkMode: theme.isDarkMode) {
-                toast = Toast(style: .error, message: "Permissions is required")
+            findPreferenceMainMain(ConstKt.PREF_DAYS_COUNT) { days in
+                obs.loadData(userPref: userPref, days: Int(days ?? "7") ?? 7, isDarkMode: theme.isDarkMode) {
+                    toast = Toast(style: .error, message: "Permissions is required")
+                }
             }
         }.onAppear { // TO FULL SCREEN DRAGABLE SHEET
             DispatchQueue.main.async {
@@ -140,15 +147,55 @@ struct HomeScreen : View {
 struct BarMainScreen: View {
 
     let userPref: UserPref
+    let days: Int
+    let sortBy: Int
     let theme: Theme
-    let onOptions: () -> Void
+    let changeDays: (Int) -> Void
+    let changeSortBy: (Int) -> Void
+    let signOut: () -> Void
 
     var body: some View {
         ZStack(alignment: .center) {
             HStack(alignment: .center) {
                 Spacer()
-                Button(action: onOptions) {
-                    ImageAsset(icon: "plus", tint: theme.textForGradientColor)
+                Menu {
+                    Menu("Health Metrics Days") {
+                        Button(action: { changeDays(1) }) {
+                            Label("Today", systemImage: days == 1 ? "checkmark" : "")
+                        }
+                        Button(action: { changeDays(3) }) {
+                            Label("Last 3 days", systemImage: days == 3 ? "checkmark" : "")
+                        }
+                        Button(action: { changeDays(7) }) {
+                            Label("Last 7 days", systemImage: days == 7 ? "checkmark" : "")
+                        }
+                        Button(action: { changeDays(14) }) {
+                            Label("Last 14 days", systemImage: days == 14 ? "checkmark" : "")
+                        }
+                        Button(action: { changeDays(30) }) {
+                            Label("Last 30 days", systemImage: days == 30 ? "checkmark" : "")
+                        }
+                        Button(action: { changeDays(90) }) {
+                            Label("Last 90 days", systemImage: days == 90 ? "checkmark" : "")
+                        }
+                    }
+                    Menu("Sort Exercise By") {
+                        Button(action: { changeSortBy(1) }) {
+                            Label("Newer First", systemImage: sortBy == 1 ? "checkmark" : "")
+                        }
+                        Button(action: { changeSortBy(2) }) {
+                            Label("Views Count", systemImage: sortBy == 2 ? "checkmark" : "")
+                        }
+                        Button(action: { changeSortBy(3) }) {
+                            Label("Top Coaches", systemImage: sortBy == 3 ? "checkmark" : "")
+                        }
+                        Button(action: { changeSortBy(4) }) {
+                            Label("Name", systemImage: sortBy == 4 ? "checkmark" : "")
+                        }
+                    }
+                    Button("Sign out", action: signOut)
+                } label: {
+                    ImageAsset(icon: "more", tint: theme.textForGradientColor)
                         .padding(5)
                         .frame(width: 30, height: 30)
                 }
@@ -161,6 +208,7 @@ struct BarMainScreen: View {
         }
         .frame(height: 60)
         .background(Color.clear)
+        //.popover(isPresented: $isPresented) {}
     }
 }
 

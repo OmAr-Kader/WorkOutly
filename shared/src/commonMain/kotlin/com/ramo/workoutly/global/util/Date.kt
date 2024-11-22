@@ -44,6 +44,16 @@ val Long.toTimestamp: String get() {
     })
 }
 
+val Long.toTimestampWithDays: String get() {
+    return toInstant.dateTime.let { date ->
+        date.dayOfWeek.name.substring(0, 3).uppercase().let {
+            "$it, " + date.format(LocalDateTime.Format {
+                byUnicodePattern("MM/dd HH:mm")
+            })
+        }
+    }
+}
+
 val Long.toTimestampYear: String get() {
     return toInstant.dateTime.format(LocalDateTime.Format {
         byUnicodePattern("uuuu/MM/dd HH:mm")

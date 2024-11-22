@@ -9,7 +9,7 @@ import com.ramo.workoutly.data.model.FitnessHistoryMetric
 import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.di.Project
 import com.ramo.workoutly.global.base.STEPS
-import com.ramo.workoutly.global.util.toTimestamp
+import com.ramo.workoutly.global.util.toTimestampWithDays
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,7 +35,9 @@ class SessionViewModel(project: Project, private val healthKit: HealthKitManager
     private suspend fun loadStepsData() {
         healthKit.fetchHealthDataForLastThreeDays(StepsRecord::class).also {
             it.map { step ->
-                FitnessHistoryMetric(step.metadata.lastModifiedTime.toEpochMilli().toTimestamp, step.count, "")
+                step.metadata.lastModifiedTime.toEpochMilli().let {
+                    FitnessHistoryMetric(it, it.toTimestampWithDays, step.count, "")
+                }
             }.also { history ->
                 _uiState.update { state ->
                     state.copy(sessionHistories = history)

@@ -45,14 +45,24 @@ struct SessionScreen : View {
                             ScrollView {
                                 LazyVStack {
                                     ForEach(state.sessionHistories, id: \.self) { metric in
-                                        HStack {
-                                            Text(metric.valueStr)
-                                                .font(.system(size: 16, weight: .bold))
-                                                .foregroundColor(theme.textColor)
-                                            Spacer().frame(width: 50)
-                                            Text(metric.data)
-                                                .font(.system(size: 14))
-                                                .foregroundColor(theme.textGrayColor)
+                                        HStack(alignment: .center) {
+                                            HStack {
+                                                Text(metric.valueStr)
+                                                    .font(.system(size: 16, weight: .bold))
+                                                    .foregroundColor(theme.textColor)
+                                                Spacer()
+                                            }.frame(width: 70)
+                                            HStack {
+                                                Text(metric.data)
+                                                    .font(.system(size: 14))
+                                                    .foregroundColor(theme.textGrayColor)
+                                                Spacer()
+                                            }.frame(width: 130)
+                                            if metric.isMoreThanPreviousSession {
+                                                ImageSystem(systemIcon: "arrowtriangle.up.fill", tint: .green).frame(width: 14, height: 14)
+                                            } else {
+                                                ImageSystem(systemIcon: "arrowtriangle.down.fill", tint: .red).frame(width: 14, height: 14)
+                                            }
                                             Spacer()
                                         }
                                         .padding(.horizontal, 16)
@@ -60,7 +70,7 @@ struct SessionScreen : View {
                                     }
                                 }
                             }
-                        }.padding(16)
+                        }.padding(top: 16, leading: 16, bottom: 0, trailing: 16)
                         Spacer()
                     }
                     .background(theme.background)
@@ -72,7 +82,7 @@ struct SessionScreen : View {
             guard let sessionRoute = screenConfig(.SESSION_SCREEN_ROUTE) as? SessionRoute else {
                 return
             }
-            obs.loadData(metric: sessionRoute.metric)
+            obs.loadData(metric: sessionRoute.metric, days: sessionRoute.days)
         }.navigationBarBackButtonHidden()
     }
 }

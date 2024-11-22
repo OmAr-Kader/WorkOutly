@@ -7,6 +7,7 @@ import com.ramo.workoutly.android.data.health.HealthKitManager
 import com.ramo.workoutly.android.global.navigation.BaseViewModel
 import com.ramo.workoutly.data.model.FitnessHistoryMetric
 import com.ramo.workoutly.data.model.FitnessMetric
+import com.ramo.workoutly.data.util.regenerateHistories
 import com.ramo.workoutly.di.Project
 import com.ramo.workoutly.global.base.STEPS
 import com.ramo.workoutly.global.util.toTimestampWithDays
@@ -19,26 +20,26 @@ class SessionViewModel(project: Project, private val healthKit: HealthKitManager
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    fun loadData(metric: FitnessMetric) {
+    fun loadData(metric: FitnessMetric, days: Int) {
         _uiState.update { state ->
             state.copy(session = metric)
         }
         launchBack {
             when (metric.id) {
                 STEPS -> {
-                    loadStepsData()
+                    loadStepsData(days)
                 }
             }
         }
     }
 
-    private suspend fun loadStepsData() {
-        healthKit.fetchHealthDataForLastThreeDays(StepsRecord::class).also {
-            it.map { step ->
+    private suspend fun loadStepsData(days: Int) {
+        healthKit.fetchHealthDataForLastThreeDays(StepsRecord::class, days).also { histories ->
+            histories.map { step ->
                 step.metadata.lastModifiedTime.toEpochMilli().let {
                     FitnessHistoryMetric(it, it.toTimestampWithDays, step.count, "")
                 }
-            }.also { history ->
+            }.regenerateHistories().also { history ->
                 _uiState.update { state ->
                     state.copy(sessionHistories = history)
                 }

@@ -45,6 +45,8 @@ import com.ramo.workoutly.android.global.ui.rememberHeart
 import com.ramo.workoutly.android.global.ui.rememberMetabolic
 import com.ramo.workoutly.android.global.ui.rememberSleepMoon
 import com.ramo.workoutly.android.global.ui.rememberSteps
+import com.ramo.workoutly.android.global.ui.rememberTriangleDown
+import com.ramo.workoutly.android.global.ui.rememberTriangleUp
 import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
@@ -66,7 +68,7 @@ fun SessionScreen(
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
     OnLaunchScreen {
-        screen()?.metric?.let { viewModel.loadData(it) }
+        screen()?.let { viewModel.loadData(it.metric, it.days) }
     }
     Scaffold { padding ->
         Column(modifier = Modifier.padding(padding).background(theme.backgroundGradient)) {
@@ -107,15 +109,39 @@ fun SessionScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Start
                                     ) {
-                                        Text(
-                                            text = metric.valueStr,
-                                            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = theme.textColor)
-                                        )
-                                        Spacer(Modifier.width(50.dp))
-                                        Text(
-                                            text = metric.data,
-                                            style = TextStyle(fontSize = 14.sp, color = theme.textGrayColor)
-                                        )
+                                        Row(
+                                            modifier = Modifier.width(70.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Start
+                                        ) {
+                                            Text(
+                                                text = metric.valueStr,
+                                                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = theme.textColor)
+                                            )
+                                        }
+                                        Row(
+                                            modifier = Modifier.width(130.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Start
+                                        ) {
+                                            Text(
+                                                text = metric.data,
+                                                style = TextStyle(fontSize = 14.sp, color = theme.textGrayColor)
+                                            )
+                                        }
+                                        if (metric.isMoreThanPreviousSession) {
+                                            Image(
+                                                modifier = Modifier.width(13.dp).height(13.dp),
+                                                imageVector = rememberTriangleUp(color = Color.Green),
+                                                contentDescription = "",
+                                            )
+                                        } else {
+                                            Image(
+                                                modifier = Modifier.width(13.dp).height(13.dp),
+                                                imageVector = rememberTriangleDown(color = Color.Red),
+                                                contentDescription = "",
+                                            )
+                                        }
                                         Spacer(Modifier)
                                     }
                                 }

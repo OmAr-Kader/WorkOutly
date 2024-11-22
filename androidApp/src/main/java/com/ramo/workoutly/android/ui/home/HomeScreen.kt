@@ -27,11 +27,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.twotone.ExitToApp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -72,6 +75,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -115,10 +119,19 @@ import com.ramo.workoutly.global.base.METABOLIC_RATE
 import com.ramo.workoutly.global.base.MSG_IMG
 import com.ramo.workoutly.global.base.MSG_TEXT
 import com.ramo.workoutly.global.base.MSG_VID
+import com.ramo.workoutly.global.base.PREF_DAYS_COUNT
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SLEEP
 import com.ramo.workoutly.global.base.STEPS
 import com.ramo.workoutly.global.util.ifTrue
+import com.ramo.workoutly.global.util.logger
+import io.androidpoet.dropdown.Dropdown
+import io.androidpoet.dropdown.Easing
+import io.androidpoet.dropdown.EnterAnimation
+import io.androidpoet.dropdown.ExitAnimation
+import io.androidpoet.dropdown.MenuItem
+import io.androidpoet.dropdown.dropDownMenu
+import io.androidpoet.dropdown.dropDownMenuColors
 import io.sanghun.compose.video.RepeatMode
 import io.sanghun.compose.video.VideoPlayer
 import io.sanghun.compose.video.uri.VideoPlayerMediaItem
@@ -128,7 +141,6 @@ import net.engawapg.lib.zoomable.zoomable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun HomeScreen(
     userPref: UserPref,
@@ -150,7 +162,9 @@ fun HomeScreen(
         viewModel.healthKit.contract
     ) { granted ->
         if (granted.containsAll(viewModel.healthKit.permissions)) {
-            viewModel.loadData(userPref, theme.isDarkMode) {
+            findPreference(PREF_DAYS_COUNT) {
+                viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                }
             }
         } else {
             scope.launch {
@@ -163,9 +177,11 @@ fun HomeScreen(
     ) { permissions ->
         val isGranted = permissions.values.all { it }
         if (isGranted) {
-            viewModel.loadData(userPref, theme.isDarkMode) {
-                scope.launch {
-                    requestPermissions.launch(viewModel.healthKit.permissions)
+            findPreference(PREF_DAYS_COUNT) {
+                viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                    scope.launch {
+                        requestPermissions.launch(viewModel.healthKit.permissions)
+                    }
                 }
             }
         } else {
@@ -181,9 +197,11 @@ fun HomeScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 context.checkActivityRecognition({
-                    viewModel.loadData(userPref, theme.isDarkMode) {
-                        scope.launch {
-                            requestPermissions.launch(viewModel.healthKit.permissions)
+                    findPreference(PREF_DAYS_COUNT) {
+                        viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                            scope.launch {
+                                requestPermissions.launch(viewModel.healthKit.permissions)
+                            }
                         }
                     }
                 }) {
@@ -227,7 +245,13 @@ fun HomeScreen(
             .padding(padding)
             .background(theme.backgroundGradient)
         ) {
-            BarMainScreen(userPref) {
+            BarMainScreen(
+                userPref = userPref,
+                days = state.days,
+                sortBy = state.sortBy,
+                changeDays = { viewModel.setFilterDays(theme.isDarkMode, it) },
+                changeSortBy = viewModel::setSortBy
+            ) {
 
             }
             LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
@@ -242,7 +266,7 @@ fun HomeScreen(
                     ) { item ->
                         FitnessMetricItem(metric = item, theme = theme) {
                             scope.launch {
-                                navigateToScreen.invoke(Screen.SessionRoute(item), SESSION_SCREEN_ROUTE)
+                                navigateToScreen.invoke(Screen.SessionRoute(item, state.days), SESSION_SCREEN_ROUTE)
                             }
                         }
                     }
@@ -275,8 +299,14 @@ fun HomeScreen(
 fun BarMainScreen(
     userPref: UserPref,
     theme: Theme = koinInject(),
-    onOptions: () -> Unit,
+    days: Int,
+    sortBy: Int,
+    changeDays: (Int) -> Unit,
+    changeSortBy: (Int) -> Unit,
+    signOut: () -> Unit,
 ) {
+    val expanded = remember { mutableStateOf(false) }
+    val menu = getMenuItems(days, sortBy)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -294,7 +324,7 @@ fun BarMainScreen(
             Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {}
             Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = onOptions,
+                    onClick = { expanded.value = true },
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
@@ -302,11 +332,64 @@ fun BarMainScreen(
                         tint = theme.textForGradientColor
                     )
                 }
+                Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                    Dropdown(
+                        isOpen = expanded.value,
+                        menu = menu,
+                        colors = dropDownMenuColors(theme.background, theme.textColor),
+                        onItemSelected = onItemSelected@{
+                            logger("===", it.toString())
+                            when(it ?: return@onItemSelected) {
+                                in 1..30 -> changeDays(it)
+                                51 -> changeSortBy(1)
+                                52 -> changeSortBy(2)
+                                53 -> changeSortBy(3)
+                                54 -> changeSortBy(4)
+                                -1 -> signOut()
+                            }
+                            expanded.value = false
+                        },
+                        onDismiss = { expanded.value = false },
+                        offset = DpOffset(8.dp, 0.dp),
+                        enter = EnterAnimation.SharedAxisYForward,
+                        exit = ExitAnimation.SharedAxisYBackward,
+                        easing = Easing.FastOutSlowInEasing,
+                        enterDuration = 250,
+                        exitDuration = 250
+                    )
+                }
             }
         }
         Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
             Text("Hi, ${userPref.name}", color = theme.textForGradientColor, fontSize = 20.sp)
         }
+    }
+}
+
+@Composable
+fun getMenuItems(days: Int, sortBy: Int): MenuItem<Int> {
+    return remember(days, sortBy) {
+        val menu = dropDownMenu {
+            item(0, "Metrics Days") {
+                icon(Icons.TwoTone.DateRange)
+                item(1, "Today${if (days == 1) "     ✔   " else "         "}")
+                item(3, "Last 3 days${if (days == 3) "     ✔   " else "         "}")
+                item(7, "Last 7 days${if (days == 7) "     ✔   " else "         "}")
+                item(14, "Last 14 days${if (days == 14) "     ✔   " else "         "}")
+                item(30, "Last 30 days${if (days == 30) "     ✔   " else "         "}")
+            }
+            item(1, "Sort By") {
+                icon(Icons.AutoMirrored.Filled.List)
+                item(51, "Newer First${if (sortBy == 1) "     ✔   " else "         "}")
+                item(52, "Views Count${if (sortBy == 2) "     ✔   " else "         "}")
+                item(53, "Top Coaches${if (sortBy == 3) "     ✔   " else "         "}")
+                item(54, "Name${if (sortBy == 4) "     ✔   " else "         "}")
+            }
+            item(-1, "Sign out") {
+                icon(Icons.AutoMirrored.TwoTone.ExitToApp)
+            }
+        }
+        return@remember menu
     }
 }
 
@@ -378,7 +461,8 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                 ImageForCurveItem(exercise.videoUri, 80.dp)
                 Column(
                     modifier = Modifier
-                        .fillMaxSize().padding(5.dp)
+                        .fillMaxSize()
+                        .padding(5.dp)
                 ) subBox@{
                     Text(
                         text = exercise.title,
@@ -630,7 +714,10 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                     )
                 }
                 MSG_IMG -> {
-                    Box(Modifier.fillMaxWidth().height(300.dp)) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)) {
                         coil.compose.SubcomposeAsyncImage(
                             model = LocalContext.current.imageBuildr(msg.fileUrl),
                             success = { (painter, _) ->
@@ -639,9 +726,13 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                                         contentScale = ContentScale.Crop,
                                         painter = painter,
                                         contentDescription = "Image",
-                                        modifier = Modifier.fillMaxWidth().clip(
-                                            shape = RoundedCornerShape(20.dp)
-                                        ).background(Color.Transparent).height(300.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(
+                                                shape = RoundedCornerShape(20.dp)
+                                            )
+                                            .background(Color.Transparent)
+                                            .height(300.dp)
                                             .clickable {
                                                 isPopUp.value = true
                                             }
@@ -670,11 +761,16 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                         imageLoader = LocalContext.current.videoImageBuildr,
                     )
                     AnimatedFadeOnce(
-                        Modifier.fillMaxWidth().clip(
-                            shape = RoundedCornerShape(20.dp)
-                        ).height(200.dp).fillMaxWidth().clickable {
-                            isPlayed.value = true
-                        },
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .height(200.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                isPlayed.value = true
+                            },
                         contentAlignment = Alignment.Center,
                         label = msg.id.toString() + msg.type
                     ) {
@@ -685,7 +781,9 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                             modifier = Modifier.fillMaxSize()
                         )
                         Box(
-                            modifier = Modifier.fillMaxSize().background(Color(50, 50, 50).copy(alpha = 0.5F))
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color(50, 50, 50).copy(alpha = 0.5F))
                         )
                         Icon(
                             Icons.Filled.PlayArrow,
@@ -758,7 +856,8 @@ fun ImageViewer(painter: Painter, onClose: () -> Unit) {
                 painter = painter,
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize().zoomable(rememberZoomState()),
+                    .fillMaxSize()
+                    .zoomable(rememberZoomState()),
             )
             BackButtonLess(Color.White, onClose)
         }

@@ -45,6 +45,7 @@
         android:supportsRtl="true"
         android:theme="@style/Workout.App"
         android:usesCleartextTraffic="true"
+        tools:replace="android:icon,android:label,android:theme"
         tools:ignore="NewApi,UnusedAttribute">
 
         <activity

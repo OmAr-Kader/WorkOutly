@@ -4,7 +4,7 @@ import kotlin.reflect.full.isSubclassOf
 
 sealed class Screen {
     data class ExerciseRoute(val exercise: com.ramo.workoutly.data.model.Exercise) : Screen()
-    data class SessionRoute(val metric: com.ramo.workoutly.data.model.FitnessMetric) : Screen()
+    data class SessionRoute(val metric: com.ramo.workoutly.data.model.FitnessMetric, val days: Int) : Screen()
     data class UserRoute(val userId: String) : Screen()
 }
 

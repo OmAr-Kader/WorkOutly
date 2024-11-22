@@ -1312,3 +1312,72 @@ fun rememberFile(color: Color): ImageVector {
         }.build()
     }
 }
+
+@Composable
+fun rememberTriangleUp(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "TriangleUp",
+            defaultWidth = 16.dp,
+            defaultHeight = 16.dp,
+            viewportWidth = 16f,
+            viewportHeight = 16f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(14f, 10.44f)
+                lineToRelative(-0.413f, 0.56f)
+                horizontalLineTo(2.393f)
+                lineTo(2f, 10.46f)
+                lineTo(7.627f, 5f)
+                horizontalLineToRelative(0.827f)
+                lineTo(14f, 10.44f)
+                close()
+            }
+        }.build()
+    }
+}
+
+
+@Composable
+fun rememberTriangleDown(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "TriangleDown",
+            defaultWidth = 16.dp,
+            defaultHeight = 16.dp,
+            viewportWidth = 16f,
+            viewportHeight = 16f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(2f, 5.56f)
+                lineTo(2.413f, 5f)
+                horizontalLineToRelative(11.194f)
+                lineToRelative(0.393f, 0.54f)
+                lineTo(8.373f, 11f)
+                horizontalLineToRelative(-0.827f)
+                lineTo(2f, 5.56f)
+                close()
+            }
+        }.build()
+    }
+}

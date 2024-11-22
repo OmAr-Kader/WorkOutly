@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.video)
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.dropdown)
 
     /////
     //implementation(libs.play.services.auth)

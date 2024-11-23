@@ -7,7 +7,7 @@ import com.ramo.workoutly.android.ui.session.SessionViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 
-class App : android.app.Application() {
+class App : androidx.multidex.MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()

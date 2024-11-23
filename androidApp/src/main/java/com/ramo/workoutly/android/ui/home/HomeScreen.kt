@@ -90,6 +90,7 @@ import com.ramo.workoutly.android.global.ui.AnimatedFadeOnce
 import com.ramo.workoutly.android.global.ui.BackButtonLess
 import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
+import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
 import com.ramo.workoutly.android.global.ui.rememberDistance
@@ -144,6 +145,7 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreen(
     userPref: UserPref,
+    deepLink: String?,
     statusColor: (Boolean, Int) -> Unit,
     findPreference: (String, (it: String?) -> Unit) -> Unit,
     navigateToScreen: suspend (Screen, String) -> Unit,
@@ -163,7 +165,15 @@ fun HomeScreen(
     ) { granted ->
         if (granted.containsAll(viewModel.healthKit.permissions)) {
             findPreference(PREF_DAYS_COUNT) {
-                viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                viewModel.loadData(
+                    userPref,
+                    deepLink,
+                    it?.toIntOrNull() ?: 3,
+                    theme.isDarkMode,
+                    onLink = { screen, route ->
+                        scope.launch { navigateToScreen(screen, route) }
+                    }
+                ) {
                 }
             }
         } else {
@@ -178,7 +188,15 @@ fun HomeScreen(
         val isGranted = permissions.values.all { it }
         if (isGranted) {
             findPreference(PREF_DAYS_COUNT) {
-                viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                viewModel.loadData(
+                    userPref,
+                    deepLink,
+                    it?.toIntOrNull() ?: 3,
+                    theme.isDarkMode,
+                    onLink = { screen, route ->
+                        scope.launch { navigateToScreen(screen, route) }
+                    }
+                ) {
                     scope.launch {
                         requestPermissions.launch(viewModel.healthKit.permissions)
                     }
@@ -198,7 +216,15 @@ fun HomeScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 context.checkActivityRecognition({
                     findPreference(PREF_DAYS_COUNT) {
-                        viewModel.loadData(userPref, it?.toIntOrNull() ?: 3, theme.isDarkMode) {
+                        viewModel.loadData(
+                            userPref,
+                            deepLink,
+                            it?.toIntOrNull() ?: 3,
+                            theme.isDarkMode,
+                            onLink = { screen, route ->
+                                scope.launch { navigateToScreen(screen, route) }
+                            }
+                        ) {
                             scope.launch {
                                 requestPermissions.launch(viewModel.healthKit.permissions)
                             }
@@ -345,6 +371,7 @@ fun BarMainScreen(
                                 52 -> changeSortBy(2)
                                 53 -> changeSortBy(3)
                                 54 -> changeSortBy(4)
+                                55 -> changeSortBy(5)
                                 -1 -> signOut()
                             }
                             expanded.value = false
@@ -383,7 +410,8 @@ fun getMenuItems(days: Int, sortBy: Int): MenuItem<Int> {
                 item(51, "Newer First${if (sortBy == 1) "     ✔   " else "         "}")
                 item(52, "Views Count${if (sortBy == 2) "     ✔   " else "         "}")
                 item(53, "Top Coaches${if (sortBy == 3) "     ✔   " else "         "}")
-                item(54, "Name${if (sortBy == 4) "     ✔   " else "         "}")
+                item(54, "Likes ${if (sortBy == 4) "     ✔   " else "         "}")
+                item(55, "Name${if (sortBy == 5) "     ✔   " else "         "}")
             }
             item(-1, "Sign out") {
                 icon(Icons.AutoMirrored.TwoTone.ExitToApp)
@@ -469,11 +497,12 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                         color = theme.textColor,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 14.sp,
-                        maxLines = 1,
+                        maxLines = 2, //1
                         modifier = Modifier
+                            .height(50.dp)
                             .align(Alignment.Start)
                     )
-                    Text(
+                    /*Text(
                         text = exercise.description,
                         color = theme.textGrayColor,
                         style = MaterialTheme.typography.labelSmall,
@@ -483,7 +512,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 3.dp)
-                    )
+                    )*/
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

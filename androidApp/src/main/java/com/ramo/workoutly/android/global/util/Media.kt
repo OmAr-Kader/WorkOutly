@@ -162,3 +162,12 @@ val videoConfig: io.sanghun.compose.video.controller.VideoPlayerControllerConfig
             showFullScreenButton = true,
         )
     }
+
+fun android.content.Context.shareLink(url: String) {
+    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+        type = "text/plain" // Specify the MIME type
+        putExtra(android.content.Intent.EXTRA_TEXT, url) // Add the URL as extra text
+    }
+    val chooser = android.content.Intent.createChooser(intent, "Share link via")
+    startActivity(chooser)
+}

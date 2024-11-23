@@ -31,6 +31,7 @@ kotlin {
         all {
             languageSettings {
                 //optIn("kotlin.RequiresOptIn")
+                optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlinx.datetime.format.FormatStringsInDatetimeFormats")
                 optIn("io.ktor.util.InternalAPI")
             }

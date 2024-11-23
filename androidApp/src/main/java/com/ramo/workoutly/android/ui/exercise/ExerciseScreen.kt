@@ -1,6 +1,7 @@
 package com.ramo.workoutly.android.ui.exercise
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +41,7 @@ import com.ramo.workoutly.android.global.navigation.Screen
 import com.ramo.workoutly.android.global.ui.BackButton
 import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.rememberTimer
+import com.ramo.workoutly.android.global.util.shareLink
 import com.ramo.workoutly.android.global.util.videoConfig
 import com.ramo.workoutly.android.global.util.videoItem
 import com.ramo.workoutly.data.model.Exercise
@@ -44,8 +50,6 @@ import io.sanghun.compose.video.VideoPlayer
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Composable
 fun ExerciseScreen(
@@ -128,6 +132,7 @@ fun ExerciseScreen(
 
 @Composable
 fun ExerciseTitle(exercise: Exercise, theme: Theme) {
+    val context = LocalContext.current
     Box(
         Modifier.padding(vertical = 10.dp, horizontal = 25.dp),
         contentAlignment = Alignment.CenterStart
@@ -135,7 +140,7 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(90.dp)
+                .height(110.dp)
                 .padding(10.dp),
             shape = RoundedCornerShape(15.dp),
             colors = CardDefaults.cardColors(containerColor = theme.background),
@@ -153,21 +158,46 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                         color = theme.textColor,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 14.sp,
+                        maxLines = 2,
                         modifier = Modifier
-                            .align(Alignment.Start)
+                            .fillMaxWidth()
+                            .height(50.dp)
                             .padding(horizontal = 5.dp, vertical = 5.dp)
                     )
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1F)
-                            .align(Alignment.Start)
-                            .padding(start = 15.dp, end = 15.dp, bottom = 3.dp),
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        Spacer(Modifier.width(2.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(end = 50.dp)
+                            modifier = Modifier.clickable {
+
+                            }.padding(10.dp)
+
+                        ) {
+                            Icon(
+                                imageVector = if (exercise.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Like",
+                                tint = theme.textColor,
+                                modifier = Modifier
+                                    .width(15.dp)
+                                    .height(15.dp)
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = exercise.likes.toString(),
+                                color = theme.textGrayColor,
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(10.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
@@ -187,7 +217,7 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                             )
                         }
                         Row(
-                            Modifier.padding(2.dp),
+                            Modifier.padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
@@ -207,6 +237,30 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                                 maxLines = 1,
                             )
                         }
+                        Row(
+                            Modifier.clickable {
+                                context.shareLink("https://www.workoutlyazure.com/exercise/${exercise.id}")
+                            }.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .width(15.dp)
+                                    .height(15.dp)
+                            )
+                            Spacer(Modifier.width(2.dp))
+                            Text(
+                                text = "Share",
+                                color = theme.textColor,
+                                fontSize = 10.sp,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                            )
+                        }
+                        Spacer(Modifier.width(2.dp))
                     }
                 }
             }

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.ramo.workoutly.android.data.health.HealthKitManager
 import com.ramo.workoutly.android.global.base.darken
 import com.ramo.workoutly.android.global.navigation.BaseViewModel
+import com.ramo.workoutly.android.global.navigation.Screen
 import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.data.model.Message
@@ -16,6 +17,7 @@ import com.ramo.workoutly.data.util.messagesFilter
 import com.ramo.workoutly.di.Project
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
+import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HEART_RATE
 import com.ramo.workoutly.global.base.METABOLIC_RATE
 import com.ramo.workoutly.global.base.PREF_DAYS_COUNT
@@ -35,22 +37,43 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    fun loadData(userPref: UserPref, days: Int, isDarkMode: Boolean, permission: () -> Unit) {
+    fun loadData(userPref: UserPref, deepLink: String?, days: Int, isDarkMode: Boolean, onLink: (Screen, String) -> Unit, permission: () -> Unit) {
         //setIsProcess(true)
         launchBack {
             healthKit.requestPermissions({
                 loadMetrics(days, isDarkMode).also { metrics ->
-                    _uiState.update { state ->
-                        state.copy(
-                            metrics = metrics,
-                            exercises = tempExercises,
-                            days = days,
-                            messages = messages.messagesFilter(userPref.id),
-                            isProcess = false
-                        )
+                    tempExercises.also { exercises -> //fetchAllExercises()
+                        deepLink?.also { link ->
+                            handleDeepLink(link, onLink = onLink) { id ->
+                                exercises.find { it.id == id }?.let { Screen.ExerciseRoute(it) }
+                            }
+                        }
+                        _uiState.update { state ->
+                            state.copy(
+                                metrics = metrics,
+                                exercises = exercises,
+                                days = days,
+                                messages = messages.messagesFilter(userPref.id),
+                                isProcess = false
+                            )
+                        }
                     }
                 }
             }, permission)
+        }
+    }
+
+    private suspend fun fetchAllExercises(): List<Exercise> = kotlinx.coroutines.coroutineScope {
+        project.exercise.fetchExercises()
+    }
+
+    private fun handleDeepLink(deepLink: String, onLink: (Screen, String) -> Unit, exercise: (String) -> Screen?) {
+        if (deepLink.contains("exercise")) {
+            deepLink.split("exercise/").lastOrNull()?.also {
+                exercise(it)?.also { screen ->
+                    onLink(screen, EXERCISE_SCREEN_ROUTE)
+                }
+            }
         }
     }
 

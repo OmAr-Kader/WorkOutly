@@ -32,6 +32,7 @@ import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.ui.exercise.ExerciseScreen
 import com.ramo.workoutly.android.ui.home.HomeScreen
 import com.ramo.workoutly.android.ui.session.SessionScreen
+import com.ramo.workoutly.global.base.BASE_SHARED_DOMAIN
 import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HOME_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
@@ -43,8 +44,15 @@ import org.koin.compose.koinInject
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val deepLink = intent?.data?.toString()?.let { url ->
+            if (android.content.Intent.ACTION_VIEW == intent?.action && url.contains(BASE_SHARED_DOMAIN)) {
+                url.split("$BASE_SHARED_DOMAIN/").lastOrNull()
+            } else {
+                null
+            }
+        }
         setContent {
-            Main { isTextDark, color ->
+            Main(deepLink) { isTextDark, color ->
                 enableEdgeToEdge(
                     statusBarStyle = if (isTextDark) SystemBarStyle.auto(
                         lightScrim = color,
@@ -59,7 +67,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Main(theme: Theme = koinInject(), appViewModel: AppViewModel = koinViewModel(), statusColor: (isDark: Boolean, Int) -> Unit) {
+fun Main(deepLink: String?, theme: Theme = koinInject(), appViewModel: AppViewModel = koinViewModel(), statusColor: (isDark: Boolean, Int) -> Unit) {
     val stateApp by appViewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val navigateHome: suspend (String) -> Unit = { route ->
@@ -104,7 +112,7 @@ fun Main(theme: Theme = koinInject(), appViewModel: AppViewModel = koinViewModel
                         AuthScreen(appViewModel = appViewModel, navigateHome = navigateHome)
                     }*/
                     composable(route = HOME_SCREEN_ROUTE) {
-                        HomeScreen(stateApp.userPref, statusColor, findPreference = findPreference, navigateToScreen = navigateToScreen)
+                        HomeScreen(stateApp.userPref, deepLink, statusColor, findPreference = findPreference, navigateToScreen = navigateToScreen)
                     }
                     composable(route = SESSION_SCREEN_ROUTE) {
                         SessionScreen(appViewModel::findArg, backPress = backPress)

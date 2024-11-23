@@ -11,8 +11,9 @@ android {
         applicationId = "com.ramo.workoutly.android"
         minSdk = 30
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+        multiDexEnabled = true
     }
     buildFeatures {
         buildConfig = true
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.kotlin.reflect)
+    implementation(libs.androidx.multidex)
     implementation(libs.zoomable)
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

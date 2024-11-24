@@ -2,8 +2,8 @@ package com.ramo.workoutly.data.dataSources.pref
 
 import com.ramo.workoutly.global.base.RealmLocal
 import com.ramo.workoutly.data.model.Preference
-import com.ramo.workoutly.data.util.REALM_FAILED
-import com.ramo.workoutly.data.util.REALM_SUCCESS
+import com.ramo.workoutly.data.util.CLOUD_FAILED
+import com.ramo.workoutly.data.util.CLOUD_SUCCESS
 import com.ramo.workoutly.global.util.loggerError
 import io.realm.kotlin.ext.query
 
@@ -99,7 +99,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                 return@write null
             }
         }.let {
-            return@let if (it == null) REALM_FAILED else REALM_SUCCESS
+            return@let if (it == null) CLOUD_FAILED else CLOUD_SUCCESS
         }
     }
 
@@ -109,7 +109,7 @@ class PrefRepoImp(private val realm: RealmLocal) : PrefRepo {
                 delete(schemaClass = Preference::class)
             }.getOrNull()
         }.let {
-            return@let if (it == null) REALM_FAILED else REALM_SUCCESS
+            return@let if (it == null) CLOUD_FAILED else CLOUD_SUCCESS
         }
     }
 

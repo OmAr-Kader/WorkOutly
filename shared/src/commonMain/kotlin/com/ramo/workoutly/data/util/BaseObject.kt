@@ -6,7 +6,7 @@ import kotlinx.serialization.json.jsonObject
 
 abstract class BaseObject : Any() {
     abstract fun json(): JsonObject
-    open fun jsonPost(): JsonObject {
+    open fun jsonCreate(): JsonObject {
         return json()
     }
 }

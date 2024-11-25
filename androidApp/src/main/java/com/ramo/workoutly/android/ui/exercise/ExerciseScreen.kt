@@ -45,6 +45,7 @@ import com.ramo.workoutly.android.global.util.shareLink
 import com.ramo.workoutly.android.global.util.videoConfig
 import com.ramo.workoutly.android.global.util.videoItem
 import com.ramo.workoutly.data.model.Exercise
+import com.ramo.workoutly.global.base.BASE_SHARED_DOMAIN_HTTPS
 import io.sanghun.compose.video.RepeatMode
 import io.sanghun.compose.video.VideoPlayer
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ fun ExerciseScreen(
 ) {
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
-    val videoItem = remember(state.exercise.videoUri) { state.exercise.let { videoItem(it.videoUri, it.title) } }
+    val videoItem = remember(state.exercise.videoUrl) { state.exercise.let { videoItem(it.videoUrl, it.title) } }
     val videoConfig = remember { videoConfig }
     OnLaunchScreen {
         screen()?.exercise?.let { viewModel.loadData(it) }
@@ -239,7 +240,7 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                         }
                         Row(
                             Modifier.clickable {
-                                context.shareLink("https://www.workoutlyazure.com/exercise/${exercise.id}")
+                                context.shareLink("$BASE_SHARED_DOMAIN_HTTPS/exercise/id?=${exercise.id}")
                             }.padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {

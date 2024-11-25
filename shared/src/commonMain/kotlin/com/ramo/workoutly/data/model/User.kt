@@ -38,7 +38,7 @@ data class UserPref(
     @SerialName("auth_id")
     val authId: String = "",
     @SerialName("id")
-    val id: Long = 0L,// Not From Supabase userInfo()
+    val id: String = "",// Not From Supabase userInfo()
     @SerialName("email")
     val email: String = "",
     @SerialName("phone")
@@ -48,5 +48,5 @@ data class UserPref(
     @Transient
     val profilePicture: String = ""
 ) {
-    constructor() : this("", 0L, "", "", "", "")
+    constructor() : this("", "", "", "", "", "")
 }

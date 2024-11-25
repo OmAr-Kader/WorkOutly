@@ -74,7 +74,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,7 +89,6 @@ import com.ramo.workoutly.android.global.ui.AnimatedFadeOnce
 import com.ramo.workoutly.android.global.ui.BackButtonLess
 import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
-import com.ramo.workoutly.android.global.ui.OnLaunchScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
 import com.ramo.workoutly.android.global.ui.rememberDistance
@@ -486,7 +484,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ImageForCurveItem(exercise.videoUri, 80.dp)
+                ImageForCurveItem(exercise.videoUrl, 80.dp)
                 Column(
                     modifier = Modifier
                         .fillMaxSize()

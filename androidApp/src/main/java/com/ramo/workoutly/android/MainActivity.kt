@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val deepLink = intent?.data?.toString()?.let { url ->
             if (android.content.Intent.ACTION_VIEW == intent?.action && url.contains(BASE_SHARED_DOMAIN)) {
-                url.split("$BASE_SHARED_DOMAIN/").lastOrNull()
+                url.split("id?=").lastOrNull()
             } else {
                 null
             }

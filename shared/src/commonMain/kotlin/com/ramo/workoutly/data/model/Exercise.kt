@@ -9,42 +9,27 @@ import kotlinx.serialization.json.jsonObject
 @kotlinx.serialization.Serializable
 data class Exercise(
     val id: String = "", //generateUniqueId
-    val title: String = "",
-    @kotlinx.serialization.SerialName("video_uri")
-    val videoUri: String = "",
-    val length: Long = 0L,
-    val description: String = "",
     val date: String = "",
+    val title: String = "",
+    @kotlinx.serialization.SerialName("video_url")
+    val videoUrl: String = "",
+    val length: Long = 0L,
+    val cato: String = "",
     @kotlinx.serialization.SerialName("views")
     val views: Long = 0,
-    val cato: String = "",
-    val liker: List<Long> = emptyList(),
+    val liker: List<String> = emptyList(),
+    val description: String = "",
     @kotlinx.serialization.Transient
     val isLiked: Boolean = false,
     @kotlinx.serialization.Transient
-    val likes: Int = 0,
-    val _rid: String = "",
-    val _ts: String = "",
-    val _self: String = "",
-    val _etag: String = "",
-    val _attachments: String = "",
+    val likes: Int = liker.size,
 ): BaseObject() {
 
-    constructor() : this("", "", "", 0L,"",  "", 0L, "", emptyList())
+    constructor() : this("", "","", "", 0L, "",  0L, emptyList(), "")
 
     val lengthStr: String = length.formatMillisecondsToHours
 
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject
-    }
-
-    override fun jsonCreate(): JsonObject {
-        return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject.toMutableMap().apply {
-            remove("_rid")
-            remove("_ts")
-            remove("_self")
-            remove("_etag")
-            remove("_attachments")
-        }.let(::JsonObject)
     }
 }

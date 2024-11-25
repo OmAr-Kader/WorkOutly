@@ -5,12 +5,17 @@ package com.ramo.workoutly.global.util
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.format
 import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 inline val dateNow: String
     get() = kotlinx.datetime.Clock.System.now().toString()
+
+inline val dateNowUTC: String
+    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
 
 inline val dateBeforeHourInstant: Instant
     get() = kotlinx.datetime.Clock.System.now().toEpochMilliseconds().let {
@@ -22,6 +27,16 @@ inline val dateBeforeHour: String
 
 inline val dateNowMills: Long
     get() = kotlinx.datetime.Clock.System.now().toEpochMilliseconds()
+
+inline val dateNowUTCMILLS: Long
+    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(TimeZone.UTC).toInstant(UtcOffset.ZERO).toEpochMilliseconds()
+
+
+inline val dateNowUTCMILLSOnlyTour: String
+    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(TimeZone.UTC).format(LocalDateTime.Format {
+        byUnicodePattern("uuuu/MM/dd HH")
+    })
+
 
 val Long.toInstant: Instant get() = Instant.fromEpochMilliseconds(this)
 

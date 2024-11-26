@@ -4,6 +4,7 @@ import com.ramo.workoutly.global.base.MSG_IMG
 import com.ramo.workoutly.global.base.MSG_TEXT
 import com.ramo.workoutly.global.base.MSG_VID
 import com.ramo.workoutly.global.util.dateNow
+import com.ramo.workoutly.global.util.dateNowUTCMILLSOnlyTour
 
 @Suppress("SpellCheckingInspection")
 val tempExercises: List<Exercise> get() {
@@ -18,6 +19,8 @@ val tempExercises: List<Exercise> get() {
                     "\u200BWhat muscles does the plank to pike work?\u200B While most people think of it as a core-specific move, it truly works your whole body — shoulder muscles, lats, glutes, hamstrings and heart, included.\n" +
                     "\u200BWho can do it?\u200B Because there are some easy ways to modify this move, exercisers of all levels can do the core-builder, Ashley Patten, founder of Ashley Patten Pilates, tells LIVESTRONG. If you have joint issues or any heart issues, talk to your doctor before doing any jumping or high-intensity cardio.\n",
             views = 12,
+            liker = listOf(),
+            cato = "",
             length = kotlin.random.Random.nextLong(1_600_000, 4_600_000),
             date = dateNow
         ),
@@ -31,6 +34,8 @@ val tempExercises: List<Exercise> get() {
                     "\u200BWhat muscles does the plank to pike work?\u200B While most people think of it as a core-specific move, it truly works your whole body — shoulder muscles, lats, glutes, hamstrings and heart, included.\n" +
                     "\u200BWho can do it?\u200B Because there are some easy ways to modify this move, exercisers of all levels can do the core-builder, Ashley Patten, founder of Ashley Patten Pilates, tells LIVESTRONG. If you have joint issues or any heart issues, talk to your doctor before doing any jumping or high-intensity cardio.\n",
             views = 12,
+            liker = listOf(),
+            cato = "",
             length = kotlin.random.Random.nextLong(1_600_000, 4_600_000),
             date = dateNow
         ),
@@ -44,6 +49,8 @@ val tempExercises: List<Exercise> get() {
                     "\u200BWhat muscles does the plank to pike work?\u200B While most people think of it as a core-specific move, it truly works your whole body — shoulder muscles, lats, glutes, hamstrings and heart, included.\n" +
                     "\u200BWho can do it?\u200B Because there are some easy ways to modify this move, exercisers of all levels can do the core-builder, Ashley Patten, founder of Ashley Patten Pilates, tells LIVESTRONG. If you have joint issues or any heart issues, talk to your doctor before doing any jumping or high-intensity cardio.\n",
             views = 12,
+            liker = listOf(),
+            cato = "",
             length = kotlin.random.Random.nextLong(1_600_000, 4_600_000),
             date = dateNow
         ),
@@ -57,6 +64,8 @@ val tempExercises: List<Exercise> get() {
                     "\u200BWhat muscles does the plank to pike work?\u200B While most people think of it as a core-specific move, it truly works your whole body — shoulder muscles, lats, glutes, hamstrings and heart, included.\n" +
                     "\u200BWho can do it?\u200B Because there are some easy ways to modify this move, exercisers of all levels can do the core-builder, Ashley Patten, founder of Ashley Patten Pilates, tells LIVESTRONG. If you have joint issues or any heart issues, talk to your doctor before doing any jumping or high-intensity cardio.\n",
             views = 12,
+            liker = listOf(),
+            cato = "",
             length = kotlin.random.Random.nextLong(1_600_000, 4_600_000),
             date = dateNow
         ),
@@ -65,13 +74,13 @@ val tempExercises: List<Exercise> get() {
 
 val messages: List<Message> get() {
     return listOf(
-        Message("0", "0L", "Omar", "It's a total-body exercise that involves starting in a plank position", type = MSG_TEXT),
-        Message("1", "1L", "Ahmed", "exercisers of all levels can do the core-builder", type = MSG_TEXT),
-        Message("2", "1L", "Ahmed", "", "https://goodrequest-web-development.s3.eu-central-1.amazonaws.com/61bc806440f0c568c0900490_Jetpack_20_Compose_20_Basics_20_20_Modal_20_Bottom_20_Sheet_bb7392c41d.png", type = MSG_IMG),
-        Message("3", "2L", "Sore", "", "https://gymvisual.com/modules/productmedia/uploads/93411201preview.mp4", type = MSG_VID),
-        Message("4", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", type = MSG_TEXT),
-        Message("5", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", type = MSG_TEXT),
-        Message("6", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", type = MSG_TEXT),
-        Message("7", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", type = MSG_TEXT),
+        Message(id = "0", userId = "0L", senderName ="Omar", message = "It's a total-body exercise that involves starting in a plank position", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("1", "1L", "Ahmed", "exercisers of all levels can do the core-builder", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("2", "1L", "Ahmed", "", "https://goodrequest-web-development.s3.eu-central-1.amazonaws.com/61bc806440f0c568c0900490_Jetpack_20_Compose_20_Basics_20_20_Modal_20_Bottom_20_Sheet_bb7392c41d.png", type = MSG_IMG, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("3", "2L", "Sore", "", "https://gymvisual.com/modules/productmedia/uploads/93411201preview.mp4", type = MSG_VID, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("4", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("5", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("6", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
+        Message("7", "0L", "Omar", "The plank to pike jump is one of those rare ab moves that really", fileUrl = "", type = MSG_TEXT, session = dateNowUTCMILLSOnlyTour, date = dateNow),
     )
 }

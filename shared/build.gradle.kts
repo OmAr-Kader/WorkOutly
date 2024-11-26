@@ -45,11 +45,11 @@ kotlin {
             implementation(libs.realm.base)
 
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.kotlinx.json)
-            /*implementation(libs.ktor.client.cio) // CIO engine for JVM/Android
-            implementation(libs.ktor.client.ios) // iOS-specific engine
-            implementation(libs.ktor.client.json)*/
+            /*implementation(libs.ktor.client.ios)*/
+            implementation(libs.ktor.server.content.negotiation)
             api(libs.logging)
             implementation(libs.stately.common)
         }

@@ -74,7 +74,7 @@ fun isVideo(extension: String): Boolean = getMimeType(extension = extension)?.st
 
 @androidx.compose.runtime.Composable
 fun android.content.Context.filePicker(
-    invoke: (android.net.Uri, type: Int) -> Unit,
+    invoke: (android.net.Uri, type: Int, extension: String) -> Unit,
 ): () -> Unit {
     val photoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
@@ -88,7 +88,7 @@ fun android.content.Context.filePicker(
             } else {
                 null
             }
-            isImage?.let { it1 -> invoke.invoke(it, it1) }
+            isImage?.let { it1 -> invoke.invoke(it, it1, extension) }
         }
     }
     val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
@@ -170,4 +170,19 @@ fun android.content.Context.shareLink(url: String) {
     }
     val chooser = android.content.Intent.createChooser(intent, "Share link via")
     startActivity(chooser)
+}
+
+
+suspend fun android.content.Context.getByteArrayFromUri(uri: android.net.Uri): ByteArray? {
+    return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+        return@withContext contentResolver.openInputStream(uri)?.use { inputStream ->
+            val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+            val buffer = ByteArray(1024)
+            var length: Int
+            while (inputStream.read(buffer).also { length = it } != -1) {
+                byteArrayOutputStream.write(buffer, 0, length)
+            }
+            byteArrayOutputStream.toByteArray()
+        }
+    }
 }

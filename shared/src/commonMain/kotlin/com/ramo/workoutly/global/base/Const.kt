@@ -25,3 +25,7 @@ const val SLEEP = 6
 const val MSG_TEXT: Int = 1
 const val MSG_IMG: Int = 2
 const val MSG_VID: Int = 3
+
+const val AWS_INSERT = "insert"
+const val AWS_MODIFY = "modify"
+const val AWS_DELETE = "delete"

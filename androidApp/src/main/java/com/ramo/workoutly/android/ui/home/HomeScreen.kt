@@ -155,8 +155,14 @@ fun HomeScreen(
     val scaffoldState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val imagePicker = context.filePicker { url, type ->
-        viewModel.setFile(url, type)
+    val imagePicker = context.filePicker { url, type, extension ->
+        viewModel.apply {
+            context.setFile(url = url, type = type, extension = extension, userId = userPref.id) {
+                scope.launch {
+                    scaffoldState.showSnackbar("Failed")
+                }
+            }
+        }
     }
     val requestPermissions = rememberLauncherForActivityResult(
         viewModel.healthKit.contract
@@ -211,7 +217,7 @@ fun HomeScreen(
     }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
+            if (event == Lifecycle.Event.ON_CREATE) {
                 context.checkActivityRecognition({
                     findPreference(PREF_DAYS_COUNT) {
                         viewModel.loadData(
@@ -312,7 +318,7 @@ fun HomeScreen(
                 statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
                 viewModel.setIsLiveVisible(false)
             }, imagePicker) {
-
+                viewModel.send(it, userId = userPref.id)
             }
         }
         LoadingScreen(state.isProcess, theme)
@@ -748,7 +754,7 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                         coil.compose.SubcomposeAsyncImage(
                             model = LocalContext.current.imageBuildr(msg.fileUrl),
                             success = { (painter, _) ->
-                                AnimatedFadeOnce(duration = 200, label = msg.id.toString() + msg.type) {
+                                AnimatedFadeOnce(duration = 200, label = msg.id + msg.type) {
                                     Image(
                                         contentScale = ContentScale.Crop,
                                         painter = painter,
@@ -799,7 +805,7 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                                 isPlayed.value = true
                             },
                         contentAlignment = Alignment.Center,
-                        label = msg.id.toString() + msg.type
+                        label = msg.id + msg.type
                     ) {
                         Image(
                             contentScale = ContentScale.Crop,

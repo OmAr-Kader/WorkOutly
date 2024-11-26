@@ -46,6 +46,7 @@ import com.ramo.workoutly.android.global.util.videoConfig
 import com.ramo.workoutly.android.global.util.videoItem
 import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.global.base.BASE_SHARED_DOMAIN_HTTPS
+import com.ramo.workoutly.global.base.EXERCISE_BY_ID
 import io.sanghun.compose.video.RepeatMode
 import io.sanghun.compose.video.VideoPlayer
 import kotlinx.coroutines.launch
@@ -240,7 +241,7 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                         }
                         Row(
                             Modifier.clickable {
-                                context.shareLink("$BASE_SHARED_DOMAIN_HTTPS/exercise/id?=${exercise.id}")
+                                context.shareLink(BASE_SHARED_DOMAIN_HTTPS + EXERCISE_BY_ID + exercise.id)
                             }.padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {

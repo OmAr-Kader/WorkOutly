@@ -21,3 +21,19 @@ data class QueryListAWS<T>(
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject
     }
 }
+
+@kotlinx.serialization.Serializable
+data class SocketAWS<T>(
+    val action: String,
+    val data: T
+)
+
+@kotlinx.serialization.Serializable
+data class SocketAWSDelete(
+    val data: SocketAWSDeleteId
+)
+
+@kotlinx.serialization.Serializable
+data class SocketAWSDeleteId(
+    val id: String,
+)

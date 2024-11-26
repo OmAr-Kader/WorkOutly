@@ -9,34 +9,34 @@ import io.ktor.client.HttpClient
 class ExerciseRepoImp(client: HttpClient, clientSocket: HttpClient) : BaseRepoImp(client, clientSocket), ExerciseRepo {
 
     override suspend fun createExercise(exercise: Exercise): Exercise? {
-        return postCreate(BASE_URL + EXERCISE_BASE, exercise)
+        return postCreate(EXERCISE_BASE, exercise)
     }
 
     override suspend fun getExercise(id: String): Exercise? {
-        return get(BASE_URL + EXERCISE_BY_ID + id)
+        return get(EXERCISE_BY_ID + id)
     }
 
     override suspend fun fetchExercises(): List<Exercise> {
-        return get<QueryListAWS<Exercise>>(BASE_URL + EXERCISE_GET_ALL_BY_COLUMNS + "id,title,video_uri,date,length,views,liker")?.list ?: emptyList()
+        return get<QueryListAWS<Exercise>>(EXERCISE_GET_ALL_BY_COLUMNS + "id,title,video_url,date,length,views,liker")?.list ?: emptyList()
     }
 
     override suspend fun fetchExercisesAllData(): List<Exercise> {
-        return get<QueryListAWS<Exercise>>(BASE_URL + EXERCISE_GET_ALL)?.list ?: emptyList()
+        return get<QueryListAWS<Exercise>>(EXERCISE_GET_ALL)?.list ?: emptyList()
     }
 
     override suspend fun incrementViewCount(exercise: Exercise): Int {
-        return patchLess(BASE_URL + EXERCISE_VIEW_INCREMENT + exercise.id)
+        return patchLess(EXERCISE_VIEW_INCREMENT + exercise.id)
     }
 
     override suspend fun addLike(exercise: Exercise, userId: String): Int {
-        return patchLess(BASE_URL + EXERCISE_ADD_LIKE + exercise.id)
+        return patchLess(EXERCISE_ADD_LIKE + exercise.id)
     }
 
     override suspend fun removeLike(exercise: Exercise, userId: String): Int {
-        return patchLess(BASE_URL + EXERCISE_REMOVE_LIKE + exercise.id)
+        return patchLess(EXERCISE_REMOVE_LIKE + exercise.id)
     }
 
     override suspend fun deleteExercise(id: String): Int {
-        return delete(BASE_URL + EXERCISE_BY_ID + id)
+        return delete(EXERCISE_BY_ID + id)
     }
 }

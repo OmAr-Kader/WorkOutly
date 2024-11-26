@@ -19,10 +19,10 @@ coil = "2.7.0"
 logging = "1.5.0"
 mapsCompose = "6.1.2"
 mapsKtx = "5.1.1"
-media3Exoplayer = "1.4.1"
-media3Session = "1.4.1"
+media3Exoplayer = "1.5.0"
+media3Session = "1.5.0"
 multidex = "2.0.1"
-places = "4.0.0"
+places = "4.1.0"
 realm = "2.3.0"
 navigationCompose = "2.8.4"
 retrofit = "2.9.0"
@@ -61,6 +61,7 @@ compose-material3 = { module = "androidx.compose.material3:material3", version.r
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 kvault = { module = "com.liftric:kvault", version.ref = "kvault" }
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil" }

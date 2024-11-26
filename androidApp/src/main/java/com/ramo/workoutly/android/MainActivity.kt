@@ -33,6 +33,7 @@ import com.ramo.workoutly.android.ui.exercise.ExerciseScreen
 import com.ramo.workoutly.android.ui.home.HomeScreen
 import com.ramo.workoutly.android.ui.session.SessionScreen
 import com.ramo.workoutly.global.base.BASE_SHARED_DOMAIN
+import com.ramo.workoutly.global.base.BASE_SHARED_DOMAIN_HTTPS
 import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HOME_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
@@ -46,7 +47,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val deepLink = intent?.data?.toString()?.let { url ->
             if (android.content.Intent.ACTION_VIEW == intent?.action && url.contains(BASE_SHARED_DOMAIN)) {
-                url.split("id?=").lastOrNull()
+                url.split(BASE_SHARED_DOMAIN_HTTPS).lastOrNull()
             } else {
                 null
             }

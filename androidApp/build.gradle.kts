@@ -47,8 +47,6 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         getByName("debug") {
-            isDebuggable = true
-            isJniDebuggable = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }

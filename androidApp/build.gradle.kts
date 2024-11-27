@@ -11,13 +11,20 @@ android {
         applicationId = "com.ramo.workoutly.android"
         minSdk = 30
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
         multiDexEnabled = true
     }
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
     }
     kotlin {
         sourceSets {
@@ -37,10 +44,11 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("debug")
         }
         getByName("debug") {
+            isDebuggable = true
+            isJniDebuggable = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -77,6 +85,7 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.dropdown)
+    implementation(libs.androidx.core.splashscreen)
 
     /////
     //implementation(libs.play.services.auth)

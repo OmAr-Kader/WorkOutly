@@ -2,6 +2,8 @@ package com.ramo.workoutly.android.ui.home
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.twotone.ExitToApp
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
@@ -38,6 +41,7 @@ import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +59,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -74,6 +79,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,6 +97,7 @@ import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
+import com.ramo.workoutly.android.global.ui.noRippleClickable
 import com.ramo.workoutly.android.global.ui.rememberDistance
 import com.ramo.workoutly.android.global.ui.rememberDumbbell
 import com.ramo.workoutly.android.global.ui.rememberFile
@@ -110,7 +117,9 @@ import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.data.model.Message
 import com.ramo.workoutly.data.model.UserPref
+import com.ramo.workoutly.data.model.exerciseCategories
 import com.ramo.workoutly.global.base.CALORIES_BURNED
+import com.ramo.workoutly.global.base.CREATE_EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.DISTANCE
 import com.ramo.workoutly.global.base.EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.HEART_RATE
@@ -143,7 +152,7 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreen(
     userPref: UserPref,
-    deepLink: String?,
+    checkDeepLink: MutableState<String?>,
     statusColor: (Boolean, Int) -> Unit,
     findPreference: (String, (it: String?) -> Unit) -> Unit,
     navigateToScreen: suspend (Screen, String) -> Unit,
@@ -153,6 +162,13 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val state by viewModel.uiState.collectAsState()
     val scaffoldState = remember { SnackbarHostState() }
+    val isMenuExpanded = remember { mutableStateOf(false) }
+    // Animate the width of the side menu
+    val menuWidth by animateDpAsState(
+        targetValue = if (isMenuExpanded.value) 110.dp else 0.dp,
+        animationSpec = tween(durationMillis = 300), label = "menuWidth"
+    )
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val imagePicker = context.filePicker { url, type, extension ->
@@ -171,11 +187,11 @@ fun HomeScreen(
             findPreference(PREF_DAYS_COUNT) {
                 viewModel.loadData(
                     userPref,
-                    deepLink,
+                    checkDeepLink.value,
                     it?.toIntOrNull() ?: 3,
                     theme.isDarkMode,
                     onLink = { screen, route ->
-                        scope.launch { navigateToScreen(screen, route) }
+                        scope.launch { checkDeepLink.value = null; navigateToScreen(screen, route) }
                     }
                 ) {
                 }
@@ -194,11 +210,11 @@ fun HomeScreen(
             findPreference(PREF_DAYS_COUNT) {
                 viewModel.loadData(
                     userPref,
-                    deepLink,
+                    checkDeepLink.value,
                     it?.toIntOrNull() ?: 3,
                     theme.isDarkMode,
                     onLink = { screen, route ->
-                        scope.launch { navigateToScreen(screen, route) }
+                        scope.launch { checkDeepLink.value = null; navigateToScreen(screen, route) }
                     }
                 ) {
                     scope.launch {
@@ -222,11 +238,11 @@ fun HomeScreen(
                     findPreference(PREF_DAYS_COUNT) {
                         viewModel.loadData(
                             userPref,
-                            deepLink,
+                            checkDeepLink.value,
                             it?.toIntOrNull() ?: 3,
                             theme.isDarkMode,
                             onLink = { screen, route ->
-                                scope.launch { navigateToScreen(screen, route) }
+                                scope.launch { checkDeepLink.value = null; navigateToScreen(screen, route) }
                             }
                         ) {
                             scope.launch {
@@ -244,6 +260,7 @@ fun HomeScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(scaffoldState) {
@@ -271,57 +288,121 @@ fun HomeScreen(
             )
         }
     ) { padding ->
-        Column(modifier = Modifier
-            .padding(padding)
-            .background(theme.backgroundGradient)
-        ) {
-            BarMainScreen(
-                userPref = userPref,
-                days = state.days,
-                sortBy = state.sortBy,
-                changeDays = { viewModel.setFilterDays(theme.isDarkMode, it) },
-                changeSortBy = viewModel::setSortBy
+        Row(modifier = Modifier.fillMaxSize().background(theme.backgroundGradient).padding(padding)) {
+            Card(
+                modifier = Modifier
+                    .width(menuWidth)
+                    .fillMaxHeight(),
+                shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp),
+                colors = CardDefaults.cardColors(containerColor = theme.backDark),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
-
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
+                        item {
+                            Column(
+                                Modifier.background(if (state.chosenCato == "") theme.background else Color.Transparent).clickable {
+                                    viewModel.setChosenCato("")
+                                    isMenuExpanded.value = false
+                                }.padding(10.dp).fillMaxWidth()
+                            ) {
+                                Text(
+                                    overflow = TextOverflow.Visible,
+                                    text = "Muscle Groups",
+                                    color = theme.textColor
+                                )
+                            }
+                            HorizontalDivider(Modifier.padding(horizontal = 10.dp, vertical = 0.dp))
+                        }
+                        items(exerciseCategories) {
+                            Column(
+                                Modifier.background(if (state.chosenCato == it) theme.background else Color.Transparent).clickable {
+                                    viewModel.setChosenCato(it)
+                                    isMenuExpanded.value = false
+                                }.padding(10.dp).fillMaxWidth()
+                            ) {
+                                Text(
+                                    overflow = TextOverflow.Visible,
+                                    text = it, color = theme.textHintColor
+                                )
+                            }
+                            HorizontalDivider(Modifier.padding(horizontal = 10.dp, vertical = 0.dp))
+                        }
+                    }
+                }
             }
-            LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
-                item {
-                    VerticalGrid(
-                        columns = if (isPortraitMode()) 2 else 4, // 2 columns in the grid
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentPadding = PaddingValues(),
-                        state.metrics
-                    ) { item ->
-                        FitnessMetricItem(metric = item, theme = theme) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier
+                    .background(theme.backgroundGradient)
+                ) {
+                    BarMainScreen(
+                        userPref = userPref,
+                        days = state.days,
+                        sortBy = state.sortBy,
+                        expendMenu = { isMenuExpanded.value = true },
+                        changeDays = { viewModel.setFilterDays(theme.isDarkMode, it) },
+                        changeSortBy = viewModel::setSortBy,
+                        createExercise = {
                             scope.launch {
-                                navigateToScreen.invoke(Screen.SessionRoute(item, state.days), SESSION_SCREEN_ROUTE)
+                                navigateToScreen(Screen.CreateExerciseRoute(), CREATE_EXERCISE_SCREEN_ROUTE)
                             }
                         }
+                    ) {
+
                     }
-                }
-                items(state.exercises) { exercise ->
-                    ExerciseItem(exercise = exercise, theme = theme) {
-                        scope.launch {
-                            navigateToScreen.invoke(Screen.ExerciseRoute(exercise), EXERCISE_SCREEN_ROUTE)
+                    LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
+                        item {
+                            VerticalGrid(
+                                columns = if (isPortraitMode()) 2 else 4, // 2 columns in the grid
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                contentPadding = PaddingValues(),
+                                state.metrics
+                            ) { item ->
+                                FitnessMetricItem(metric = item, theme = theme) {
+                                    scope.launch {
+                                        navigateToScreen.invoke(Screen.SessionRoute(item, state.days), SESSION_SCREEN_ROUTE)
+                                    }
+                                }
+                            }
+                        }
+                        items(state.displayExercises) { exercise ->
+                            ExerciseItem(exercise = exercise, theme = theme) {
+                                scope.launch {
+                                    navigateToScreen.invoke(Screen.ExerciseRoute(exercise), EXERCISE_SCREEN_ROUTE)
+                                }
+                            }
+                        }
+                        item {
+                            Spacer(Modifier.height(80.dp))
                         }
                     }
                 }
-                item {
-                    Spacer(Modifier.height(80.dp))
+                isMenuExpanded.value.ifTrue {
+                    Box(modifier = Modifier.fillMaxSize()
+                        .background(Color.Transparent)
+                        .noRippleClickable {
+                            isMenuExpanded.value = false
+                        }
+                    ) {
+                    }
                 }
+                state.isLiveVisible.ifTrue {
+                    LiveSessionSheet(state.messages, theme, {
+                        statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
+                        viewModel.setIsLiveVisible(false)
+                    }, imagePicker) {
+                        viewModel.send(it, userId = userPref.id)
+                    }
+                }
+                LoadingScreen(state.isProcess, theme)
             }
         }
-        state.isLiveVisible.ifTrue {
-            LiveSessionSheet(state.messages, theme, {
-                statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
-                viewModel.setIsLiveVisible(false)
-            }, imagePicker) {
-                viewModel.send(it, userId = userPref.id)
-            }
-        }
-        LoadingScreen(state.isProcess, theme)
     }
 }
 
@@ -331,8 +412,10 @@ fun BarMainScreen(
     theme: Theme = koinInject(),
     days: Int,
     sortBy: Int,
+    expendMenu: () -> Unit,
     changeDays: (Int) -> Unit,
     changeSortBy: (Int) -> Unit,
+    createExercise: () -> Unit,
     signOut: () -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -351,7 +434,18 @@ fun BarMainScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {}
+            Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = expendMenu,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu",
+                        tint = theme.textForGradientColor
+                    )
+                }
+            }
+            //Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {}
             Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = { expanded.value = true },
@@ -377,6 +471,7 @@ fun BarMainScreen(
                                 54 -> changeSortBy(4)
                                 55 -> changeSortBy(5)
                                 -1 -> signOut()
+                                -2 -> createExercise()
                             }
                             expanded.value = false
                         },
@@ -391,8 +486,8 @@ fun BarMainScreen(
                 }
             }
         }
-        Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Hi, ${userPref.name}", color = theme.textForGradientColor, fontSize = 20.sp)
+        Row(Modifier.fillMaxHeight().padding(horizontal = 60.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Hi, ${userPref.name}", maxLines = 2, color = theme.textForGradientColor, fontSize = 20.sp)
         }
     }
 }
@@ -419,6 +514,9 @@ fun getMenuItems(days: Int, sortBy: Int): MenuItem<Int> {
             }
             item(-1, "Sign out") {
                 icon(Icons.AutoMirrored.TwoTone.ExitToApp)
+            }
+            item(-2, "Only Admin") {
+                icon(Icons.Filled.Person)
             }
         }
         return@remember menu
@@ -524,6 +622,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                             .align(Alignment.Start)
                             .padding(start = 15.dp, end = 15.dp, bottom = 3.dp),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -566,6 +665,12 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                             )
+                        }
+                        Row(
+                            Modifier.padding(2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Spacer(Modifier)
                         }
                     }
                 }

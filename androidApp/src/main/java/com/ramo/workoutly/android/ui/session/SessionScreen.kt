@@ -133,13 +133,13 @@ fun SessionScreen(
                                             Image(
                                                 modifier = Modifier.width(13.dp).height(13.dp),
                                                 imageVector = rememberTriangleUp(color = Color.Green),
-                                                contentDescription = "",
+                                                contentDescription = "rememberTriangleUp",
                                             )
                                         } else {
                                             Image(
                                                 modifier = Modifier.width(13.dp).height(13.dp),
                                                 imageVector = rememberTriangleDown(color = Color.Red),
-                                                contentDescription = "",
+                                                contentDescription = "rememberTriangleDown",
                                             )
                                         }
                                         Spacer(Modifier)

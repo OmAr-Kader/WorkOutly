@@ -9,6 +9,8 @@ const val HOME_SCREEN_ROUTE: String = "home_screen_route"
 const val SESSION_SCREEN_ROUTE: String = "session_screen_route"
 const val EXERCISE_SCREEN_ROUTE: String = "exercise_screen_route"
 
+const val CREATE_EXERCISE_SCREEN_ROUTE: String = "create_exercise_screen_route"
+
 const val PREF_ID: String = "id_pref"
 const val PREF_NAME: String = "name"
 const val PREF_PROFILE_IMAGE: String = "profile_image"

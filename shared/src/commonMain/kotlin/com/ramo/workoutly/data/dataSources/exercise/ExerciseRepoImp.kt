@@ -17,7 +17,7 @@ class ExerciseRepoImp(client: HttpClient, clientSocket: HttpClient) : BaseRepoIm
     }
 
     override suspend fun fetchExercises(): List<Exercise> {
-        return get<QueryListAWS<Exercise>>(EXERCISE_GET_ALL_BY_COLUMNS + "id,title,video_url,date,length,views,liker")?.list ?: emptyList()
+        return get<QueryListAWS<Exercise>>(EXERCISE_GET_ALL_BY_COLUMNS + "id,title,video_url,date,length,views,liker,cato")?.list ?: emptyList()
     }
 
     override suspend fun fetchExercisesAllData(): List<Exercise> {

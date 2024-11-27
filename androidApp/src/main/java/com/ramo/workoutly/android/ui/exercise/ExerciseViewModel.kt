@@ -13,10 +13,16 @@ class ExerciseViewModel(project: Project) : BaseViewModel(project) {
     val uiState = _uiState.asStateFlow()
 
     fun loadData(exercise: Exercise) {
-        //setIsProcess(true)
         _uiState.update { state ->
             state.copy(exercise = exercise)
         }
+        /*launchBack {
+            project.exercise.getExercise(exercise.id)?.also {
+                _uiState.update { state ->
+                    state.copy(exercise = it)
+                }
+            }
+        }*/
     }
 
     private fun setIsProcess(@Suppress("SameParameterValue") it: Boolean) {

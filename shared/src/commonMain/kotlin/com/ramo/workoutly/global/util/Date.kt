@@ -93,3 +93,18 @@ val Long.formatMillisecondsToHours: String get () {
     val secondsStr = if (seconds < 10L) "0$seconds" else "$seconds"
     return "$hoursStr$minutesStr$secondsStr"
 }
+
+// Duration
+val Long.fullFormatMillisecondsToHours: String get () {
+    val hours = this / 3_600_000
+    val minutes = (this % 3_600_000) / 60_000
+    val seconds = (this % 60_000) / 1_000
+    val hoursStr = when {
+        hours == 0L -> ""
+        hours < 10L -> "0$hours:"
+        else -> "$hours:"
+    }
+    val minutesStr = if (minutes < 10L) "0$minutes:" else "$minutes:"
+    val secondsStr = if (seconds < 10L) "0$seconds" else "$seconds"
+    return "$hoursStr$minutesStr$secondsStr"
+}

@@ -46,15 +46,13 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
     private val _uiState = MutableStateFlow(State())
     val uiState = _uiState.asStateFlow()
 
-    private var closeSocket: (() -> Unit)? = null
-
     fun loadData(userPref: UserPref, deepLink: String?, days: Int, isDarkMode: Boolean, onLink: (Screen, String) -> Unit, permission: () -> Unit) {
         launchBack {
             healthKit.requestPermissions({
                 loadMetrics(days, isDarkMode).also { metrics ->
-                    tempExercises.also { exercises ->
+                    tempExercises.also { exercises -> // @OmAr-Kader sortBy
                     messages.messagesFilter(userPref.id).also { messages ->
-                    //project.exercise.fetchExercises().also { exercises ->
+                        //project.exercise.fetchExercises().also { exercises -> // @OmAr-Kader sortBy
                         //project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(userPref.id).also { messages ->
                             deepLink?.also { link ->
                                 handleDeepLink(link, onLink = onLink) { id ->
@@ -66,6 +64,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                                     state.copy(
                                         metrics = metrics,
                                         exercises = exercises,
+                                        displayExercises = exercises,
                                         days = days,
                                         messages = messages,
                                         isProcess = false
@@ -247,27 +246,36 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         }
     }
 
+    fun setChosenCato(cato: String) {
+        if (cato.isEmpty()) {
+            uiState.value.exercises.toList() // @OmAr-Kader sortBy
+        } else {
+            uiState.value.exercises.toList().filter { it.cato == cato } // @OmAr-Kader sortBy
+        }.also { exercises ->
+            _uiState.update { state ->
+                state.copy(displayExercises = exercises, chosenCato = cato)
+            }
+        }
+    }
+
+    @Suppress("unused")
     private fun setIsProcess(@Suppress("SameParameterValue") it: Boolean) {
         _uiState.update { state ->
             state.copy(isProcess = it)
         }
     }
 
-    override fun onCleared() {
-        closeSocket?.invoke()
-        closeSocket = null
-        super.onCleared()
-    }
-
     data class State(
         val metrics: List<FitnessMetric> = emptyList(),
         val exercises: List<Exercise> = emptyList(),
+        val displayExercises: List<Exercise> = emptyList(),
         val messages: List<Message> = emptyList(),
         val days: Int = 3,
         val sortBy: Int = 1,
         val chatText: String = "",
         val isLiveVisible: Boolean = false,
         val isPickerVisible: Boolean = false,
+        val chosenCato: String = "",
         val isProcess: Boolean = true,
     )
 }

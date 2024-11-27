@@ -1347,7 +1347,6 @@ fun rememberTriangleUp(color: Color): ImageVector {
     }
 }
 
-
 @Composable
 fun rememberTriangleDown(color: Color): ImageVector {
     return remember {
@@ -1377,6 +1376,198 @@ fun rememberTriangleDown(color: Color): ImageVector {
                 horizontalLineToRelative(-0.827f)
                 lineTo(2f, 5.56f)
                 close()
+            }
+        }.build()
+    }
+}
+
+@Composable
+fun rememberCloudUpload(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Cloud_upload",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(260f, 800f)
+                quadToRelative(-91f, 0f, -155.5f, -63f)
+                reflectiveQuadTo(40f, 583f)
+                quadToRelative(0f, -78f, 47f, -139f)
+                reflectiveQuadToRelative(123f, -78f)
+                quadToRelative(25f, -92f, 100f, -149f)
+                reflectiveQuadToRelative(170f, -57f)
+                quadToRelative(117f, 0f, 198.5f, 81.5f)
+                reflectiveQuadTo(760f, 440f)
+                quadToRelative(69f, 8f, 114.5f, 59.5f)
+                reflectiveQuadTo(920f, 620f)
+                quadToRelative(0f, 75f, -52.5f, 127.5f)
+                reflectiveQuadTo(740f, 800f)
+                horizontalLineTo(520f)
+                quadToRelative(-33f, 0f, -56.5f, -23.5f)
+                reflectiveQuadTo(440f, 720f)
+                verticalLineToRelative(-206f)
+                lineToRelative(-64f, 62f)
+                lineToRelative(-56f, -56f)
+                lineToRelative(160f, -160f)
+                lineToRelative(160f, 160f)
+                lineToRelative(-56f, 56f)
+                lineToRelative(-64f, -62f)
+                verticalLineToRelative(206f)
+                horizontalLineToRelative(220f)
+                quadToRelative(42f, 0f, 71f, -29f)
+                reflectiveQuadToRelative(29f, -71f)
+                reflectiveQuadToRelative(-29f, -71f)
+                reflectiveQuadToRelative(-71f, -29f)
+                horizontalLineToRelative(-60f)
+                verticalLineToRelative(-80f)
+                quadToRelative(0f, -83f, -58.5f, -141.5f)
+                reflectiveQuadTo(480f, 240f)
+                reflectiveQuadToRelative(-141.5f, 58.5f)
+                reflectiveQuadTo(280f, 440f)
+                horizontalLineToRelative(-20f)
+                quadToRelative(-58f, 0f, -99f, 41f)
+                reflectiveQuadToRelative(-41f, 99f)
+                reflectiveQuadToRelative(41f, 99f)
+                reflectiveQuadToRelative(99f, 41f)
+                horizontalLineToRelative(100f)
+                verticalLineToRelative(80f)
+                close()
+                moveToRelative(220f, -280f)
+            }
+        }.build()
+    }
+}
+
+@Composable
+fun rememberNext(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Navigate_next",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(504f, 480f)
+                lineTo(320f, 296f)
+                lineToRelative(56f, -56f)
+                lineToRelative(240f, 240f)
+                lineToRelative(-240f, 240f)
+                lineToRelative(-56f, -56f)
+                close()
+            }
+        }.build()
+    }
+}
+
+
+@Composable
+fun rememberPrevious(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Navigate_before",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(560f, 720f)
+                lineTo(320f, 480f)
+                lineToRelative(240f, -240f)
+                lineToRelative(56f, 56f)
+                lineToRelative(-184f, 184f)
+                lineToRelative(184f, 184f)
+                close()
+            }
+        }.build()
+    }
+}
+
+
+@Composable
+fun rememberReplace(color: Color): ImageVector {
+    return remember {
+        ImageVector.Builder(
+            name = "Replay",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(color),
+                fillAlpha = 1.0f,
+                stroke = null,
+                strokeAlpha = 1.0f,
+                strokeLineWidth = 1.0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                strokeLineMiter = 1.0f,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(480f, 880f)
+                quadToRelative(-75f, 0f, -140.5f, -28.5f)
+                reflectiveQuadToRelative(-114f, -77f)
+                reflectiveQuadToRelative(-77f, -114f)
+                reflectiveQuadTo(120f, 520f)
+                horizontalLineToRelative(80f)
+                quadToRelative(0f, 117f, 81.5f, 198.5f)
+                reflectiveQuadTo(480f, 800f)
+                reflectiveQuadToRelative(198.5f, -81.5f)
+                reflectiveQuadTo(760f, 520f)
+                reflectiveQuadToRelative(-81.5f, -198.5f)
+                reflectiveQuadTo(480f, 240f)
+                horizontalLineToRelative(-6f)
+                lineToRelative(62f, 62f)
+                lineToRelative(-56f, 58f)
+                lineToRelative(-160f, -160f)
+                lineToRelative(160f, -160f)
+                lineToRelative(56f, 58f)
+                lineToRelative(-62f, 62f)
+                horizontalLineToRelative(6f)
+                quadToRelative(75f, 0f, 140.5f, 28.5f)
+                reflectiveQuadToRelative(114f, 77f)
+                reflectiveQuadToRelative(77f, 114f)
+                reflectiveQuadTo(840f, 520f)
+                reflectiveQuadToRelative(-28.5f, 140.5f)
+                reflectiveQuadToRelative(-77f, 114f)
+                reflectiveQuadToRelative(-114f, 77f)
+                reflectiveQuadTo(480f, 880f)
             }
         }.build()
     }

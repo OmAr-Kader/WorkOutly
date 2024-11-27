@@ -72,7 +72,7 @@ fun ExerciseScreen(
             BackButton(theme.background ,theme.textColor) {
                 scope.launch { backPress() }
             }
-            Column(modifier = Modifier) {
+            Column(Modifier.fillMaxSize()) {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 25.dp).height(200.dp),
                     shape = RoundedCornerShape(16.dp),
@@ -142,7 +142,6 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(110.dp)
                 .padding(10.dp),
             shape = RoundedCornerShape(15.dp),
             colors = CardDefaults.cardColors(containerColor = theme.background),
@@ -153,7 +152,7 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                 ) subBox@{
                     Text(
                         text = exercise.title,
@@ -163,9 +162,31 @@ fun ExerciseTitle(exercise: Exercise, theme: Theme) {
                         maxLines = 2,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
                             .padding(horizontal = 5.dp, vertical = 5.dp)
                     )
+                    Spacer(Modifier.height(3.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                        Text(
+                            text = "Category: ",
+                            color = theme.textColor,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .padding(horizontal = 5.dp, vertical = 5.dp)
+                        )
+                        Text(
+                            text = exercise.cato,
+                            color = theme.textHintColor,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 5.dp, vertical = 5.dp)
+                        )
+                    }
+                    Spacer(Modifier.height(3.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),

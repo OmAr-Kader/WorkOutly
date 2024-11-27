@@ -1,8 +1,5 @@
 package com.ramo.workoutly.android.global.util
 
-import com.ramo.workoutly.global.base.MSG_IMG
-import com.ramo.workoutly.global.base.MSG_VID
-
 internal val android.content.Context.isDarkMode: Boolean
     get() {
         val nightModeFlags: Int =
@@ -82,9 +79,9 @@ fun android.content.Context.filePicker(
         if (it != null) {
             val extension = getMimeTypeExtension(it)
             val isImage = if (isImage(extension)) {
-                MSG_IMG
+                com.ramo.workoutly.global.base.MSG_IMG
             } else if (isVideo(extension)) {
-                MSG_VID
+                com.ramo.workoutly.global.base.MSG_VID
             } else {
                 null
             }
@@ -134,6 +131,65 @@ fun android.content.Context.filePicker(
         }
     }
 }
+
+
+
+@androidx.compose.runtime.Composable
+fun android.content.Context.filePickerOnlyImage(
+    invoke: (android.net.Uri, extension: String) -> Unit,
+): () -> Unit {
+    val photoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) {
+        if (it != null) {
+            val extension = getMimeTypeExtension(it)
+            invoke.invoke(it, extension)
+        }
+    }
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val isGranted = permissions.values.all { it }
+        if (isGranted) {
+            photoPicker.launch(
+                androidx.activity.result.PickVisualMediaRequest(
+                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
+                )
+            )
+        }
+    }
+    return androidx.compose.runtime.remember {
+        return@remember {
+            when {
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                }
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU -> {
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                else -> {
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }.let { per ->
+                per.all {
+                    androidx.core.content.ContextCompat.checkSelfPermission(this@filePickerOnlyImage, it) ==
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                }.let { isGranted ->
+                    if (isGranted) {
+                        photoPicker.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VideoOnly
+                            )
+                        )
+                    } else {
+                        launcher.launch(per)
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 val videoItem: (String, String) -> io.sanghun.compose.video.uri.VideoPlayerMediaItem
     get() = { videoUri, videoTitle ->
@@ -186,3 +242,22 @@ suspend fun android.content.Context.getByteArrayFromUri(uri: android.net.Uri): B
         }
     }
 }
+
+fun android.content.Context.getVideoDuration(videoPath: android.net.Uri): Long {
+    return try {
+        return android.media.MediaPlayer.create(
+            this@getVideoDuration,
+            videoPath
+        ).let { player ->
+            player.duration.toLong().also {
+                player.reset()
+                player.release()
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exception
+        0
+    }
+}
+
+

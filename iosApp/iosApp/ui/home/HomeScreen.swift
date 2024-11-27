@@ -12,6 +12,55 @@ import Zoomable
 import AVKit
 import _PhotosUI_SwiftUI
 
+/*
+struct ExpandableSideMenu: View {
+    @State private var isMenuExpanded: Bool = false
+    private let menuWidth: CGFloat = 240
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Side Menu
+            VStack {
+                if isMenuExpanded {
+                    Spacer()
+                    Text("Menu Item 1")
+                        .font(.headline)
+                        .padding()
+                    Text("Menu Item 2")
+                        .font(.headline)
+                        .padding()
+                    Spacer()
+                }
+            }
+            .frame(width: isMenuExpanded ? menuWidth : 0)
+            .background(Color.gray)
+            .animation(.easeInOut(duration: 0.3), value: isMenuExpanded)
+
+            // Main Content
+            VStack {
+                Spacer()
+                Text("Main Content")
+                    .font(.largeTitle)
+                Spacer()
+                Button(action: {
+                    isMenuExpanded.toggle()
+                }) {
+                    Text(isMenuExpanded ? "Collapse Menu" : "Expand Menu")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(8)
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.white)
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+*/
+
 struct HomeScreen : View {
     
     let userPref: UserPref

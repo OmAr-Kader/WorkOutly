@@ -17,6 +17,7 @@ import com.ramo.workoutly.data.model.messages
 import com.ramo.workoutly.data.model.tempExercises
 import com.ramo.workoutly.data.util.generateUniqueId
 import com.ramo.workoutly.data.util.messagesFilter
+import com.ramo.workoutly.data.util.messagesSort
 import com.ramo.workoutly.di.Project
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.DISTANCE
@@ -33,9 +34,11 @@ import com.ramo.workoutly.global.util.averageSafeDouble
 import com.ramo.workoutly.global.util.averageSafeLong
 import com.ramo.workoutly.global.util.dateNow
 import com.ramo.workoutly.global.util.dateNowMills
+import com.ramo.workoutly.global.util.dateNowOnlyTour
 import com.ramo.workoutly.global.util.dateNowUTCMILLSOnlyTour
 import com.ramo.workoutly.global.util.formatMillisecondsToHours
 import com.ramo.workoutly.global.util.logger
+import com.ramo.workoutly.global.util.observeNextHour
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -51,9 +54,9 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
             healthKit.requestPermissions({
                 loadMetrics(days, isDarkMode).also { metrics ->
                     tempExercises.also { exercises -> // @OmAr-Kader sortBy
-                    messages.messagesFilter(userPref.id).also { messages ->
+                    messages.messagesFilter(userPref.id).messagesSort().also { messages ->
                         //project.exercise.fetchExercises().also { exercises -> // @OmAr-Kader sortBy
-                        //project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(userPref.id).also { messages ->
+                        //project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(userPref.id).messagesSort().also { messages ->
                             deepLink?.also { link ->
                                 handleDeepLink(link, onLink = onLink) { id ->
                                     exercises.find { it.id == id }?.let { Screen.ExerciseRoute(it) }
@@ -71,7 +74,8 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                                     )
                                 }
                             }
-                            //startMessagesObserving()
+                            //observeSessionChanged(userPref.id)
+                            //startMessagesObserving(userPref.id)
                         }
                     }
                 }
@@ -79,15 +83,36 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         }
     }
 
-    private suspend fun startMessagesObserving() {
+    private fun observeSessionChanged(id: String) {
+        launchBack {
+            observeNextHour {
+                launchBack {
+                    project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(id).messagesSort().also { messages ->
+                        _uiState.update { state ->
+                            state.copy(
+                                messages = messages,
+                                currentSession = dateNowOnlyTour,
+                                isProcess = false
+                            )
+                        }
+                    }
+                    kotlinx.coroutines.coroutineScope {
+                        observeSessionChanged(id)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun startMessagesObserving(userId: String) {
         project.message.fetchNewMessages(inserted =  { new ->
             _uiState.update { state ->
-                state.copy(messages = state.messages + new)
+                state.copy(messages = (state.messages + new.copy(isFromCurrentUser = new.userId == userId)).messagesSort())
             }
         }, changed = {
 
         }, deleted = { delete ->
-            uiState.value.messages.filter { it.id != delete }.also { refreshed ->
+            uiState.value.messages.filter { it.id != delete }.messagesSort().also { refreshed ->
                 _uiState.update { state ->
                     state.copy(messages = refreshed)
                 }
@@ -199,6 +224,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
     }
 
     fun android.content.Context.setFile(url: android.net.Uri, type: Int, extension: String, userId: String, failed: () -> Unit) {
+        setIsProcess(true)
         launchBack {
             getByteArrayFromUri(url)?.also {
                 uploadS3Message(imageBytes = it, fileName = userId + dateNowMills.toString() + extension, type = type)?.also { url ->
@@ -206,6 +232,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     sendFile(fileUrl = url, type = type, userId = userId)
                 } ?: failed()
             } ?: kotlin.run {
+                setIsProcess(false)
                 failed()
                 logger("getByteArrayFromUri", "null")
             }
@@ -225,7 +252,11 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     session = dateNowUTCMILLSOnlyTour,
                     date = dateNow,
                 )
-            )
+            )?.also { new ->
+                _uiState.update { state ->
+                    state.copy(messages = (state.messages + new.copy(isFromCurrentUser = true)).messagesSort(), isProcess = false)
+                }
+            } ?: setIsProcess(false)
         }
     }
 
@@ -242,7 +273,11 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     session = dateNowUTCMILLSOnlyTour,
                     date = dateNow,
                 )
-            )
+            )?.also { new ->
+                _uiState.update { state ->
+                    state.copy(messages = (state.messages + new.copy(isFromCurrentUser = true)).messagesSort())
+                }
+            }
         }
     }
 
@@ -276,6 +311,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         val isLiveVisible: Boolean = false,
         val isPickerVisible: Boolean = false,
         val chosenCato: String = "",
+        val currentSession: String = "",
         val isProcess: Boolean = true,
     )
 }

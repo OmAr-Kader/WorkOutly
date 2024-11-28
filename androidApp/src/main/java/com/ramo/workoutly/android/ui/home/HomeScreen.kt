@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -97,6 +96,7 @@ import com.ramo.workoutly.android.global.ui.ImageForCurveItem
 import com.ramo.workoutly.android.global.ui.LoadingScreen
 import com.ramo.workoutly.android.global.ui.VerticalGrid
 import com.ramo.workoutly.android.global.ui.isPortraitMode
+import com.ramo.workoutly.android.global.ui.keyboardAsState
 import com.ramo.workoutly.android.global.ui.noRippleClickable
 import com.ramo.workoutly.android.global.ui.rememberDistance
 import com.ramo.workoutly.android.global.ui.rememberDumbbell
@@ -131,6 +131,7 @@ import com.ramo.workoutly.global.base.PREF_DAYS_COUNT
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SLEEP
 import com.ramo.workoutly.global.base.STEPS
+import com.ramo.workoutly.global.util.dateNowOnlyTour
 import com.ramo.workoutly.global.util.ifTrue
 import com.ramo.workoutly.global.util.logger
 import io.androidpoet.dropdown.Dropdown
@@ -393,7 +394,7 @@ fun HomeScreen(
                     }
                 }
                 state.isLiveVisible.ifTrue {
-                    LiveSessionSheet(state.messages, theme, {
+                    LiveSessionSheet(state.messages, state.isProcess, theme, {
                         statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
                         viewModel.setIsLiveVisible(false)
                     }, imagePicker) {
@@ -682,6 +683,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
 @Composable
 fun LiveSessionSheet(
     messages: List<Message>,
+    isLoading: Boolean,
     theme: Theme,
     onDismissRequest: (Boolean) -> Unit,
     filePicker: () -> Unit,
@@ -718,84 +720,97 @@ fun LiveSessionSheet(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(7.dp), text = "Live Session", color = theme.textColor,
+                        .padding(7.dp), text = "Live Session   $dateNowOnlyTour", color = theme.textColor,
                     fontSize = 16.sp
                 )
                 Spacer(Modifier.height(5.dp))
             }
         }
     ) {
-        ChatView(messages, theme, filePicker = filePicker, send)
+        ChatView(messages, isLoading, theme, filePicker = filePicker, send)
     }
 }
 
 @Composable
 fun ChatView(
     messages: List<Message>,
+    isLoading: Boolean,
     theme: Theme,
     filePicker: () -> Unit,
     send: (String) -> Unit,
 ) {
-    val scrollState = rememberLazyListState()
     val chatText = remember { mutableStateOf("") }
-    LaunchedEffect(messages) {
-        if (messages.lastIndex > 1) {
-            scrollState.scrollToItem(messages.lastIndex)
+
+    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = messages.lastIndex)
+    val isKeyboardOpen = keyboardAsState() // true or false
+
+    LaunchedEffect(isKeyboardOpen.value) {
+        if (messages.lastIndex > 1 && (scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) in (messages.lastIndex - 2) ..messages.lastIndex) {
+            kotlinx.coroutines.delay(100L)
+            scrollState.animateScrollToItem(messages.lastIndex)
+        }
+    }
+    LaunchedEffect(messages.size) {
+        if (messages.lastIndex > 1 && (scrollState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) in (messages.lastIndex - 2) ..messages.lastIndex) {
+            scrollState.animateScrollToItem(messages.lastIndex)
         }
     }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.TopCenter)
-                .padding(start = 5.dp, end = 5.dp, bottom = 7.dp),
-            state = scrollState,
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(messages) { msg ->
-                Box {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(if (!msg.isFromCurrentUser) Alignment.CenterStart else Alignment.CenterEnd)
-                    )
-                    MessageItem(msg, theme)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1F)
+                    .padding(start = 5.dp, end = 5.dp),
+                state = scrollState,
+            ) {
+                items(messages) { msg ->
+                    Box {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(if (!msg.isFromCurrentUser) Alignment.CenterStart else Alignment.CenterEnd)
+                        )
+                        MessageItem(msg, theme)
+                    }
                 }
             }
-            item {
-                Spacer(Modifier.height(60.dp))
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .align(Alignment.BottomCenter)
-        ) {
-            TextField(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                trailingIcon = {
-                    TrailingIcons(theme, filePicker) {
-                        chatText.value.also {
-                            chatText.value = ""
-                        }.also(send)
-                    }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = theme.backDark,
-                    unfocusedContainerColor = theme.backDark,
-                ),
-                textStyle = TextStyle(color = theme.textColor, textDirection = TextDirection.Content),
-                value = chatText.value,
-                onValueChange = {
-                    chatText.value = it
-                },
-                singleLine = false
-            )
+                colors = CardDefaults.cardColors(containerColor = theme.backDark),
+                elevation = CardDefaults.cardElevation(8.dp),
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    trailingIcon = {
+                        TrailingIcons(theme, filePicker) {
+                            chatText.value.also {
+                                chatText.value = ""
+                            }.also(send)
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                    ),
+                    textStyle = TextStyle(color = theme.textColor, textDirection = TextDirection.Content),
+                    value = chatText.value,
+                    onValueChange = {
+                        chatText.value = it
+                    },
+                    singleLine = false
+                )
+            }
         }
+        LoadingScreen(isLoading, theme)
     }
 }
 
@@ -937,6 +952,15 @@ fun BoxScope.MessageItem(msg: Message, theme: Theme) {
                     }
                 }
             }
+            Text(
+                msg.dateStr,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 2.5.dp)
+                    .alpha(0.8F),
+                color = colorText,
+                style = TextStyle(fontWeight = FontWeight.W100),
+            )
         }
     }
 }

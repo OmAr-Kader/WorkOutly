@@ -1,7 +1,7 @@
 package com.ramo.workoutly.data.model
 
 import com.ramo.workoutly.data.util.BaseObject
-import com.ramo.workoutly.global.util.toTimestampHourMin
+import com.ramo.workoutly.global.util.toTimestampHourMinAMPM
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
@@ -25,7 +25,7 @@ data class Message(
 
     constructor() : this("", "", "", "", "", 0, "", "")
 
-    val dateStr: String = date.toTimestampHourMin
+    val dateStr: String = date.toTimestampHourMinAMPM
 
     constructor(aws: MessageAWS) : this(aws.id.value, aws.userId.value, aws.senderName.value, aws.message.value, aws.fileUrl.value, aws.type.asInt(), aws.senderName.value, aws.date.value)
 

@@ -34,7 +34,7 @@ import com.ramo.workoutly.global.util.averageSafeDouble
 import com.ramo.workoutly.global.util.averageSafeLong
 import com.ramo.workoutly.global.util.dateNow
 import com.ramo.workoutly.global.util.dateNowMills
-import com.ramo.workoutly.global.util.dateNowOnlyTour
+import com.ramo.workoutly.global.util.dateNowOnlyHour
 import com.ramo.workoutly.global.util.dateNowUTCMILLSOnlyTour
 import com.ramo.workoutly.global.util.formatMillisecondsToHours
 import com.ramo.workoutly.global.util.logger
@@ -69,6 +69,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                                         exercises = exercises,
                                         displayExercises = exercises,
                                         days = days,
+                                        currentSession = dateNowOnlyHour,
                                         messages = messages,
                                         isProcess = false
                                     )
@@ -91,7 +92,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                         _uiState.update { state ->
                             state.copy(
                                 messages = messages,
-                                currentSession = dateNowOnlyTour,
+                                currentSession = dateNowOnlyHour,
                                 isProcess = false
                             )
                         }
@@ -217,12 +218,6 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         // @OmAr-Kader IMPLEMENTATION
     }
 
-    fun setIsLiveVisible(it: Boolean) {
-        _uiState.update { state ->
-            state.copy(isLiveVisible = it)
-        }
-    }
-
     fun android.content.Context.setFile(url: android.net.Uri, type: Int, extension: String, userId: String, failed: () -> Unit) {
         setIsProcess(true)
         launchBack {
@@ -308,7 +303,6 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         val days: Int = 3,
         val sortBy: Int = 1,
         val chatText: String = "",
-        val isLiveVisible: Boolean = false,
         val isPickerVisible: Boolean = false,
         val chosenCato: String = "",
         val currentSession: String = "",

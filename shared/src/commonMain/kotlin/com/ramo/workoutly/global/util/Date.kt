@@ -38,13 +38,19 @@ inline val dateNowUTCMILLSOnlyTour: String
         })
     }
 
-/*inline val dateNowUTCMILLSOnlyTour: String
-    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).format(kotlinx.datetime.LocalDateTime.Format {
-        byUnicodePattern("uuuu/MM/dd HH")
-    })
-*/
-inline val dateNowOnlyTour: String
-    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).let { time ->
+val String.toTimestampHourMinAMPM: String get() {
+    return dateInstant.dateTime.let { time ->
+        val hour = time.hour % 12
+        val adjustedHour = if (hour == 0) 12 else hour
+
+        val minutesStr = if (time.minute < 10L) "0${time.minute}" else "${time.minute}"
+        val period = if (time.hour < 12) "AM" else "PM"
+        "$adjustedHour:${minutesStr} $period"
+    }
+}
+
+inline val dateNowOnlyHour: String
+    get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).let { time ->
         val hour = time.hour % 12
         val adjustedHour = if (hour == 0) 12 else hour
         val period = if (time.hour < 12) "AM" else "PM"

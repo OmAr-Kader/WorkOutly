@@ -131,7 +131,6 @@ import com.ramo.workoutly.global.base.PREF_DAYS_COUNT
 import com.ramo.workoutly.global.base.SESSION_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.SLEEP
 import com.ramo.workoutly.global.base.STEPS
-import com.ramo.workoutly.global.util.dateNowOnlyTour
 import com.ramo.workoutly.global.util.ifTrue
 import com.ramo.workoutly.global.util.logger
 import io.androidpoet.dropdown.Dropdown
@@ -164,6 +163,7 @@ fun HomeScreen(
     val state by viewModel.uiState.collectAsState()
     val scaffoldState = remember { SnackbarHostState() }
     val isMenuExpanded = remember { mutableStateOf(false) }
+    val isLiveVisible = remember { mutableStateOf(false) }
     // Animate the width of the side menu
     val menuWidth by animateDpAsState(
         targetValue = if (isMenuExpanded.value) 110.dp else 0.dp,
@@ -273,7 +273,7 @@ fun HomeScreen(
                 text = { Text(text = "Live Session", color = theme.textForPrimaryColor) },
                 onClick = {
                     statusColor(!theme.isDarkMode, theme.background.toArgb())
-                    viewModel.setIsLiveVisible(true)
+                    isLiveVisible.value = true
                 },
                 containerColor = theme.primary,
                 shape = RoundedCornerShape(15.dp),
@@ -393,10 +393,10 @@ fun HomeScreen(
                     ) {
                     }
                 }
-                state.isLiveVisible.ifTrue {
-                    LiveSessionSheet(state.messages, state.isProcess, theme, {
+                isLiveVisible.value.ifTrue {
+                    LiveSessionSheet(state.messages, state.currentSession, state.isProcess, theme, {
                         statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
-                        viewModel.setIsLiveVisible(false)
+                        isLiveVisible.value = false
                     }, imagePicker) {
                         viewModel.send(it, userId = userPref.id)
                     }
@@ -683,6 +683,7 @@ fun ExerciseItem(exercise: Exercise, theme: Theme, onClick: () -> Unit) {
 @Composable
 fun LiveSessionSheet(
     messages: List<Message>,
+    currentSession: String,
     isLoading: Boolean,
     theme: Theme,
     onDismissRequest: (Boolean) -> Unit,
@@ -720,7 +721,7 @@ fun LiveSessionSheet(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(7.dp), text = "Live Session   $dateNowOnlyTour", color = theme.textColor,
+                        .padding(7.dp), text = "Live Session   $currentSession", color = theme.textColor,
                     fontSize = 16.sp
                 )
                 Spacer(Modifier.height(5.dp))

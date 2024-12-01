@@ -174,7 +174,7 @@ fun HomeScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val imagePicker = context.filePicker { url, type, extension ->
         viewModel.apply {
-            context.setFile(url = url, type = type, extension = extension, userId = userPref.id) {
+            context.setFile(url = url, type = type, extension = extension, user = userPref) {
                 scope.launch {
                     scaffoldState.showSnackbar("Failed")
                 }
@@ -398,7 +398,7 @@ fun HomeScreen(
                         statusColor(theme.isDarkStatusBarText, theme.gradientColor.toArgb())
                         isLiveVisible.value = false
                     }, imagePicker) {
-                        viewModel.send(it, userId = userPref.id)
+                        viewModel.send(it, user = userPref)
                     }
                 }
                 LoadingScreen(state.isProcess, theme)
@@ -463,7 +463,6 @@ fun BarMainScreen(
                         menu = menu,
                         colors = dropDownMenuColors(theme.background, theme.textColor),
                         onItemSelected = onItemSelected@{
-                            logger("===", it.toString())
                             when(it ?: return@onItemSelected) {
                                 in 1..30 -> changeDays(it)
                                 51 -> changeSortBy(1)

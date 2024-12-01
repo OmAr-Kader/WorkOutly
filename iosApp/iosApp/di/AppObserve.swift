@@ -198,7 +198,7 @@ class AppObserveBack {
                 self.findPrefStringBack(ConstKt.PREF_NAME) { name in
                     self.findPrefStringBack(ConstKt.PREF_PROFILE_IMAGE) { profileImage in
                         self.scopeBack.launchBack {
-                            guard let user = try? await AuthKt.userInfo()?.copy(id: Int64(id ?? "") ?? 0, name: name ?? "", profilePicture: profileImage ?? "") else {
+                            guard let user = try? await AuthKt.userInfo()?.copy(id: id ?? "", name: name ?? "", profilePicture: profileImage ?? "") else {
                                 self.scopeBack.launchMain {
                                     invoke(nil)
                                 }
@@ -221,7 +221,7 @@ class AppObserveBack {
                 self.findPrefStringBack(ConstKt.PREF_NAME) { name in
                     self.findPrefStringBack(ConstKt.PREF_PROFILE_IMAGE) { profileImage in
                         self.scopeBack.launchBack {
-                            guard let user = try? await AuthKt.userInfo()?.copy(id: Int64(id ?? "") ?? 0, name: name ?? "", profilePicture: profileImage ?? "") else {
+                            guard let user = try? await AuthKt.userInfo()?.copy(id: id ?? "", name: name ?? "", profilePicture: profileImage ?? "") else {
                                 self.scopeBack.launchMain {
                                     invoke(nil)
                                 }
@@ -261,7 +261,7 @@ class AppObserveBack {
                                     self.findPrefStringBack(ConstKt.PREF_NAME) { name in
                                         self.findPrefStringBack(ConstKt.PREF_PROFILE_IMAGE) { profileImage in
                                             self.scopeBack.launchBack {
-                                                let user = userPref.copy(id: Int64(id ?? "") ?? 0, name: name ?? "", profilePicture: profileImage ?? "")
+                                                let user = userPref.copy(id: id ?? "", name: name ?? "", profilePicture: profileImage ?? "")
                                                 self.userJob?.cancel()
                                                 self.scopeBack.launchMain {
                                                     invoke(user)
@@ -380,7 +380,7 @@ class AppObserveBack {
                 }
                 return
             }
-            if result.int32Value == RealmKt.REALM_SUCCESS {
+            if result.int32Value == RealmKt.CLOUD_SUCCESS {
                 self.scopeBack.launchMain {
                     invoke()
                 }

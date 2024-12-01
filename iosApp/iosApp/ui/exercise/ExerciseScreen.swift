@@ -57,7 +57,7 @@ struct ExerciseScreen : View {
                     .frame(height: 200)
                     .background(theme.background)
                     .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4).onChange(state.exercise.videoUri) { it in
+                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4).onChange(state.exercise.videoUrl) { it in
                         guard let url = URL(string: it) else {
                             return
                         }

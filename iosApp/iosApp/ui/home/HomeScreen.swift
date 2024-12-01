@@ -12,55 +12,6 @@ import Zoomable
 import AVKit
 import _PhotosUI_SwiftUI
 
-/*
-struct ExpandableSideMenu: View {
-    @State private var isMenuExpanded: Bool = false
-    private let menuWidth: CGFloat = 240
-
-    var body: some View {
-        HStack(spacing: 0) {
-            // Side Menu
-            VStack {
-                if isMenuExpanded {
-                    Spacer()
-                    Text("Menu Item 1")
-                        .font(.headline)
-                        .padding()
-                    Text("Menu Item 2")
-                        .font(.headline)
-                        .padding()
-                    Spacer()
-                }
-            }
-            .frame(width: isMenuExpanded ? menuWidth : 0)
-            .background(Color.gray)
-            .animation(.easeInOut(duration: 0.3), value: isMenuExpanded)
-
-            // Main Content
-            VStack {
-                Spacer()
-                Text("Main Content")
-                    .font(.largeTitle)
-                Spacer()
-                Button(action: {
-                    isMenuExpanded.toggle()
-                }) {
-                    Text(isMenuExpanded ? "Collapse Menu" : "Expand Menu")
-                        .foregroundColor(.blue)
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(8)
-                }
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.white)
-        }
-        .edgesIgnoringSafeArea(.all)
-    }
-}
-*/
-
 struct HomeScreen : View {
     
     let userPref: UserPref
@@ -87,110 +38,171 @@ struct HomeScreen : View {
     @State private var expandedHeight: CGFloat = 420 
     @State private var collapsedHeight: CGFloat = 0
     @State private var currentOffset: CGFloat = 0
+    
+    @State private var isLiveVisible: Bool = false
 
-    @State private var isPresented = false
-
+    @State private var isMenuExpanded: Bool = false
+    private let menuWidth: CGFloat = 110
+    
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
-            
-            BarMainScreen(userPref: userPref, days: state.days, sortBy: state.sortBy, theme: theme) { it in
-                obs.setFilterDays(userPref: userPref, isDarkMode: theme.isDarkMode, it: it)
-            } changeSortBy: { it in
-                obs.setSortBy(it: it)
-            } signOut: {
-                
-            }
-            ScrollView {
-                LazyVStack {
-                    VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: state.metrics) { metric in
-                        FitnessMetricItem(metric: metric, theme: theme) {
-                            navigateToScreen(SessionRoute(metric: metric, days: state.days), .SESSION_SCREEN_ROUTE)
-                        }
-                    }.padding(16)
-                    VStack {
-                        ForEach(state.exercises, id: \.id) { exercise in
-                            ExerciseItem(exercise: exercise, theme: theme) {
-                                navigateToScreen(ExerciseRoute(exercise: exercise), .EXERCISE_SCREEN_ROUTE)
+            HStack() {
+                VStack {
+                    VStack(alignment: .leading) {
+                        if isMenuExpanded {
+                            ScrollView(showsIndicators: false) {
+                                VStack(alignment: .leading, spacing: 0) {
+                                    HStack {
+                                        Text("Muscle Groups")
+                                            .foregroundColor(state.chosenCato.isEmpty ? theme.textColor : theme.textHintColor)
+                                            .padding(10)
+                                        Spacer()
+                                    }.background(state.chosenCato.isEmpty ? theme.background : Color.clear).onTapGesture {
+                                        withAnimation {
+                                            obs.setChosenCato(cato: "")
+                                            isMenuExpanded = false
+                                        }
+                                    }
+                                    Divider().padding(.horizontal, 10)
+                                    ForEach(TempKt.exerciseCategories, id: \.self) { category in
+                                        HStack {
+                                            Text(category)
+                                                .foregroundColor(state.chosenCato == category ? theme.textColor : theme.textHintColor)
+                                                .padding(10)
+                                            Spacer()
+                                        }.background(state.chosenCato == category ? theme.background : Color.clear).onTapGesture {
+                                            withAnimation {
+                                                obs.setChosenCato(cato: category)
+                                                isMenuExpanded = false
+                                            }
+                                        }
+                                        Divider().padding(.horizontal, 10)
+                                    }
+                                }
                             }
                         }
-                    }.padding(16)
-                    Spacer().frame(height: 80)
-                }
-            }.padding(.top, 60)
-            ZStack {
-                Button(action: {
-                    withAnimation {
-                        //currentOffset = -1 * (expandedHeight - 20)
-                        obs.setIsLiveVisible(it: true)
+                    }.frame(width: menuWidth)
+                        .background(theme.backDark)
+                        .clipShape(.rect(bottomTrailingRadius: 10, topTrailingRadius: 10))
+                        .shadow(radius: 8)
+                }.frame(width: isMenuExpanded ? menuWidth : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isMenuExpanded)
+                
+                ZStack(alignment: .topLeading) {
+                    BarMainScreen(userPref: userPref, days: state.days, sortBy: state.sortBy) {
+                        withAnimation {
+                            isMenuExpanded.toggle()
+                        }
+                    } changeDays: { it in
+                        obs.setFilterDays(userPref: userPref, isDarkMode: theme.isDarkMode, it: it)
+                    } changeSortBy: { it in
+                        obs.setSortBy(it: it)
+                    } createExercise: {
+                        navigateToScreen(CreateExerciseRoute(), .CREATE_EXERCISE_SCREEN_ROUTE)
+                    } signOut: {
                     }
-                }) {
-                    HStack {
-                        ImageAsset(icon: "dumbbell", tint: theme.textForPrimaryColor).frame(width: 30, height: 30)
-                        Spacer().frame(width: 5)
-                        Text("Live Session")
-                            .foregroundColor(theme.textForPrimaryColor)
-                            .font(.system(size: 18))
-                    }.padding(top: 7, leading: 15, bottom: 7, trailing: 15)
-                }
-                .tint(theme.textForPrimaryColor)
-                .frame(height: 60)
-                .background(RoundedRectangle(cornerRadius: 15).fill(theme.primary))
-                .shadow(radius: 10)
-                .onBottomEnd()
-            }.padding( bottom: 20, trailing: 20).onBottomEnd()
-            LoadingScreen(isLoading: state.isProcess)
-        }.sheet(isPresented: Binding(get: {
-            obs.state.isLiveVisible
-        }, set: { it in
-            obs.setIsLiveVisible(it: it)
-        })) {
-            NavigationStack {
-                ZStack {
-                    ChatView(list: state.messages) { imageUrl in
-                        self.imageUrl = imageUrl
-                    } inVideo: { videoUrl in
-                        self.videoUrl = videoUrl
-                    } send: { txt in
-                        
-                    } file: { url, isVideo in
-                        
-                    }
-                    
-                    if let imageUrl {
-                        ImageViewer(imageUrl: imageUrl) {
-                            self.imageUrl = nil
+                    ScrollView {
+                        LazyVStack {
+                            VerticalGrid(columns: isPortraitMode() ? 2 : 4, list: state.metrics) { metric in
+                                FitnessMetricItem(metric: metric, theme: theme) {
+                                    navigateToScreen(SessionRoute(metric: metric, days: state.days), .SESSION_SCREEN_ROUTE)
+                                }
+                            }.padding(16)
+                            VStack {
+                                ForEach(state.exercises, id: \.id) { exercise in
+                                    ExerciseItem(exercise: exercise, theme: theme) {
+                                        navigateToScreen(ExerciseRoute(exercise: exercise), .EXERCISE_SCREEN_ROUTE)
+                                    }
+                                }
+                            }.padding(16)
+                            Spacer().frame(height: 80)
+                        }
+                    }.padding(.top, 60)
+                    ZStack {
+                        Button(action: {
+                            withAnimation {
+                                //currentOffset = -1 * (expandedHeight - 20)
+                                isLiveVisible = true
+                            }
+                        }) {
+                            HStack {
+                                ImageAsset(icon: "dumbbell", tint: theme.textForPrimaryColor).frame(width: 30, height: 30)
+                                Spacer().frame(width: 5)
+                                Text("Live Session")
+                                    .foregroundColor(theme.textForPrimaryColor)
+                                    .font(.system(size: 18))
+                            }.padding(top: 7, leading: 15, bottom: 7, trailing: 15)
+                        }
+                        .tint(theme.textForPrimaryColor)
+                        .frame(height: 60)
+                        .background(RoundedRectangle(cornerRadius: 15).fill(theme.primary))
+                        .shadow(radius: 10)
+                        .onBottomEnd()
+                    }.padding( bottom: 20, trailing: 20).onBottomEnd()
+                    if isMenuExpanded {
+                        FullZStack {
+                            Rectangle().opacity(0) // Fully transparent rectangle
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    withAnimation {
+                                        isMenuExpanded = false
+                                    }
+                                }
                         }
                     }
-                    if let videoUrl {
-                        VideoViewer(videoUrl: videoUrl) {
-                            self.videoUrl = nil
+                    LoadingScreen(isLoading: state.isProcess)
+                }
+            }.sheet(isPresented: $isLiveVisible) {
+                NavigationStack {
+                    ZStack {
+                        ChatView(list: state.messages, currentSession: state.currentSession, isLoading: state.isProcess) { imageUrl in
+                            self.imageUrl = imageUrl
+                        } inVideo: { videoUrl in
+                            self.videoUrl = videoUrl
+                        } send: { txt in
+                            obs.send(message: txt, user: userPref)
+                        } file: { url, isVideo in
+                            obs.setFile(url: url, isVideo: isVideo, user: userPref) {
+                                toast = Toast(style: .error, message: "failed")
+                            }
+                        }
+                        if let imageUrl {
+                            ImageViewer(imageUrl: imageUrl) {
+                                self.imageUrl = nil
+                            }
+                        }
+                        if let videoUrl {
+                            VideoViewer(videoUrl: videoUrl) {
+                                self.videoUrl = nil
+                            }
                         }
                     }
+                }.background(theme.background)
+                    .presentationBackground(theme.background)
+                    .presentationDetents([.large, .custom(CommentSheetDetent.self)])
+                    .presentationContentInteraction(.scrolls)
+                    .presentationDetents([.height(expandedHeight)])
+            }.background(theme.backgroundGradient).onAppear {
+                findPreferenceMainMain(ConstKt.PREF_DAYS_COUNT) { days in
+                    obs.loadData(userPref: userPref, days: Int(days ?? "7") ?? 7, isDarkMode: theme.isDarkMode) {
+                        toast = Toast(style: .error, message: "Permissions is required")
+                    }
                 }
-            }.background(theme.background)
-                .presentationBackground(theme.background)
-                .presentationDetents([.large, .custom(CommentSheetDetent.self)])
-                .presentationContentInteraction(.scrolls)
-                .presentationDetents([.height(expandedHeight)])
-        }.background(theme.backgroundGradient).onAppear {
-            findPreferenceMainMain(ConstKt.PREF_DAYS_COUNT) { days in
-                obs.loadData(userPref: userPref, days: Int(days ?? "7") ?? 7, isDarkMode: theme.isDarkMode) {
-                    toast = Toast(style: .error, message: "Permissions is required")
+            }.onAppear { // TO FULL SCREEN DRAGABLE SHEET
+                DispatchQueue.main.async {
+                    let screenHeight = UIScreen.main.bounds.height
+                    expandedHeight = screenHeight
                 }
-            }
-        }.onAppear { // TO FULL SCREEN DRAGABLE SHEET
-            DispatchQueue.main.async {
-                let screenHeight = UIScreen.main.bounds.height
-                expandedHeight = screenHeight
-            }
-        }.onChange(of: UIDevice.current.orientation) { _ in  // TO FULL SCREEN DRAGABLE SHEET
-            DispatchQueue.main.async {
-                let screenHeight = UIScreen.main.bounds.height
-                expandedHeight = screenHeight
+            }.onChange(of: UIDevice.current.orientation) { _ in  // TO FULL SCREEN DRAGABLE SHEET
+                DispatchQueue.main.async {
+                    let screenHeight = UIScreen.main.bounds.height
+                    expandedHeight = screenHeight
+                }
             }
         }
     }
+    
 }
 
 struct BarMainScreen: View {
@@ -198,14 +210,21 @@ struct BarMainScreen: View {
     let userPref: UserPref
     let days: Int
     let sortBy: Int
-    let theme: Theme
+    let expendMenu: () -> Unit
     let changeDays: (Int) -> Void
     let changeSortBy: (Int) -> Void
+    let createExercise: @MainActor () -> Void
     let signOut: () -> Void
+
+    @Inject
+    private var theme: Theme
 
     var body: some View {
         ZStack(alignment: .center) {
             HStack(alignment: .center) {
+                ImageAsset(icon: "menu", tint: theme.textForGradientColor)
+                    .padding(5)
+                    .frame(width: 30, height: 30).onTapGesture(perform: expendMenu)
                 Spacer()
                 Menu {
                     Menu("Health Metrics Days") {
@@ -243,6 +262,7 @@ struct BarMainScreen: View {
                         }
                     }
                     Button("Sign out", action: signOut)
+                    Button("Only Admin", action: createExercise)
                 } label: {
                     ImageAsset(icon: "more", tint: theme.textForGradientColor)
                         .padding(5)
@@ -253,7 +273,7 @@ struct BarMainScreen: View {
                 Text("Hi, \(userPref.name)")
                     .foregroundColor(theme.textForGradientColor)
                     .font(.system(size: 20, weight: .regular))
-            }
+            }.padding(leading: 60, trailing: 60)
         }
         .frame(height: 60)
         .background(Color.clear)
@@ -310,8 +330,6 @@ struct FitnessMetricItem: View {
 
 struct ExerciseItem: View {
 
-    @Environment(\.dismiss) var dismiss
-
     private let exercise: Exercise
     private let theme: Theme
     private let onClick: () -> Void
@@ -324,61 +342,66 @@ struct ExerciseItem: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-                HStack {
-                    VStack {
-                        ImageCacheView(exercise.videoUri, isVideoPreview: true, contentMode: .fill)
-                            .frame(width: 80, height: 80, alignment: .center)
-                    }.frame(width: 80, height: 80, alignment: .center)
-                        .clipShape(
-                            .rect(cornerRadius: 15)
-                        )
-                    VStack(alignment: .leading) {
-                        Text(exercise.title)
-                            .font(.system(size: 14))
-                            .fontWeight(.semibold)
-                            .foregroundColor(theme.textColor)
-                            .lineLimit(1)
-                            .padding(.bottom, 2)
-                        Text(exercise.description)
-                            .font(.system(size: 10))
-                            .foregroundColor(theme.textGrayColor)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .padding(.bottom, 2)
-                        HStack(alignment: .center) {
-                            HStack {
-                                ImageSystem(systemIcon: "person.fill", tint: theme.textColor)
-                                    .frame(width: 15, height: 15)
-                                Text("\(exercise.views)")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(theme.textGrayColor)
-                            }
-                            Spacer().frame(width: 2)
-                            HStack {
-                                ImageAsset(icon: "timer", tint: theme.primary)
-                                    .frame(width: 15, height: 15)
-                                Text(exercise.lengthStr)
-                                    .font(.system(size: 10))
-                                    .foregroundColor(theme.textColor)
-                            }
-                        }.padding(leading: 15, trailing: 15)
-                    }.padding(5)
-                }
-                .frame(height: 80)
-                .background(theme.background)
-                .cornerRadius(15)
-                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4).onTapGesture(perform: onClick)
+            HStack {
+                VStack {
+                    ImageCacheView(exercise.videoUrl, isVideoPreview: true, contentMode: .fill)
+                        .frame(width: 80, height: 80, alignment: .center)
+                }.frame(width: 80, height: 80, alignment: .center)
+                    .clipShape(
+                        .rect(cornerRadius: 15)
+                    )
+                VStack(alignment: .leading) {
+                    Text(exercise.title)
+                        .font(.system(size: 14))
+                        .fontWeight(.semibold)
+                        .foregroundColor(theme.textColor)
+                        .lineLimit(2)
+                        .padding(.bottom, 2)
+                    /*Text(exercise.description)
+                     .font(.system(size: 10))
+                     .foregroundColor(theme.textGrayColor)
+                     .lineLimit(1)
+                     .truncationMode(.tail)
+                     .padding(.bottom, 2)*/
+                    Spacer(minLength: 0)
+                    HStack(alignment: .center) {
+                        HStack {
+                            ImageSystem(systemIcon: "person.fill", tint: theme.textColor)
+                                .frame(width: 15, height: 15)
+                            Text("\(exercise.views)")
+                                .font(.system(size: 10))
+                                .foregroundColor(theme.textGrayColor)
+                        }
+                        Spacer()
+                        HStack {
+                            ImageAsset(icon: "timer", tint: theme.primary)
+                                .frame(width: 15, height: 15)
+                            Text(exercise.lengthStr)
+                                .font(.system(size: 10))
+                                .foregroundColor(theme.textColor)
+                        }
+                        Spacer()
+                    }.padding(leading: 15, trailing: 15)
+                }.padding(5)
+                Spacer(minLength: 0)
+            }
+            .frame(height: 80)
+            .background(theme.background)
+            .cornerRadius(15)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4).onTapGesture(perform: onClick)
         }.padding(top: 6, bottom: 6)
     }
 }
 
-struct ChatView : View {
+struct ChatView : View, KeyboardReadable {
     
     let list: [Message]
+    let currentSession: String
+    let isLoading: Bool
     let inImage: (String) -> Void
     let inVideo: (String) -> Void
-    let send: (String) -> Void
-    let file: @Sendable (URL, _ isVideo: Bool) -> Void
+    let send: @MainActor (String) -> Void
+    let file: @Sendable @MainActor (URL, _ isVideo: Bool) -> Void
 
     @State
     private var chatText: String = ""
@@ -388,79 +411,103 @@ struct ChatView : View {
     
     @FocusState
     private var isFoucesed: Bool
+    
+    @State
+    private var newIsKeyboardVisible: Bool = false
 
     @State
     private var selectedItem: PhotosPickerItem?
 
     var body: some View {
-        VStack(alignment: .center) {
-            VStack {
-                HStack(alignment: .center) {
-                    Spacer()
-                    Capsule()
-                        .fill(theme.textGrayColor)
-                        .frame(width: 40, height: 6)
-                        .padding(.top, 10)
-                        .padding(.bottom, 6)
-                    Spacer()
-                }
-                HStack {
-                    Text(
-                        "Live Session"
-                    ).foregroundStyle(theme.textColor).font(.system(size: 18)).padding(leading: 7, bottom: 7)
-                    Spacer()
-                    //Spacer().frame(height: 10)
-                }
-            }.frame(height: 60).background(theme.backDark)
-            VStack(alignment: .leading) {
-                ScrollViewReader { proxy in
-                    ScrollView(Axis.Set.vertical, showsIndicators: false) {
-                        LazyVStack(alignment: .leading) {
-                            ForEach(0..<list.count, id: \.self) { index in
-                                MessageItem(msg: list[index], theme: theme, inImage: inImage, inVideo: inVideo).id(index)
-                            }
-                        }.padding(leading: 5, bottom: 7, trailing: 5)
-                    }.onAppear {
-                        proxy.scrollTo(list.count - 1, anchor: .bottom)
-                    }.onChange(list) { it in
-                        proxy.scrollTo(it.count - 1, anchor: .bottom)
+        ZStack {
+            VStack(alignment: .center) {
+                VStack {
+                    HStack(alignment: .center) {
+                        Spacer()
+                        Capsule()
+                            .fill(theme.textGrayColor)
+                            .frame(width: 40, height: 6)
+                            .padding(.top, 10)
+                            .padding(.bottom, 6)
+                        Spacer()
                     }
-                }
-                Spacer()
-                HStack {
                     HStack {
-                        TextField("", text: $chatText, axis: Axis.vertical)
-                            .placeholder(when: chatText.isEmpty, alignment: .leading, placeholder: {
-                                Text("Message")
-                                    .foregroundColor(theme.textHintColor)
-                            }).focused($isFoucesed).multilineTextAlignment(.leading).foregroundColor(theme.textColor).frame(alignment: .leading)
-                            .onTapGesture {
-                                isFoucesed = true
+                        Text(
+                            "Live Session   \(currentSession)"
+                        ).foregroundStyle(theme.textColor).font(.system(size: 18)).padding(leading: 7, bottom: 7)
+                        Spacer()
+                        //Spacer().frame(height: 10)
+                    }
+                }.frame(height: 60).background(theme.backDark)
+                VStack(alignment: .leading) {
+                    ScrollViewReader { proxy in
+                        ScrollView(Axis.Set.vertical, showsIndicators: false) {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(0..<list.count, id: \.self) { index in
+                                    MessageItem(msg: list[index], theme: theme, inImage: inImage, inVideo: inVideo).id(index)
+                                }
+                            }.padding(leading: 5, bottom: 7, trailing: 5)
+                        }.onAppear {
+                            proxy.scrollTo(list.count - 1, anchor: .bottom)
+                        }.onChange(list) { it in
+                            proxy.scrollTo(it.count - 1, anchor: .bottom)
+                        }.onChange(newIsKeyboardVisible) { newIsKeyboardVisible in
+                            if newIsKeyboardVisible {
+                                DispatchQueue.main.async {
+                                    withAnimation {
+                                        proxy.scrollTo(list.count - 1, anchor: .bottom)
+                                    }
+                                }
                             }
-                        let textGrayColor = theme.textGrayColor
-                        PhotosPicker(
-                            selection: $selectedItem,
-                            matching: .any(of: [.images, .videos])
-                        ) {
-                            ImageAsset(icon: "file", tint: textGrayColor)
-                                .padding(6)
-                                .frame(width: 30, height: 30)
-                        }.onChange(selectedItem, forChangePhoto(file))
-                            .frame(width: 50, height: 50, alignment: .center)
-                        Button(action: {
-                            isFoucesed = false
-                            let chatText = self.chatText
-                            self.chatText = ""
-                            send(chatText)
-                        }, label: {
-                            ImageAsset(icon: "send", tint: theme.textGrayColor)
-                                .padding(3)
-                                .frame(width: 30, height: 30)
-                        }).frame(width: 50, height: 50, alignment: .center)
-                    }.padding(leading: 10, trailing: 5)
-                }.shadow(radius: 3).background(theme.backDark)
-                    .clipShape(.rect(topLeadingRadius: 8, topTrailingRadius: 8))
-            }.background(theme.background)
+                        }
+                    }
+                    Spacer()
+                    HStack {
+                        HStack {
+                            TextField("", text: $chatText, axis: Axis.vertical)
+                                .placeholder(when: chatText.isEmpty, alignment: .leading, placeholder: {
+                                    Text("Message")
+                                        .foregroundColor(theme.textHintColor)
+                                }).focused($isFoucesed)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(theme.textColor)
+                                .frame(alignment: .leading).onTapGesture {
+                                    isFoucesed = true
+                                }.toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Button("Close") {
+                                            isFoucesed = false
+                                        }
+                                    }
+                                }.onReceive(keyboardPublisher) { newIsKeyboardVisible in
+                                    self.newIsKeyboardVisible = newIsKeyboardVisible
+                                }
+                            let textGrayColor = theme.textGrayColor
+                            PhotosPicker(
+                                selection: $selectedItem,
+                                matching: .any(of: [.images, .videos])
+                            ) {
+                                ImageAsset(icon: "file", tint: textGrayColor)
+                                    .padding(6)
+                                    .frame(width: 30, height: 30)
+                            }.onChange(selectedItem, forChangePhoto(file))
+                                .frame(width: 50, height: 50, alignment: .center)
+                            Button(action: {
+                                isFoucesed = false
+                                let chatText = self.chatText
+                                self.chatText = ""
+                                send(chatText)
+                            }, label: {
+                                ImageAsset(icon: "send", tint: theme.textGrayColor)
+                                    .padding(3)
+                                    .frame(width: 30, height: 30)
+                            }).frame(width: 50, height: 50, alignment: .center)
+                        }.padding(leading: 10, trailing: 5)
+                    }.shadow(radius: 3).background(theme.backDark)
+                        .clipShape(.rect(topLeadingRadius: 8, topTrailingRadius: 8))
+                }.background(theme.background)
+            }
+            LoadingScreen(isLoading: isLoading)
         }
     }
 }
@@ -521,7 +568,13 @@ struct MessageItem : View {
                 }
                 default: ZStack {}
                 }
-            }.frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: 300).padding(5).background(
+                Text(msg.dateStr)
+                    .font(.system(size: 12))
+                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 2.5, trailing: 10))
+                    .opacity(0.8)
+                    .foregroundColor(colorText)
+                    .fontWeight(.thin)
+            }.frame(minWidth: 0, maxWidth: 300).padding(5).background(
                 RoundedRectangle(cornerRadius: 20).fill(colorCard)
             ).shadow(radius: 2)
         }

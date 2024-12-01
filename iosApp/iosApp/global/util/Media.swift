@@ -34,11 +34,29 @@ func getURL(
     }
 }
 
-func forChangePhoto(_ image: @escaping @Sendable (URL, Bool) -> Void) -> ((PhotosPickerItem?) -> Void) {
+@BackgroundActor
+func getByteArraySafe(from url: URL) -> [UInt8]? {
+    guard FileManager.default.fileExists(atPath: url.path) else {
+        print("File does not exist at \(url.path)")
+        return nil
+    }
+
+    do {
+        let fileData = try Data(contentsOf: url)
+        return [UInt8](fileData)
+    } catch {
+        print("Error reading file: \(error.localizedDescription)")
+        return nil
+    }
+}
+
+func forChangePhoto(_ image: @escaping @Sendable @MainActor (URL, Bool) -> Void) -> ((PhotosPickerItem?) -> Void) {
     return { newIt in
         if let newIt = newIt {
             getURL(item: newIt) { url, isVideo in
-                image(url, isVideo)
+                TaskMainSwitcher {
+                    image(url, isVideo)
+                }
                 logger("imageUri", String(isVideo))
                 logger("imageUri", url.absoluteString)
             } failed: {

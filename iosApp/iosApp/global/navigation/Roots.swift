@@ -24,6 +24,8 @@ extension View {
             ExerciseScreen(screenConfig: screenConfig, backPress: backPress)
         case .SESSION_SCREEN_ROUTE:
             SessionScreen(screenConfig: screenConfig, backPress: backPress)
+        case .CREATE_EXERCISE_SCREEN_ROUTE:
+            CreateExerciseScreen(screenConfig: screenConfig, backPress: backPress)
         }
     }
 }
@@ -34,6 +36,7 @@ enum Screen : Hashable {
     case HOME_SCREEN_ROUTE
     case EXERCISE_SCREEN_ROUTE
     case SESSION_SCREEN_ROUTE
+    case CREATE_EXERCISE_SCREEN_ROUTE
 
 }
 
@@ -50,4 +53,16 @@ struct ExerciseRoute: ScreenConfig {
 struct SessionRoute: ScreenConfig {
     let metric: FitnessMetric
     let days: Int
+}
+
+struct CreateExerciseRoute : ScreenConfig {
+    let exercise: Exercise?
+    
+    init() {
+        self.exercise = nil
+    }
+    
+    init(exercise: Exercise) {
+        self.exercise = exercise
+    }
 }

@@ -11,7 +11,7 @@ import shared
 //@BackgroundActor
 extension UserPref : @unchecked @retroactive Sendable {
     
-    func copy(authId: String? = nil, id: Int64? = nil, email: String? = nil, phone: String? = nil, name: String? = nil, profilePicture: String? = nil) -> UserPref {
+    func copy(authId: String? = nil, id: String? = nil, email: String? = nil, phone: String? = nil, name: String? = nil, profilePicture: String? = nil) -> UserPref {
         return UserPref(authId: authId ?? self.authId, id: id ?? self.id, email: email ?? self.email, phone: phone ?? self.phone, name: name ?? self.name, profilePicture: profilePicture ?? self.profilePicture)
     }
 }
@@ -42,7 +42,25 @@ extension Project : @unchecked @retroactive Sendable {
     
 }
 
+extension Message : @unchecked @retroactive Sendable {
+    
+    convenience init(id: String, userId: String, senderName: String, message: String, fileUrl: String, type: Int32, session: String, date: String) {
+        self.init(id: id, userId: userId, senderName: senderName, message: message, fileUrl: fileUrl, type: type, session: session, date: date, isFromCurrentUser: false)
+    }
+    
+    func copy(id: String? = nil, userId: String? = nil, senderName: String? = nil, message: String? = nil, fileUrl: String? = nil, type: Int32? = nil, session: String? = nil, date: String? = nil, isFromCurrentUser: Bool? = nil) -> Message {
+        return Message(id: id ?? self.id, userId: userId ?? self.userId, senderName: senderName ?? self.senderName, message: message ?? self.message, fileUrl: fileUrl ?? self.fileUrl, type: type ?? self.type, session: session ?? self.session, date: date ?? self.date, isFromCurrentUser: isFromCurrentUser ?? self.isFromCurrentUser)
+    }
+}
+
+extension Exercise : @unchecked @retroactive Sendable {
+    
+}
+
 extension KotlinInt : @unchecked @retroactive Sendable {
     
 }
 
+extension KotlinByteArray : @unchecked @retroactive Sendable {
+    
+}

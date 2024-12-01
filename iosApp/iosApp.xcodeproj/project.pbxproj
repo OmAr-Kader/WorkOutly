@@ -39,6 +39,8 @@
 		0791670A2CEEA7E700A5A28D /* SessionObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079167092CEEA7E100A5A28D /* SessionObserve.swift */; };
 		07B83ED92CE933A60052305A /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED72CE933A60052305A /* HealthKitManager.swift */; };
 		07B83EDA2CE933A60052305A /* WorkoutSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */; };
+		07C8F16E2CFC2FC0006385BD /* CreateExerciseScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C8F16D2CFC2FBD006385BD /* CreateExerciseScreen.swift */; };
+		07C8F1702CFC2FCF006385BD /* CreateExerciseObserve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C8F16F2CFC2FC5006385BD /* CreateExerciseObserve.swift */; };
 		07E11C6B2CEAB3D40087EFF5 /* Zoomable in Frameworks */ = {isa = PBXBuildFile; productRef = 07E11C6A2CEAB3D40087EFF5 /* Zoomable */; };
 		07FF382F2CE7CDEE00892B2F /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 07FF382E2CE7CDEE00892B2F /* Swinject */; };
 		07FF38342CE8117200892B2F /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF38332CE8116D00892B2F /* HomeScreen.swift */; };
@@ -93,6 +95,8 @@
 		079167092CEEA7E100A5A28D /* SessionObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionObserve.swift; sourceTree = "<group>"; };
 		07B83ED72CE933A60052305A /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		07B83ED82CE933A60052305A /* WorkoutSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionManager.swift; sourceTree = "<group>"; };
+		07C8F16D2CFC2FBD006385BD /* CreateExerciseScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateExerciseScreen.swift; sourceTree = "<group>"; };
+		07C8F16F2CFC2FC5006385BD /* CreateExerciseObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateExerciseObserve.swift; sourceTree = "<group>"; };
 		07FF38332CE8116D00892B2F /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		07FF38352CE8118200892B2F /* HomeObserve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeObserve.swift; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
@@ -240,9 +244,19 @@
 			path = health;
 			sourceTree = "<group>";
 		};
+		07C8F16C2CFC2FA9006385BD /* createExercise */ = {
+			isa = PBXGroup;
+			children = (
+				07C8F16F2CFC2FC5006385BD /* CreateExerciseObserve.swift */,
+				07C8F16D2CFC2FBD006385BD /* CreateExerciseScreen.swift */,
+			);
+			path = createExercise;
+			sourceTree = "<group>";
+		};
 		07FF38312CE8114C00892B2F /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				07C8F16C2CFC2FA9006385BD /* createExercise */,
 				079167012CEEA73800A5A28D /* exercise */,
 				07FF38322CE8116700892B2F /* home */,
 				079167022CEEA74700A5A28D /* session */,
@@ -426,6 +440,8 @@
 				077721D52CE7BE9C0030B2FC /* BottomBar.swift in Sources */,
 				077721D62CE7BE9C0030B2FC /* AppModule.swift in Sources */,
 				077721D72CE7BE9C0030B2FC /* Scope.swift in Sources */,
+				07C8F16E2CFC2FC0006385BD /* CreateExerciseScreen.swift in Sources */,
+				07C8F1702CFC2FCF006385BD /* CreateExerciseObserve.swift in Sources */,
 				077721D82CE7BE9C0030B2FC /* NavigationDrawer.swift in Sources */,
 				077721D92CE7BE9C0030B2FC /* Web.swift in Sources */,
 				077721DA2CE7BE9C0030B2FC /* Defaults.swift in Sources */,

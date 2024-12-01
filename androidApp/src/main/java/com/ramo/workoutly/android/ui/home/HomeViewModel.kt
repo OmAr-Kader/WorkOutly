@@ -185,7 +185,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         return@coroutineScope listOf(stepsMetric, distanceMetric, caloriesBurnedMetric, metabolicRateMetric, heartRateMetric, sleepMetric)
     }
 
-    private fun reLoadData(days: Int, isDarkMode: Boolean) {
+    private fun reLoadMetrics(days: Int, isDarkMode: Boolean) {
         launchBack {
             loadMetrics(days, isDarkMode).also { metrics ->
                 _uiState.update { state ->
@@ -205,7 +205,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         launchBack {
             project.pref.updatePref(listOf(PreferenceData().copy(keyString = PREF_DAYS_COUNT, value = it.toString())))
         }
-        reLoadData(days = it, isDarkMode =  isDarkMode)
+        reLoadMetrics(days = it, isDarkMode =  isDarkMode)
     }
 
     fun setSortBy(it: Int) {
@@ -218,13 +218,13 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         // @OmAr-Kader IMPLEMENTATION
     }
 
-    fun android.content.Context.setFile(url: android.net.Uri, type: Int, extension: String, userId: String, failed: () -> Unit) {
+    fun android.content.Context.setFile(url: android.net.Uri, type: Int, extension: String, user: UserPref, failed: () -> Unit) {
         setIsProcess(true)
         launchBack {
             getByteArrayFromUri(url)?.also {
-                uploadS3Message(imageBytes = it, fileName = userId + dateNowMills.toString() + extension, type = type)?.also { url ->
+                uploadS3Message(imageBytes = it, fileName = user.id + dateNowMills.toString() + extension, type = type)?.also { url ->
                     logger("uploadS3Message", url)
-                    sendFile(fileUrl = url, type = type, userId = userId)
+                    sendFile(fileUrl = url, type = type, user = user)
                 } ?: failed()
             } ?: kotlin.run {
                 setIsProcess(false)
@@ -234,13 +234,13 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         }
     }
 
-    private fun sendFile(fileUrl: String, type: Int, userId: String) {
+    private fun sendFile(fileUrl: String, type: Int, user: UserPref) {
         launchBack {
             project.message.addMessage(
                 Message(
                     id = generateUniqueId,
-                    userId = userId,
-                    senderName = "OmAr",
+                    userId = user.id,
+                    senderName = user.name,
                     message = "",
                     fileUrl = fileUrl,
                     type = type,
@@ -255,13 +255,13 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         }
     }
 
-    fun send(message: String, userId: String) {
+    fun send(message: String, user: UserPref) {
         launchBack {
             project.message.addMessage(
                 Message(
                     id = generateUniqueId,
-                    userId = userId,
-                    senderName = "OmAr",
+                    userId = user.id,
+                    senderName = user.name,
                     message = message,
                     fileUrl = "",
                     type = MSG_TEXT,
@@ -303,7 +303,6 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         val days: Int = 3,
         val sortBy: Int = 1,
         val chatText: String = "",
-        val isPickerVisible: Boolean = false,
         val chosenCato: String = "",
         val currentSession: String = "",
         val isProcess: Boolean = true,

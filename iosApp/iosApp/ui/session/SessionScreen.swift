@@ -53,7 +53,7 @@ struct SessionScreen : View {
                                                 Spacer()
                                             }.frame(width: 70)
                                             HStack {
-                                                Text(metric.data)
+                                                Text(metric.date)
                                                     .font(.system(size: 14))
                                                     .foregroundColor(theme.textGrayColor)
                                                 Spacer()

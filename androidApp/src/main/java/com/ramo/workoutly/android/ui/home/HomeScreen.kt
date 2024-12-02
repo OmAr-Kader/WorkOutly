@@ -797,6 +797,9 @@ fun ChatView(
                             }.also(send)
                         }
                     },
+                    placeholder = {
+                        Text(text = "Message", fontSize = 14.sp, color = theme.textHintColor)
+                    },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,

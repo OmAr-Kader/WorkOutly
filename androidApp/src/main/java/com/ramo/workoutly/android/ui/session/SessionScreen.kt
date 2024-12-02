@@ -125,7 +125,7 @@ fun SessionScreen(
                                             horizontalArrangement = Arrangement.Start
                                         ) {
                                             Text(
-                                                text = metric.data,
+                                                text = metric.date,
                                                 style = TextStyle(fontSize = 14.sp, color = theme.textGrayColor)
                                             )
                                         }

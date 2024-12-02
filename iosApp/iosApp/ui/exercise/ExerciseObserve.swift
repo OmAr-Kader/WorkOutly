@@ -33,9 +33,9 @@ class ExerciseObserve : ObservableObject {
     func loadData(exercise: Exercise) {
         scope.launchMain {
             self.state = self.state.copy(exercise: exercise, isProcess: false)
-            /*self.back!.loadData(id: exercise.id) { exercise in
+            self.back!.loadData(id: exercise.id) { exercise in
                 self.state = self.state.copy(exercise: exercise, isProcess: false)
-            }*/
+            }
         }
     }
     

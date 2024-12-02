@@ -16,7 +16,7 @@ data class FitnessMetric(
 @kotlinx.serialization.Serializable
 data class FitnessHistoryMetric(
     val milliSec: Long,
-    val data: String,
+    val date: String,
     val value: Long,
     val valueUnit: String,
     @kotlinx.serialization.Transient

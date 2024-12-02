@@ -16,13 +16,13 @@ class ExerciseViewModel(project: Project) : BaseViewModel(project) {
         _uiState.update { state ->
             state.copy(exercise = exercise)
         }
-        /*launchBack {
+        launchBack {
             project.exercise.getExercise(exercise.id)?.also {
                 _uiState.update { state ->
                     state.copy(exercise = it)
                 }
             }
-        }*/
+        }
     }
 
     private fun setIsProcess(@Suppress("SameParameterValue") it: Boolean) {

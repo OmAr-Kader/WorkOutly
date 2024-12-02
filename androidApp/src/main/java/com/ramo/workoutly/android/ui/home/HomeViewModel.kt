@@ -13,8 +13,6 @@ import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.data.model.Message
 import com.ramo.workoutly.data.model.PreferenceData
 import com.ramo.workoutly.data.model.UserPref
-import com.ramo.workoutly.data.model.messages
-import com.ramo.workoutly.data.model.tempExercises
 import com.ramo.workoutly.data.util.exercisesSort
 import com.ramo.workoutly.data.util.generateUniqueId
 import com.ramo.workoutly.data.util.messagesFilter
@@ -54,10 +52,8 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         launchBack {
             healthKit.requestPermissions({
                 loadMetrics(days, isDarkMode).also { metrics ->
-                    tempExercises.exercisesSort().also { exercises -> // @OmAr-Kader sortBy
-                    messages.messagesFilter(userPref.id).messagesSort().also { messages ->
-                        //project.exercise.fetchExercises().exercisesSort().also { exercises -> // @OmAr-Kader sortBy
-                        //project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(userPref.id).messagesSort().also { messages ->
+                   project.exercise.fetchExercises().exercisesSort().also { exercises -> // @OmAr-Kader sortBy
+                        project.message.fetchMessageSession(dateNowUTCMILLSOnlyHour).messagesFilter(userPref.id).messagesSort().also { messages ->
                             deepLink?.also { link ->
                                 handleDeepLink(link, onLink = onLink) { id ->
                                     exercises.find { it.id == id }?.let { Screen.ExerciseRoute(it) }
@@ -76,8 +72,8 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                                     )
                                 }
                             }
-                            //observeSessionChanged(userPref.id)
-                            //startMessagesObserving(userPref.id)
+                            observeSessionChanged(userPref.id)
+                            startMessagesObserving(userPref.id)
                         }
                     }
                 }

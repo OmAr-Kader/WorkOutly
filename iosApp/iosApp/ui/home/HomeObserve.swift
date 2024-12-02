@@ -35,8 +35,8 @@ class HomeObserve : ObservableObject {
         scope.launchMain {
             self.back!.loadData(userPref: userPref, days: days, isDarkMode: isDarkMode) { mers, messages, exercises in
                 self.state = self.state.copy(metrics: mers, exercises: exercises, messages: messages, currentSession: DateKt.dateNowOnlyHour, days: days, isProcess: false)
-                //self.observeSessionChanged(id: userPref.id)
-                //self.startMessagesObserving(userId: userPref.id)
+                self.observeSessionChanged(id: userPref.id)
+                self.startMessagesObserving(userId: userPref.id)
             } failed: {
                 self.setMainProcess(false); failed()
             }
@@ -135,7 +135,7 @@ class HomeObserve : ObservableObject {
         let exercises = if (cato.isEmpty) {
             ConverterKt.exercisesSort(self.state.exercises) // @OmAr-Kader sortBy
         } else {
-            ConverterKt.exercisesSort(self.state.exercises.filter { it in it.cato == cato })
+            ConverterKt.exercisesSort(self.state.exercises.filter { it in it.cato == cato }) // @OmAr-Kader sortBy
         }
         self.state = self.state.copy(displayExercises: exercises, chosenCato: cato)
     }
@@ -223,12 +223,10 @@ class HomeObserveBack {
         scope.launchBack {
             self.loadMetrics(days: days, isDarkMode: isDarkMode) { mers in
                 self.scopeBack.launchBack {
-                    let exercises = TempKt.tempExercises // @OmAr-Kader sortBy
-                    let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(TempKt.messages, userId: userPref.id))
-                    //let fetchedExercises = try? await self.project.exercise.fetchExercises()
-                    //let fetchedMessages = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
-                    //let exercises = ConverterKt.exercisesSort(fetchedExercises ?? []) // @OmAr-Kader sortBy
-                    //let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetchedMessages ?? [], userId: userPref.id))
+                    let fetchedExercises = try? await self.project.exercise.fetchExercises()
+                    let fetchedMessages = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
+                    let exercises = ConverterKt.exercisesSort(fetchedExercises ?? []) // @OmAr-Kader sortBy
+                    let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetchedMessages ?? [], userId: userPref.id))
                     TaskMainSwitcher {
                         invoke(mers, messages, exercises)
                     }
@@ -387,7 +385,6 @@ class HomeObserveBack {
             TaskMainSwitcher {
                 invoke(msg)
             }
-            //sendFile(fileUrl: url, type: type, userId: userId)
         }
     }
     

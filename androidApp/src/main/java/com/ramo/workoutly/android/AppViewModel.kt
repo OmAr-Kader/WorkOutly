@@ -108,7 +108,7 @@ class AppViewModel(project: Project) : BaseViewModel(project) {
 
     data class State(
         val isProcess: Boolean = false,
-        val userPref: UserPref = UserPref(id = "1d1dcdwc", name = "Omar Kader"),
+        val userPref: UserPref = UserPref(),
         //val sessionStatus: SessionStatusData = SessionStatusData.LoadingFromStorage,
         val args: List<Screen> = values(),
         val preferences: List<PreferenceData> = listOf(),

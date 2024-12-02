@@ -1,4 +1,15 @@
-# WorkOutly Demo
+# Workout & Gym & Fitness Demo App
+
+## Features
+
+- **Kotlin Multiplatform Health Integration**: 
+  - iOS: Powered by **HealthKit**.
+  - Android: Integrated with **Health Connect**.
+- **Workout Tracking**: Log and track your workouts in real time.
+- **Steps and Activity Monitoring**: Monitor daily step counts and activity trends.
+- **Health Analytics**: Visualize key health metrics such as calories burned, heart rate, and more.
+- **Customizable Goals**: Set personal fitness goals and track progress.
+- **User-Friendly Interface**: A clean and simple design focused on usability.
 
 <!--suppress CheckImageSize -->
 Screenshot

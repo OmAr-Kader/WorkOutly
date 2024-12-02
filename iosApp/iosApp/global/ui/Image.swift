@@ -34,15 +34,18 @@ struct ImageAsset : View {
         Image(
             uiImage: UIImage(
                 named: icon
-            )?.withTintColor(UIColor(tint)) ?? UIImage()
+            )?.withTintColor(UIColor(tint), renderingMode: .alwaysOriginal) ?? UIImage()
         ).resizable()
             .renderingMode(.template)
             .foregroundColor(tint)
+            .tint(tint)
             .background(Color.clear)
             .imageScale(.medium)
-            .aspectRatio(contentMode: .fill)
+            .aspectRatio(contentMode: .fit)
+            .scaledToFit()
     }
 }
+
 
 struct ImageCacheView : View {
     

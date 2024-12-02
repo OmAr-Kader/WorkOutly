@@ -1,6 +1,7 @@
 package com.ramo.workoutly.data.model
 
 import com.ramo.workoutly.data.util.BaseObject
+import com.ramo.workoutly.global.util.dateInstant
 import com.ramo.workoutly.global.util.toTimestampHourMinAMPM
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -25,7 +26,13 @@ data class Message(
 
     constructor() : this("", "", "", "", "", 0, "", "")
 
-    val dateStr: String = date.toTimestampHourMinAMPM
+    val dateStr: String = runCatching {
+        if (date.isNotEmpty()) date.toTimestampHourMinAMPM else ""
+    }.getOrDefault("")
+
+    val dateMilli: Long = runCatching {
+        if (date.isNotEmpty()) date.dateInstant.toEpochMilliseconds() else 0
+    }.getOrDefault(0)
 
     constructor(aws: MessageAWS) : this(aws.id.value, aws.userId.value, aws.senderName.value, aws.message.value, aws.fileUrl.value, aws.type.asInt(), aws.senderName.value, aws.date.value)
 

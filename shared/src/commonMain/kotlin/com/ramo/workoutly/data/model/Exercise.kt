@@ -1,6 +1,7 @@
 package com.ramo.workoutly.data.model
 
 import com.ramo.workoutly.data.util.BaseObject
+import com.ramo.workoutly.global.util.dateInstant
 import com.ramo.workoutly.global.util.fullFormatMillisecondsToHours
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -18,7 +19,8 @@ data class Exercise(
     @kotlinx.serialization.SerialName("views")
     val views: Long,
     val liker: List<String>,
-    val description: String = "",
+    @kotlinx.serialization.SerialName("description")
+    val desc: String = "",
     @kotlinx.serialization.Transient
     val isLiked: Boolean = false,
     @kotlinx.serialization.Transient
@@ -28,6 +30,10 @@ data class Exercise(
     constructor() : this("", "","", "", 0L, "",  0L, emptyList(), "")
 
     val lengthStr: String = length.fullFormatMillisecondsToHours
+
+    val dateMilli: Long = runCatching {
+        if (date.isNotEmpty()) date.dateInstant.toEpochMilliseconds() else 0
+    }.getOrDefault(0)
 
     override fun json(): JsonObject {
         return kotlinx.serialization.json.Json.encodeToJsonElement(this.copy()).jsonObject

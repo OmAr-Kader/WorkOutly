@@ -15,6 +15,7 @@ import com.ramo.workoutly.data.model.PreferenceData
 import com.ramo.workoutly.data.model.UserPref
 import com.ramo.workoutly.data.model.messages
 import com.ramo.workoutly.data.model.tempExercises
+import com.ramo.workoutly.data.util.exercisesSort
 import com.ramo.workoutly.data.util.generateUniqueId
 import com.ramo.workoutly.data.util.messagesFilter
 import com.ramo.workoutly.data.util.messagesSort
@@ -35,7 +36,7 @@ import com.ramo.workoutly.global.util.averageSafeLong
 import com.ramo.workoutly.global.util.dateNow
 import com.ramo.workoutly.global.util.dateNowMills
 import com.ramo.workoutly.global.util.dateNowOnlyHour
-import com.ramo.workoutly.global.util.dateNowUTCMILLSOnlyTour
+import com.ramo.workoutly.global.util.dateNowUTCMILLSOnlyHour
 import com.ramo.workoutly.global.util.formatMillisecondsToHours
 import com.ramo.workoutly.global.util.logger
 import com.ramo.workoutly.global.util.observeNextHour
@@ -53,9 +54,9 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         launchBack {
             healthKit.requestPermissions({
                 loadMetrics(days, isDarkMode).also { metrics ->
-                    tempExercises.also { exercises -> // @OmAr-Kader sortBy
+                    tempExercises.exercisesSort().also { exercises -> // @OmAr-Kader sortBy
                     messages.messagesFilter(userPref.id).messagesSort().also { messages ->
-                        //project.exercise.fetchExercises().also { exercises -> // @OmAr-Kader sortBy
+                        //project.exercise.fetchExercises().exercisesSort().also { exercises -> // @OmAr-Kader sortBy
                         //project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(userPref.id).messagesSort().also { messages ->
                             deepLink?.also { link ->
                                 handleDeepLink(link, onLink = onLink) { id ->
@@ -88,7 +89,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
         launchBack {
             observeNextHour {
                 launchBack {
-                    project.message.fetchMessageSession(dateNowUTCMILLSOnlyTour).messagesFilter(id).messagesSort().also { messages ->
+                    project.message.fetchMessageSession(dateNowUTCMILLSOnlyHour).messagesFilter(id).messagesSort().also { messages ->
                         _uiState.update { state ->
                             state.copy(
                                 messages = messages,
@@ -244,7 +245,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     message = "",
                     fileUrl = fileUrl,
                     type = type,
-                    session = dateNowUTCMILLSOnlyTour,
+                    session = dateNowUTCMILLSOnlyHour,
                     date = dateNow,
                 )
             )?.also { new ->
@@ -265,7 +266,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
                     message = message,
                     fileUrl = "",
                     type = MSG_TEXT,
-                    session = dateNowUTCMILLSOnlyTour,
+                    session = dateNowUTCMILLSOnlyHour,
                     date = dateNow,
                 )
             )?.also { new ->
@@ -281,7 +282,7 @@ class HomeViewModel(project: Project, val healthKit: HealthKitManager) : BaseVie
             uiState.value.exercises.toList() // @OmAr-Kader sortBy
         } else {
             uiState.value.exercises.toList().filter { it.cato == cato } // @OmAr-Kader sortBy
-        }.also { exercises ->
+        }.exercisesSort().also { exercises ->
             _uiState.update { state ->
                 state.copy(displayExercises = exercises, chosenCato = cato)
             }

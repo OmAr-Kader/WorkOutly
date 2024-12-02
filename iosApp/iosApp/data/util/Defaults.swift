@@ -6,6 +6,7 @@
 //  Copyright © 2024 orgName. All rights reserved.
 //
 
+import SwiftUI
 import shared
 
 //@BackgroundActor
@@ -54,7 +55,10 @@ extension Message : @unchecked @retroactive Sendable {
 }
 
 extension Exercise : @unchecked @retroactive Sendable {
-    
+ 
+    func copy(id: String? = nil, date: String? = nil, title: String? = nil, videoUrl: String? = nil, length: Int64? = nil, cato: String? = nil, views: Int64? = nil, liker: [String]? = nil, desc: String? = nil, isLiked: Bool? = nil, likes: Int32? = nil) -> Exercise {
+        return Exercise(id: id ?? self.id, date: date ?? self.date, title: title ?? self.title, videoUrl: videoUrl ?? self.videoUrl, length: length ?? self.length, cato: cato ?? self.cato, views: views ?? self.views, liker: liker ?? self.liker, desc: desc ?? self.desc, isLiked: isLiked ?? self.isLiked, likes: likes ?? self.likes)
+    }
 }
 
 extension KotlinInt : @unchecked @retroactive Sendable {
@@ -63,4 +67,17 @@ extension KotlinInt : @unchecked @retroactive Sendable {
 
 extension KotlinByteArray : @unchecked @retroactive Sendable {
     
+}
+
+extension UIImage : @unchecked @retroactive Sendable {
+    
+}
+
+@BackgroundActor
+func convertToKotlinByteArray(from byteArray: [UInt8]) -> KotlinByteArray {
+    let kotlinByteArray = KotlinByteArray(size: Int32(byteArray.count))
+    for (index, byte) in byteArray.enumerated() {
+        kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
+    }
+    return kotlinByteArray
 }

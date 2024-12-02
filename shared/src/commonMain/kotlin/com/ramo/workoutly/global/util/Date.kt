@@ -29,11 +29,9 @@ inline val dateNowMills: Long
 inline val dateNowUTCMILLS: Long
     get() = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).toInstant(kotlinx.datetime.UtcOffset.ZERO).toEpochMilliseconds()
 
-inline val dateNowUTCMILLSOnlyTour: String
+inline val dateNowUTCMILLSOnlyHour: String
     get() {
-        return kotlinx.datetime.Clock.System.now().minus(1, kotlinx.datetime.DateTimeUnit.HOUR).toLocalDateTime(kotlinx.datetime.TimeZone.UTC).run {
-            kotlinx.datetime.LocalDateTime(year, month, dayOfMonth, hour, minute, second)
-        }.format(kotlinx.datetime.LocalDateTime.Format {
+        return kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC).format(kotlinx.datetime.LocalDateTime.Format {
             byUnicodePattern("uuuu/MM/dd HH")
         })
     }
@@ -134,7 +132,7 @@ val Long.fullFormatMillisecondsToHours: String get () {
     return "$hoursStr$minutesStr$secondsStr"
 }
 
-suspend fun observeSpecificTime(targetTime: kotlinx.datetime.LocalDateTime, onTimeReached: () -> Unit) {
+suspend fun observeSpecificTime(targetTime: kotlinx.datetime.LocalDateTime, onTimeReached: () -> Unit) { // Only Kotlin
     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
         val now = kotlinx.datetime.Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
         val durationMillis = targetTime.toInstant(
@@ -150,7 +148,7 @@ suspend fun observeSpecificTime(targetTime: kotlinx.datetime.LocalDateTime, onTi
     }
 }
 
-suspend fun observeNextHour(onTimeReached: () -> Unit) {
+suspend fun observeNextHour(onTimeReached: () -> Unit) { // Only Kotlin
     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
         val now = kotlinx.datetime.Clock.System.now()
         val nextHour = now.plus(1, kotlinx.datetime.DateTimeUnit.HOUR).toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).run {

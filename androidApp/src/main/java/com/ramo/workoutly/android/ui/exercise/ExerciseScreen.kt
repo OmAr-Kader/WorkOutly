@@ -114,7 +114,7 @@ fun ExerciseScreen(
                             LazyColumn {
                                 item {
                                     Text(
-                                        text = state.exercise.description +"\n",
+                                        text = state.exercise.desc +"\n",
                                         color = theme.textHintColor,
                                         style = MaterialTheme.typography.labelSmall,
                                         fontSize = 16.sp,

@@ -137,7 +137,7 @@ class AppObserve : ObservableObject {
         
         private(set) var homeScreen: Screen = .AUTH_SCREEN_ROUTE
         private(set) var sessionStatus: Int = 0
-        private(set) var userPref: UserPref? = nil
+        private(set) var userPref: UserPref? = TempKt.tempUser
         private(set) var args = [Screen : any ScreenConfig]()
         
         @MainActor

@@ -305,3 +305,68 @@ func textDirection(for text: String) -> LayoutDirection {
     
     return rtlLanguages.contains(languageCode) ? .rightToLeft : .leftToRight
 }
+
+func observeNextour(onTimeReached: @Sendable @escaping @BackgroundActor () -> Void) {
+    // Get the current date and time
+    let now = Date()
+    let calendar = Calendar.current
+    
+    // Calculate the start of the next hour
+    let nextHour = calendar.nextDate(after: now, matching: DateComponents(minute: 0, second: 0), matchingPolicy: .nextTime)!
+    
+    // Calculate the time interval until the next hour
+    let interval = nextHour.timeIntervalSince(now)
+    
+    // Use DispatchQueue to delay the execution
+    DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + interval) {
+        TaskBackSwitcher(block: onTimeReached)
+    }
+}
+
+func observeNextHour(onTimeReached: @Sendable @escaping @BackgroundActor () -> Void) {
+    let now = Date()
+    
+    // Get the next hour by rounding the current time to the next hour
+    let calendar = Calendar.current
+    var components = calendar.dateComponents([.year, .month, .day, .hour], from: now)
+    components.minute = 0
+    components.second = 0
+    if let nextHour = calendar.date(byAdding: .hour, value: 1, to: calendar.date(from: components)!) {
+        let durationMillis = nextHour.timeIntervalSince(now)// Duration in seconds      // * 1000 // Duration in milliseconds
+        if durationMillis > 0 {
+            Task { @BackgroundActor in
+                try? await Task.sleep(nanoseconds: UInt64(durationMillis * 1_000_000_000))
+                onTimeReached()
+            }
+        }
+        logger(String(durationMillis))
+    } else {
+        logger("error")
+    }
+}
+
+
+/*
+ 
+ 
+ suspend fun observeNextHour(onTimeReached: () -> Unit) { // Only From Kotlin
+     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+         val now = kotlinx.datetime.Clock.System.now()
+         val nextHour = now.plus(1, kotlinx.datetime.DateTimeUnit.HOUR).toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).run {
+             kotlinx.datetime.LocalDateTime(year, month, dayOfMonth, hour, 0, 0)
+         }
+         val durationMillis = nextHour.toInstant(
+             kotlinx.datetime.TimeZone.currentSystemDefault()
+         ).toEpochMilliseconds() - now.toEpochMilliseconds()
+
+         if (durationMillis > 0) {
+             kotlinx.coroutines.delay(20000) // Wait until the target time
+             kotlinx.coroutines.coroutineScope {
+                 onTimeReached()
+             }
+         }
+     }
+ }
+
+
+ */

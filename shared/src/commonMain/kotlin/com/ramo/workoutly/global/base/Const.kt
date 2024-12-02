@@ -31,3 +31,26 @@ const val MSG_VID: Int = 3
 const val AWS_INSERT = "insert"
 const val AWS_MODIFY = "modify"
 const val AWS_DELETE = "delete"
+
+val exerciseCategories: List<String> get() {
+    return listOf(
+        "Strength Training",
+        "Cardio",
+        "Ab Workouts",
+        "Aerobics",
+        "Back Workouts",
+        "Balance Exercises",
+        "Leg Workouts",
+        "Stretching",
+        "Triceps Workouts",
+        "Abs Workouts",
+        "Calf Workouts",
+        "Circuit Training",
+        "Flexibility Training",
+        "Functional Training",
+        "Hamstrings Workouts",
+        "Leg Exercises",
+        "Squats",
+        "Bent-over Rows"
+    )
+}

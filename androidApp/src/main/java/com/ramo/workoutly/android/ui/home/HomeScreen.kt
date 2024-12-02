@@ -117,7 +117,7 @@ import com.ramo.workoutly.data.model.Exercise
 import com.ramo.workoutly.data.model.FitnessMetric
 import com.ramo.workoutly.data.model.Message
 import com.ramo.workoutly.data.model.UserPref
-import com.ramo.workoutly.data.model.exerciseCategories
+import com.ramo.workoutly.global.base.exerciseCategories
 import com.ramo.workoutly.global.base.CALORIES_BURNED
 import com.ramo.workoutly.global.base.CREATE_EXERCISE_SCREEN_ROUTE
 import com.ramo.workoutly.global.base.DISTANCE
@@ -512,11 +512,11 @@ fun getMenuItems(days: Int, sortBy: Int): MenuItem<Int> {
                 item(54, "Likes ${if (sortBy == 4) "     ✔   " else "         "}")
                 item(55, "Name${if (sortBy == 5) "     ✔   " else "         "}")
             }
+            item(-2, "Create Tutorial") {
+                icon(Icons.Filled.PlayArrow)
+            }
             item(-1, "Sign out") {
                 icon(Icons.AutoMirrored.TwoTone.ExitToApp)
-            }
-            item(-2, "Only Admin") {
-                icon(Icons.Filled.Person)
             }
         }
         return@remember menu

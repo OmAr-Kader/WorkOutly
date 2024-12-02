@@ -64,7 +64,7 @@ import com.ramo.workoutly.android.global.ui.rememberPrevious
 import com.ramo.workoutly.android.global.ui.rememberReplace
 import com.ramo.workoutly.android.global.util.filePickerOnlyImage
 import com.ramo.workoutly.android.global.util.videoImageBuildr
-import com.ramo.workoutly.data.model.exerciseCategories
+import com.ramo.workoutly.global.base.exerciseCategories
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -80,12 +80,11 @@ fun CreateExerciseScreen(
     val state by viewModel.uiState.collectAsState()
     val scaffoldState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val imagePicker = context.filePickerOnlyImage { url, extension ->
+    val videoPicker = context.filePickerOnlyImage { url, extension ->
         viewModel.apply {
             viewModel.setVideo(url, extension)
         }
     }
-
     val painter = rememberAsyncImagePainter(
         model = state.videoUrl?.first,
         imageLoader = LocalContext.current.videoImageBuildr,
@@ -103,9 +102,9 @@ fun CreateExerciseScreen(
                     scope.launch { backPress() }
                 }
                 when (state.slide) {
-                    0 -> VideoAndTitleItem(state, theme, painter, imagePicker, viewModel::setTitle)
-                    1 -> DescriptionItem(state, theme, viewModel::setDescription)
-                    2 -> CategoriesItem(state, theme, viewModel::setCato)
+                    0 -> VideoAndTitleItem(state.videoUrl, state.exercise.title, theme, painter, videoPicker, viewModel::setTitle)
+                    1 -> DescriptionItem(state.exercise.desc, theme, viewModel::setDescription)
+                    2 -> CategoriesItem(state.exercise.cato, theme, viewModel::setCato)
                 }
                 Spacer(Modifier)
             }
@@ -172,10 +171,10 @@ fun CreateExerciseScreen(
                 AnimatedVisibility(state.slide != 2) {
                     Button(
                         onClick = onClick@{
-                            if (state.slide == 0 &&(state.exercise.title.isEmpty() || state.videoUrl == null)) {
+                            if (state.slide == 0 && (state.exercise.title.isEmpty() || state.videoUrl == null)) {
                                 scope.launch { scaffoldState.showSnackbar("Please Fill the required details") }
                                 return@onClick
-                            } else if (state.slide == 1 &&(state.exercise.description.isEmpty())) {
+                            } else if (state.slide == 1 && (state.exercise.desc.isEmpty())) {
                                 scope.launch { scaffoldState.showSnackbar("Please Fill the required details") }
                                 return@onClick
                             } else if (state.slide == 2) {
@@ -206,7 +205,7 @@ fun CreateExerciseScreen(
 }
 
 @Composable
-fun VideoAndTitleItem(state: CreateExerciseViewModel.State, theme: Theme, painter: AsyncImagePainter, imagePicker: () -> Unit, setTitle: (String) -> Unit) {
+fun VideoAndTitleItem(videoUrl : Pair<android.net.Uri, String>?, title: String, theme: Theme, painter: AsyncImagePainter, videoPicker: () -> Unit, setTitle: (String) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 25.dp).height(200.dp),
         shape = RoundedCornerShape(16.dp),
@@ -214,7 +213,7 @@ fun VideoAndTitleItem(state: CreateExerciseViewModel.State, theme: Theme, painte
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            state.videoUrl?.first?.also {
+            videoUrl?.first?.also {
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
@@ -225,19 +224,19 @@ fun VideoAndTitleItem(state: CreateExerciseViewModel.State, theme: Theme, painte
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color(50, 50, 50).copy(alpha = 0.5F))
-                        .clickable(onClick = imagePicker)
+                        .clickable(onClick = videoPicker)
                 )
                 Icon(
                     imageVector = rememberReplace(theme.textColor),
                     tint = Color.White,
                     contentDescription = "play"
                 )
-            } ?: Box(Modifier.fillMaxSize().clickable(onClick = imagePicker), contentAlignment = Alignment.Center) {
+            } ?: Box(Modifier.fillMaxSize().clickable(onClick = videoPicker), contentAlignment = Alignment.Center) {
                 Icon(
                     modifier = Modifier.size(40.dp),
                     imageVector = rememberCloudUpload(theme.textColor),
                     tint = Color.White,
-                    contentDescription = "play"
+                    contentDescription = "CloudUpload"
                 )
             }
         }
@@ -258,7 +257,7 @@ fun VideoAndTitleItem(state: CreateExerciseViewModel.State, theme: Theme, painte
                 Modifier.padding(10.dp),
             ) {
                 OutlinedTextField(
-                    value = state.exercise.title,
+                    value = title,
                     onValueChange = setTitle,
                     shape = RoundedCornerShape(12.dp),
                     placeholder = { Text(text = "Enter Exercise Title", color = theme.textHintColor, fontSize = 16.sp) },
@@ -274,7 +273,7 @@ fun VideoAndTitleItem(state: CreateExerciseViewModel.State, theme: Theme, painte
 }
 
 @Composable
-fun DescriptionItem(state: CreateExerciseViewModel.State, theme: Theme, setDescription: (String) -> Unit) {
+fun DescriptionItem(description: String, theme: Theme, setDescription: (String) -> Unit) {
     Column(Modifier.fillMaxSize().padding(vertical = 10.dp, horizontal = 25.dp)) {
         Card(
             modifier = Modifier.fillMaxSize(),
@@ -291,7 +290,7 @@ fun DescriptionItem(state: CreateExerciseViewModel.State, theme: Theme, setDescr
                 Row(Modifier.fillMaxWidth().padding(5.dp), horizontalArrangement = Arrangement.Start) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = state.exercise.description,
+                        value = description,
                         onValueChange = setDescription,
                         shape = RoundedCornerShape(12.dp),
                         placeholder = { Text(text = "Enter Exercise Description", color = theme.textHintColor, fontSize = 16.sp) },
@@ -309,7 +308,7 @@ fun DescriptionItem(state: CreateExerciseViewModel.State, theme: Theme, setDescr
 
 
 @Composable
-fun CategoriesItem(state: CreateExerciseViewModel.State, theme: Theme, setCato: (String) -> Unit) {
+fun CategoriesItem(cato: String, theme: Theme, setCato: (String) -> Unit, exerciseCato: List<String> = exerciseCategories, ) {
     LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
         item {
             Box(
@@ -331,7 +330,7 @@ fun CategoriesItem(state: CreateExerciseViewModel.State, theme: Theme, setCato: 
                     .fillMaxSize()
                     .padding(16.dp),
                 contentPadding = PaddingValues(),
-                exerciseCategories
+                exerciseCato
             ) {
                 Box(
                     modifier = Modifier
@@ -340,7 +339,7 @@ fun CategoriesItem(state: CreateExerciseViewModel.State, theme: Theme, setCato: 
                         .background(Color(50, 50, 50).copy(alpha = 0.3F)),
                 ) {
                     Column(
-                        Modifier.background(if (state.exercise.cato == it) theme.background else Color.Transparent).clickable {
+                        Modifier.background(if (cato == it) theme.background else Color.Transparent).clickable {
                             setCato(it)
                         }.fillMaxSize().padding(10.dp)
                     ) {

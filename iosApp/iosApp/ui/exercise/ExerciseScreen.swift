@@ -72,7 +72,7 @@ struct ExerciseScreen : View {
                 
                 ExerciseTitle(exercise: state.exercise, theme: theme)
                 VStack {
-                    CardView(theme: theme) {
+                    ExerciseCardView(theme: theme) {
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Description")
                                 .font(.system(size: 16))
@@ -80,7 +80,7 @@ struct ExerciseScreen : View {
                                 .padding(.horizontal, 5)
                                 .padding(.top, 5)
                             ScrollView {
-                                Text(state.exercise.description + "\n")
+                                Text(state.exercise.desc + "\n")
                                     .foregroundColor(theme.textHintColor)
                                     .font(.system(size: 16))
                                     .padding(.horizontal, 15)
@@ -117,14 +117,29 @@ struct ExerciseTitle : View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            CardView(height: 90, theme: theme) {
+            ExerciseCardView(height: 110, theme: theme) {
                 VStack(alignment: .leading) {
                     Text(exercise.title)
+                        .multilineTextAlignment(.leading)
                         .foregroundColor(theme.textColor)
                         .font(.system(size: 14, weight: .regular))
                         .padding(.horizontal, 5)
                         .padding(.top, 5)
-                    
+                        .lineLimit(2, reservesSpace: true)
+                    Spacer()
+                    HStack {
+                        Text("Category: ")
+                            .lineLimit(1)
+                            .foregroundStyle(theme.textColor)
+                            .font(.system(size: 14))
+                            .padding(5)
+                        Text(exercise.cato)
+                            .foregroundStyle(theme.textHintColor)
+                            .font(.system(size: 14))
+                            .lineLimit(1)
+                            .padding(5)
+                        Spacer()
+                    }
                     HStack {
                         HStack {
                             ImageSystem(systemIcon: "person.fill", tint: theme.textColor)
@@ -153,7 +168,7 @@ struct ExerciseTitle : View {
 }
 
 
-struct CardView<Content: View>: View {
+struct ExerciseCardView<Content: View>: View {
 
     let theme: Theme
     let height: CGFloat?

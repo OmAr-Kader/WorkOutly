@@ -38,8 +38,7 @@ class HomeObserve : ObservableObject {
                 //self.observeSessionChanged(id: userPref.id)
                 //self.startMessagesObserving(userId: userPref.id)
             } failed: {
-                self.setMainProcess(false)
-                failed()
+                self.setMainProcess(false); failed()
             }
         }
     }
@@ -83,8 +82,7 @@ class HomeObserve : ObservableObject {
             self.back!.reLoadMetrics(days: days, isDarkMode: isDarkMode) { mers in
                 self.state = self.state.copy(metrics: mers, isProcess: false)
             } failed: {
-                self.setMainProcess(false)
-                failed()
+                self.setMainProcess(false); failed()
             }
         }
     }
@@ -135,9 +133,9 @@ class HomeObserve : ObservableObject {
     @MainActor
     func setChosenCato(cato: String) {
         let exercises = if (cato.isEmpty) {
-            self.state.exercises // @OmAr-Kader sortBy
+            ConverterKt.exercisesSort(self.state.exercises) // @OmAr-Kader sortBy
         } else {
-            self.state.exercises.filter { it in it.cato == cato } // @OmAr-Kader sortBy
+            ConverterKt.exercisesSort(self.state.exercises.filter { it in it.cato == cato })
         }
         self.state = self.state.copy(displayExercises: exercises, chosenCato: cato)
     }
@@ -227,9 +225,10 @@ class HomeObserveBack {
                 self.scopeBack.launchBack {
                     let exercises = TempKt.tempExercises // @OmAr-Kader sortBy
                     let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(TempKt.messages, userId: userPref.id))
-                    //let exercises = try? await self.project.exercise.fetchExercises() // @OmAr-Kader sortBy
-                    //let fetched = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyTour)
-                    //let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetched ?? [], userId: userPref.id))
+                    //let fetchedExercises = try? await self.project.exercise.fetchExercises()
+                    //let fetchedMessages = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
+                    //let exercises = ConverterKt.exercisesSort(fetchedExercises ?? []) // @OmAr-Kader sortBy
+                    //let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetchedMessages ?? [], userId: userPref.id))
                     TaskMainSwitcher {
                         invoke(mers, messages, exercises)
                     }
@@ -341,20 +340,15 @@ class HomeObserveBack {
     
     @MainActor
     func observeSessionChanged(id: String, invoke: @escaping @Sendable @MainActor ([Message]) -> Unit) {
-        scope.launchBack {
-            nonisolated func onTimeReached() {
-                TaskBackSwitcher {
-                    self.scopeBack.launchBack {
-                        let fetched = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyTour)
-                        let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetched ?? [], userId: id))
-                        TaskMainSwitcher {
-                            self.observeSessionChanged(id: id, invoke: invoke)
-                            invoke(messages)
-                        }
-                    }
+        observeNextHour {
+            self.scopeBack.launchBack {
+                let fetched = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
+                let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetched ?? [], userId: id))
+                TaskMainSwitcher {
+                    self.observeSessionChanged(id: id, invoke: invoke)
+                    invoke(messages)
                 }
             }
-            try? await DateKt.observeNextHour(onTimeReached: onTimeReached)
         }
     }
     
@@ -378,26 +372,17 @@ class HomeObserveBack {
     func setFile(url: URL, isVideo: Bool, user: UserPref, invoke: @escaping @Sendable @MainActor (Message) -> Unit, failed: @escaping @Sendable @MainActor () -> Unit) {
         scope.launchBack {
             guard let it = getByteArraySafe(from: url) else {
-                self.scopeBack.launchMain {
-                    failed()
-                }
-                return
+                self.scopeBack.launchMain { failed() }; return
             }
             let type = isVideo ? ConstKt.MSG_VID : ConstKt.MSG_IMG
-            let ext = url.pathExtension.lowercased()
-            let mediaBytes = self.convertToKotlinByteArray(from: it)
+            let ext = "." + url.pathExtension.lowercased()
+            let mediaBytes = convertToKotlinByteArray(from: it)
             guard let cloudUrl = try? await StorageKt.uploadS3Message(imageBytes: mediaBytes, fileName: user.id + String(DateKt.dateNowMills) + ext, type: type)else {
-                self.scopeBack.launchMain {
-                    failed()
-                }
-                return
+                self.scopeBack.launchMain { failed() }; return
             }
             logger("uploadS3Message", cloudUrl)
             guard let msg = await self.sendFile(fileUrl: cloudUrl, type: type, user: user) else {
-                self.scopeBack.launchMain {
-                    failed()
-                }
-                return
+                self.scopeBack.launchMain { failed() }; return
             }
             TaskMainSwitcher {
                 invoke(msg)
@@ -416,7 +401,7 @@ class HomeObserveBack {
                 message: "",
                 fileUrl: fileUrl,
                 type: type,
-                session: DateKt.dateNowUTCMILLSOnlyTour,
+                session: DateKt.dateNowUTCMILLSOnlyHour,
                 date: DateKt.dateNow
             )
         )
@@ -433,7 +418,7 @@ class HomeObserveBack {
                     message: message,
                     fileUrl: "",
                     type: ConstKt.MSG_TEXT,
-                    session: DateKt.dateNowUTCMILLSOnlyTour,
+                    session: DateKt.dateNowUTCMILLSOnlyHour,
                     date: DateKt.dateNow
                 )
             ) else {
@@ -445,13 +430,4 @@ class HomeObserveBack {
         }
     }
     
-    @BackgroundActor
-    private func convertToKotlinByteArray(from byteArray: [UInt8]) -> KotlinByteArray {
-        let kotlinByteArray = KotlinByteArray(size: Int32(byteArray.count))
-        for (index, byte) in byteArray.enumerated() {
-            kotlinByteArray.set(index: Int32(index), value: Int8(bitPattern: byte))
-        }
-        return kotlinByteArray
-    }
-
 }

@@ -33,6 +33,9 @@ class ExerciseObserve : ObservableObject {
     func loadData(exercise: Exercise) {
         scope.launchMain {
             self.state = self.state.copy(exercise: exercise, isProcess: false)
+            /*self.back!.loadData(id: exercise.id) { exercise in
+                self.state = self.state.copy(exercise: exercise, isProcess: false)
+            }*/
         }
     }
     
@@ -89,6 +92,17 @@ class ExerciseObserveBack {
 
     init(project: Project) {
         self.project = project
+    }
+    
+    @MainActor
+    func loadData(id: String, invoke: @escaping @MainActor (Exercise) -> Unit) {
+        scope.launchBack {
+            if let exercise = try? await self.project.exercise.getExercise(id: id) {
+                self.scopeBack.launchMain {
+                    invoke(exercise)
+                }
+            }
+        }
     }
     
 }

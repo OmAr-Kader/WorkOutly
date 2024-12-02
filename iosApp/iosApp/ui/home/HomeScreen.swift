@@ -44,6 +44,8 @@ struct HomeScreen : View {
     @State private var isMenuExpanded: Bool = false
     private let menuWidth: CGFloat = 110
     
+    private let exerciseCategories: [String] = ConstKt.exerciseCategories
+
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
@@ -65,7 +67,7 @@ struct HomeScreen : View {
                                         }
                                     }
                                     Divider().padding(.horizontal, 10)
-                                    ForEach(TempKt.exerciseCategories, id: \.self) { category in
+                                    ForEach(exerciseCategories, id: \.self) { category in
                                         HStack {
                                             Text(category)
                                                 .foregroundColor(state.chosenCato == category ? theme.textColor : theme.textHintColor)
@@ -183,7 +185,7 @@ struct HomeScreen : View {
                     .presentationDetents([.large, .custom(CommentSheetDetent.self)])
                     .presentationContentInteraction(.scrolls)
                     .presentationDetents([.height(expandedHeight)])
-            }.background(theme.backgroundGradient).onAppear {
+            }.background(theme.backgroundGradient).toastView(toast: $toast).onAppear {
                 findPreferenceMainMain(ConstKt.PREF_DAYS_COUNT) { days in
                     obs.loadData(userPref: userPref, days: Int(days ?? "7") ?? 7, isDarkMode: theme.isDarkMode) {
                         toast = Toast(style: .error, message: "Permissions is required")
@@ -261,8 +263,8 @@ struct BarMainScreen: View {
                             Label("Name", systemImage: sortBy == 4 ? "checkmark" : "")
                         }
                     }
+                    Button("Create Tutorial", action: createExercise)
                     Button("Sign out", action: signOut)
-                    Button("Only Admin", action: createExercise)
                 } label: {
                     ImageAsset(icon: "more", tint: theme.textForGradientColor)
                         .padding(5)

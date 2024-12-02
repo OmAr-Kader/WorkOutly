@@ -24,13 +24,14 @@ class CreateExerciseViewModel(project: Project) : BaseViewModel(project) {
             launchBack {
                 state.videoUrl?.also { videoUrl ->
                     getByteArrayFromUri(videoUrl.first)?.also { bytes ->
+                        val uid = generateUniqueId
                         uploadS3VideoExercise(
                             bytes,
-                            generateUniqueId + dateNowMills.toString() + videoUrl.second
+                            uid + dateNowMills.toString() + videoUrl.second
                         )?.also { cloudUrl ->
                             getVideoDuration(videoUrl.first).also { length ->
                                 state.exercise.copy(
-                                    id = generateUniqueId,
+                                    id = uid,
                                     views = 0,
                                     liker = emptyList(),
                                     date = dateNow,
@@ -44,7 +45,6 @@ class CreateExerciseViewModel(project: Project) : BaseViewModel(project) {
                                     }
                                 }
                             }
-
                         } ?: setIsProcess(false)
                     } ?: setIsProcess(false)
                 } ?: setIsProcess(false)
@@ -60,7 +60,7 @@ class CreateExerciseViewModel(project: Project) : BaseViewModel(project) {
 
     fun setDescription(it: String) {  // slide = 1
         _uiState.update { state ->
-            state.copy(exercise = state.exercise.copy(description = it))
+            state.copy(exercise = state.exercise.copy(desc = it))
         }
     }
 

@@ -1,6 +1,6 @@
 # Workout & Gym & Fitness Demo App
 
-## Features
+## Core Features
 
 - **Kotlin Multiplatform Health Integration**: 
   - iOS: Powered by **HealthKit**.
@@ -10,7 +10,11 @@
 - **Health Analytics**: Visualize key health metrics such as calories burned, heart rate, and more.
 - **Customizable Goals**: Set personal fitness goals and track progress.
 - **User-Friendly Interface**: A clean and simple design focused on usability.
-
+- **AWS-Backed Architecture**: 
+  - **DynamoDB**: For storing user video exercises and live session chat.
+  - **AWS Lambda**: For serverless computation and real-time data processing.
+  - **API Gateway REST API and WebSocket**: To provide secure and scalable communication between the app and backend.
+  - **CloudFront and S3**: For fast and reliable content delivery and static asset hosting.
 <!--suppress CheckImageSize -->
 Screenshot
 -------------

@@ -18,7 +18,6 @@ WorkOutly is a fitness and workout management application Powered by **IOS Healt
   - **API Gateway REST API and WebSocket**: To provide secure and scalable communication between the app and backend.
   - **CloudFront and S3**: For fast and reliable content delivery and static asset hosting. 
 
-
 ## Prerequisites
 
 - An AWS account.

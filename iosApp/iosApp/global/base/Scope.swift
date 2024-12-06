@@ -77,6 +77,65 @@ import Foundation
 }
 
 
+class Scoper {
+
+    var backTask: Task<Void, Error>? = nil
+    var medTask: Task<Void, Error>? = nil
+    var realmTask: Task<Void, Error>? = nil
+    
+    var mainTask: Task<Void, Error>? = nil
+
+    @inline(__always) @discardableResult func launch(
+        block: @Sendable @escaping () async -> Void
+    ) -> Task<Void, Error>? {
+        backTask = Task(priority: .background) { [backTask] in
+            let _ = await backTask?.result
+            return await block()
+        }
+        return backTask
+    }
+    
+    @inline(__always) @discardableResult func launchMed(
+        block: @Sendable @escaping () async -> Void
+    ) -> Task<Void, Error>? {
+        medTask = Task(priority: .medium) { [medTask] in
+            let _ = await medTask?.result
+            return await block()
+        }
+        return realmTask
+    }
+
+    @inline(__always) @discardableResult func launchMain(
+        block: @MainActor @escaping @Sendable () async -> Void
+    ) -> Task<Void, Error>? {
+        mainTask = Task { @MainActor [mainTask] in
+            let _ = await mainTask?.result
+            return await block()
+        }
+        return mainTask
+    }
+    
+    @inline(__always) @discardableResult func launchBack(
+        block: @BackgroundActor @escaping () async -> Void
+    ) -> Task<Void, Error>? {
+        return Task { @BackgroundActor in
+            return await block()
+        }
+    }
+    
+    deinit {
+        backTask?.cancel()
+        medTask?.cancel()
+        realmTask?.cancel()
+        mainTask?.cancel()
+        self.backTask = nil
+        self.medTask = nil
+        self.realmTask = nil
+        self.mainTask = nil
+    }
+}
+
+
 protocol ScopeFunc {}
 extension NSObject: ScopeFunc {}
 extension Array : ScopeFunc {}

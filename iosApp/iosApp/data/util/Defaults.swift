@@ -34,8 +34,8 @@ extension FitnessMetric : @unchecked @retroactive Sendable, @retroactive Identif
 
 extension FitnessHistoryMetric : @unchecked @retroactive Sendable {
     
-    convenience init(milliSec: Int64, data: String, value: Int64, valueUnit: String) {
-        self.init(milliSec: milliSec, data: data, value: value, valueUnit: valueUnit, isMoreThanPreviousSession: true)
+    convenience init(milliSec: Int64, date: String, value: Int64, valueUnit: String) {
+        self.init(milliSec: milliSec, date: date, value: value, valueUnit: valueUnit, isMoreThanPreviousSession: true)
     }
 }
 

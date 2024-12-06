@@ -16,17 +16,14 @@ struct SessionScreen : View {
     
     @MainActor
     @StateObject private var obs: SessionObserve = SessionObserve()
-    
+        
     @Inject
     private var theme: Theme
-    
+
     var body: some View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
             VStack {
-                BackButton(tint: theme.textForGradientColor) {
-                    backPress()
-                }
                 HStack {
                     Spacer()
                     FitnessMetricLabel(metric: state.session, theme: theme) {}
@@ -83,7 +80,13 @@ struct SessionScreen : View {
                 return
             }
             obs.loadData(metric: sessionRoute.metric, days: sessionRoute.days)
-        }.navigationBarBackButtonHidden()
+        }.navigationBarBackButtonHidden(true).toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                BackBarButton(tint: theme.textForGradientColor, action: backPress)
+            }
+        }.onAppear {
+            theme.enableSwipeBackGesture()
+        }
     }
 }
 

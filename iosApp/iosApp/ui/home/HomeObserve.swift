@@ -202,32 +202,26 @@ class HomeObserve : ObservableObject {
 }
 
 @BackgroundActor
-class HomeObserveBack {
+class HomeObserveBack : Scoper, Sendable {
     
     private let project: Project
     
     private let healthKit: HealthKitManager = HealthKitManager()
     
-    @MainActor
-    private var scope = Scope()
-    
-    @BackgroundActor
-    private var scopeBack = Scope()
-
     init(project: Project) {
         self.project = project
     }
     
     @MainActor
     func loadData(userPref: UserPref, days: Int, isDarkMode: Bool, invoke: @escaping @Sendable @MainActor ([FitnessMetric], [Message], [Exercise]) -> Unit, failed: @escaping @Sendable @MainActor () -> Unit) {
-        scope.launchBack {
+        launchBack {
             self.loadMetrics(days: days, isDarkMode: isDarkMode) { mers in
-                self.scopeBack.launchBack {
+                self.launchBack {
                     let fetchedExercises = try? await self.project.exercise.fetchExercises()
                     let fetchedMessages = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
                     let exercises = ConverterKt.exercisesSort(fetchedExercises ?? []) // @OmAr-Kader sortBy
                     let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetchedMessages ?? [], userId: userPref.id))
-                    TaskMainSwitcher {
+                    self.launchMain {
                         invoke(mers, messages, exercises)
                     }
                 }
@@ -239,9 +233,9 @@ class HomeObserveBack {
     
     @MainActor
     func reLoadMetrics(days: Int, isDarkMode: Bool, invoke: @escaping @Sendable @MainActor ([FitnessMetric]) -> Void, failed: @escaping @Sendable @MainActor () -> Unit) {
-        scope.launchBack {
+        launchBack {
             self.loadMetrics(days: days, isDarkMode: isDarkMode) { mers in
-                TaskMainSwitcher {
+                self.launchMain {
                     invoke(mers)
                 }
             } failed: {
@@ -252,19 +246,19 @@ class HomeObserveBack {
     
     func loadMetrics(days: Int, isDarkMode: Bool, invoke: @escaping @Sendable @BackgroundActor ([FitnessMetric]) -> Void, failed: @escaping @Sendable @MainActor () -> Unit) {
         self.healthKit.requestPermissions {
-            TaskBackSwitcher {
+            self.launchBack {
                 self.healthKit.stepCountHKHealth(days: days) { steps in
-                    TaskBackSwitcher {
+                    self.launchBack {
                         self.healthKit.distanceWalkingRunningHKHealth(days: days) { distance in
-                            TaskBackSwitcher {
+                            self.launchBack {
                                 self.healthKit.activeEnergyBurnedHKHealth(days: days) { calBurned in
-                                    TaskBackSwitcher {
+                                    self.launchBack {
                                         self.healthKit.basalEnergyBurnedHKHealth(days: days) { metabolicRate in
-                                            TaskBackSwitcher {
+                                            self.launchBack {
                                                 self.healthKit.heartRateHKHealth(days: days) { heartRate in
-                                                    TaskBackSwitcher {
+                                                    self.launchBack {
                                                         self.healthKit.sleepAnalysisHKHealth(days: days) { sleep in
-                                                            TaskBackSwitcher {
+                                                            self.launchBack {
                                                                 let stepsInt = Int64(steps ?? 0)
                                                                 let distanceInt = Int64(distance ?? 0)
                                                                 let calBurnedInt = Int64(calBurned ?? 0)
@@ -330,7 +324,7 @@ class HomeObserveBack {
                 }
             }
         } failed: {
-            TaskMainSwitcher {
+            self.launchMain {
                 failed()
             }
         }
@@ -339,10 +333,10 @@ class HomeObserveBack {
     @MainActor
     func observeSessionChanged(id: String, invoke: @escaping @Sendable @MainActor ([Message]) -> Unit) {
         observeNextHour {
-            self.scopeBack.launchBack {
+            self.launchBack {
                 let fetched = try? await self.project.message.fetchMessageSession(session: DateKt.dateNowUTCMILLSOnlyHour)
                 let messages = ConverterKt.messagesSort(ConverterKt.messagesFilter(fetched ?? [], userId: id))
-                TaskMainSwitcher {
+                self.launchMain {
                     self.observeSessionChanged(id: id, invoke: invoke)
                     invoke(messages)
                 }
@@ -352,7 +346,7 @@ class HomeObserveBack {
     
     @MainActor
     func startMessagesObserving(userId: String, inserted: @escaping @Sendable (Message) -> Unit, deleted: @escaping @Sendable (String) -> Unit) {
-        self.scope.launchBack {
+        self.launchBack {
             nonisolated func changed(new: Message) {
             }
             try? await self.project.message.fetchNewMessages(inserted: inserted, changed: changed, deleted: deleted)
@@ -361,28 +355,28 @@ class HomeObserveBack {
     
     @MainActor
     func updatePref(key: String, value: String) {
-        scope.launchBack {
+        launchBack {
             let _ = try? await self.project.pref.updatePref(pref: [PreferenceData(id: "", keyString: key, value: value)])
         }
     }
     
     @MainActor
     func setFile(url: URL, isVideo: Bool, user: UserPref, invoke: @escaping @Sendable @MainActor (Message) -> Unit, failed: @escaping @Sendable @MainActor () -> Unit) {
-        scope.launchBack {
+        launchBack {
             guard let it = getByteArraySafe(from: url) else {
-                self.scopeBack.launchMain { failed() }; return
+                self.launchMain { failed() }; return
             }
             let type = isVideo ? ConstKt.MSG_VID : ConstKt.MSG_IMG
             let ext = "." + url.pathExtension.lowercased()
             let mediaBytes = convertToKotlinByteArray(from: it)
             guard let cloudUrl = try? await StorageKt.uploadS3Message(imageBytes: mediaBytes, fileName: user.id + String(DateKt.dateNowMills) + ext, type: type)else {
-                self.scopeBack.launchMain { failed() }; return
+                self.launchMain { failed() }; return
             }
             logger("uploadS3Message", cloudUrl)
             guard let msg = await self.sendFile(fileUrl: cloudUrl, type: type, user: user) else {
-                self.scopeBack.launchMain { failed() }; return
+                self.launchMain { failed() }; return
             }
-            TaskMainSwitcher {
+            self.launchMain {
                 invoke(msg)
             }
         }
@@ -406,7 +400,7 @@ class HomeObserveBack {
     
     @MainActor
     func send(message: String, user: UserPref, success: @escaping @MainActor (Message) -> Unit) {
-        self.scope.launchBack {
+        self.launchBack {
             guard let msg = try? await self.project.message.addMessage(
                 message: Message(
                     id: ConverterKt.generateUniqueId,
@@ -421,7 +415,7 @@ class HomeObserveBack {
             ) else {
                 return
             }
-            TaskMainSwitcher {
+            self.launchMain {
                 success(msg)
             }
         }

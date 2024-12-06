@@ -36,6 +36,31 @@ extension View {
     }
 }
 
+struct BackBarButton : View {
+    
+    let action: @MainActor () -> Void
+    let tint: Color
+    
+    init(tint: Color = Color(red: 9 / 255, green: 131 / 255, blue: 1), action: @MainActor @escaping () -> Void) {
+        self.action = action
+        self.tint = tint
+    }
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }) {
+            HStack {
+                ImageSystem(systemIcon: "chevron.backward", tint: tint)
+                    .frame(width: 12, height: 18, alignment: .topLeading)
+                Text(
+                    "Back"
+                ).font(.system(size: 17))
+                    .foregroundStyle(tint).padding(leading: -2)
+            }
+        }.padding(0)
+    }
+}
 
 struct BackButton: View {
 

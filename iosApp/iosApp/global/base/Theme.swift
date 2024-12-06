@@ -97,4 +97,41 @@ struct Theme : Sendable {
             return isEmpty ? Color.black.opacity(0.7) : Color.black
         }
     }
+    
+    
+    // Helper Function
+    @MainActor
+    func enableSwipeBackGesture() {
+        guard let rootViewController = getRootViewController(),
+              let navigationController = findNavigationController(from: rootViewController) else {
+            return
+        }
+
+        navigationController.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController.interactivePopGestureRecognizer?.delegate = nil // Enable default swipe behavior
+    }
+
+    // Find the Root View Controller
+    @MainActor
+    private func getRootViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return nil
+        }
+        return windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+    }
+
+    // Traverse to Find UINavigationController
+    @MainActor
+    private func findNavigationController(from viewController: UIViewController) -> UINavigationController? {
+        if let navigationController = viewController as? UINavigationController {
+            return navigationController
+        }
+        for child in viewController.children {
+            if let navigationController = findNavigationController(from: child) {
+                return navigationController
+            }
+        }
+        return nil
+    }
+
 }

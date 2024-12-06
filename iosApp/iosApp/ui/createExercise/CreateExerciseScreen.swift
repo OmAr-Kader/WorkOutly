@@ -26,9 +26,6 @@ struct CreateExerciseScreen : View {
         let state = obs.state
         ZStack {
             VStack {
-                BackButton(tint: theme.textForGradientColor) {
-                    backPress()
-                }
                 switch state.slide {
                 case 0: VideoAndTitleItem(title: state.exercise.title, theme: theme, isLoading: obs.setMainProcess, videoPicker: obs.setVideo, setTitle: obs.setTitle)
                 case 1: DescriptionItem(description: state.exercise.desc, theme: theme, setDescription: obs.setDescription)
@@ -110,8 +107,15 @@ struct CreateExerciseScreen : View {
             }
             
             LoadingScreen(isLoading: state.isProcess)
-        }.background(theme.backgroundGradient).toastView(toast: $toast)
-            .navigationBarBackButtonHidden()
+        }.background(theme.backgroundGradient)
+            .toastView(toast: $toast)
+            .navigationBarBackButtonHidden(true).toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    BackBarButton(tint: theme.textForGradientColor, action: backPress)
+                }
+            }.onAppear {
+                theme.enableSwipeBackGesture()
+            }
     }
 }
 

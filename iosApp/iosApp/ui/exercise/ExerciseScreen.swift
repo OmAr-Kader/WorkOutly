@@ -32,9 +32,6 @@ struct ExerciseScreen : View {
         let state = obs.state
         ZStack(alignment: .topLeading) {
             VStack(alignment:.leading) {
-                BackButton(tint: theme.textForGradientColor) {
-                    backPress()
-                }
                 VStack {
                     ZStack {
                         if let player = self.player {
@@ -104,7 +101,13 @@ struct ExerciseScreen : View {
                 return
             }
             obs.loadData(exercise: exerciseRoute.exercise)
-        }.navigationBarBackButtonHidden()
+        }.navigationBarBackButtonHidden(true).toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                BackBarButton(tint: theme.textForGradientColor, action: backPress)
+            }
+        }.onAppear {
+            theme.enableSwipeBackGesture()
+        }
     }
 }
 

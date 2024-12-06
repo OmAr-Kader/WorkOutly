@@ -125,15 +125,9 @@ class CreateExerciseObserve : ObservableObject {
 }
 
 @BackgroundActor
-class CreateExerciseObserveBack {
+class CreateExerciseObserveBack : Scoper, Sendable {
 
     private let project: Project
-        
-    @MainActor
-    private var scope = Scope()
-    
-    @BackgroundActor
-    private var scopeBack = Scope()
 
     init(project: Project) {
         self.project = project
@@ -141,13 +135,13 @@ class CreateExerciseObserveBack {
     
     @MainActor
     func upload(exercise: Exercise, videoUrl: URL, invoke: @Sendable @escaping @MainActor () -> Unit, failed: @Sendable @escaping @MainActor () -> Unit) {
-        scope.launchBack {
+        self.launchBack {
             let generateUniqueId = ConverterKt.generateUniqueId
             guard let cloudUrl = await self.uploadExerciseVideo(url: videoUrl, uuid: generateUniqueId) else {
-                self.scopeBack.launchMain { failed() } ; return
+                self.launchMain { failed() } ; return
             }
             guard let length = await getVideoDuration(from: videoUrl) else {
-                self.scopeBack.launchMain { failed() } ; return
+                self.launchMain { failed() } ; return
             }
             let cloudExercise = exercise.copy(
                 id: generateUniqueId,
@@ -158,9 +152,9 @@ class CreateExerciseObserveBack {
                 liker: []
             )
             guard (try? await self.project.exercise.createExercise(exercise: cloudExercise)) != nil else {
-                self.scopeBack.launchMain { failed() } ; return
+                self.launchMain { failed() } ; return
             }
-            self.scopeBack.launchMain { invoke() }
+            self.launchMain { invoke() }
         }
     }
     

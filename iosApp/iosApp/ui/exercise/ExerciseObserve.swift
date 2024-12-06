@@ -74,21 +74,14 @@ class ExerciseObserve : ObservableObject {
     deinit {
         back = nil
     }
-    
 }
 
 @BackgroundActor
-class ExerciseObserveBack {
+class ExerciseObserveBack : Scoper, Sendable {
     
     private let project: Project
     
     private let healthKit: HealthKitManager = HealthKitManager()
-    
-    @MainActor
-    private var scope = Scope()
-    
-    @BackgroundActor
-    private var scopeBack = Scope()
 
     init(project: Project) {
         self.project = project
@@ -96,9 +89,9 @@ class ExerciseObserveBack {
     
     @MainActor
     func loadData(id: String, invoke: @escaping @MainActor (Exercise) -> Unit) {
-        scope.launchBack {
+        self.launchBack {
             if let exercise = try? await self.project.exercise.getExercise(id: id) {
-                self.scopeBack.launchMain {
+                self.launchMain {
                     invoke(exercise)
                 }
             }

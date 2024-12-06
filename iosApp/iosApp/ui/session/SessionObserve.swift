@@ -85,17 +85,11 @@ class SessionObserve : ObservableObject {
 }
 
 @BackgroundActor
-class SessionObserveBack {
+class SessionObserveBack : Scoper, Sendable {
     
     private let project: Project
     
     private let healthKit: HealthKitManager = HealthKitManager()
-    
-    @MainActor
-    private var scope = Scope()
-    
-    @BackgroundActor
-    private var scopeBack = Scope()
 
     init(project: Project) {
         self.project = project
@@ -103,10 +97,10 @@ class SessionObserveBack {
     
     @MainActor
     func loadStepsData(days: Int, invoke: @Sendable @escaping @MainActor ([FitnessHistoryMetric]) -> Unit) {
-        scope.launchBack {
+        self.launchBack {
             self.healthKit.stepHistoryHKHealth(days: days) { list in
                 let regenerated = ConverterKt.regenerateHistories(list)
-                TaskMainSwitcher {
+                self.launchMain {
                     invoke(regenerated)
                 }
             }

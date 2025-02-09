@@ -2,6 +2,12 @@
 
 WorkOutly is a fitness and workout management application Powered by **IOS HealthKit** and Integrated with **Android Health Connect** that leverages AWS services for backend infrastructure. This document guides you through configuring AWS components like DynamoDB, Lambda, API Gateway, S3, and CloudFront for both REST API and WebSocket functionalities.
 
+## 🤩 Support Me
+
+<a href="https://www.buymeacoffee.com/omar_kader">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" width="200" height="70" alt="Buy Me a Coffee">
+</a>
+
 ## Core Features
 
 - **Kotlin Multiplatform Health Integration**: 

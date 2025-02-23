@@ -1,6 +1,6 @@
 # WorkOutly: Gym & Fitness & Workout Demo App
 
-WorkOutly is a fitness and workout management application Powered by **IOS HealthKit** and Integrated with **Android Health Connect** that leverages AWS services for backend infrastructure. This document guides you through configuring AWS components like DynamoDB, Lambda, API Gateway, S3, and CloudFront for both REST API and WebSocket functionalities.
+WorkOutly is a fitness and workout management application Powered by **IOS HealthKit** and Integrated with **Android Health Connect** that leverages AWS services for backend infrastructure. This document guides you through configuring AWS components like DynamoDB, Lambda, API Gateway, S3, CloudFront and Cognito for both REST API and WebSocket functionalities.
 
 ## 🤩 Support Me
 
